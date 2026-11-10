@@ -5,7 +5,7 @@
 > **Môn học**: Công Nghệ Phần Mềm (Software Engineering) — Học kỳ I, Năm học 2026–2027  
 > **Kiến trúc hệ thống**: Monorepo NestJS 10 (Backend REST API) + Next.js 14 App Router (Frontend Web App) + PostgreSQL 16 + Prisma ORM 5.x + Docker Compose  
 > **Mô hình phát triển**: Agile Scrum kết hợp Order State Machine & Optimistic Concurrency Control (OCC)  
-> **Repository GitHub**: [https://github.com/gphuoc-216/BrewLiteProject](https://github.com/gphuoc-216/BrewLiteProject)  
+> **Repository GitHub**: [https://github.com/hanhdevsgu/BrewLite-Assignment2](https://github.com/hanhdevsgu/BrewLite-Assignment2)  
 > **Nhánh tích hợp chính**: `develop` | **Nhánh chức năng**: 7 Feature Branches (`feat/p1` đến `feature/p7`)  
 
 ---
@@ -348,7 +348,7 @@ Toàn bộ các tạo phẩm theo đúng quy định tại đề tài **Assignme
 ---
 
 ## ✅ 11. CHECKLIST NỘP BÀI ASSIGNMENT 2 (MỤC 9.1 ĐỀ BÀI)
-- [x] **Link repository và quyền truy cập cho giảng viên**: [https://github.com/gphuoc-216/BrewLiteProject](https://github.com/gphuoc-216/BrewLiteProject)
+- [x] **Link repository và quyền truy cập cho giảng viên**: [https://github.com/hanhdevsgu/BrewLite-Assignment2](https://github.com/hanhdevsgu/BrewLite-Assignment2)
 - [x] **SRS, đặc tả use-case và ma trận truy vết**: Đầy đủ tại `docs/requirements/` và `docs/traceability-matrix.md`
 - [x] **Activity, sequence, class và deployment diagram**: Đầy đủ cả tệp nguồn `.puml`, `.drawio` và ảnh kết xuất `.svg` tại `docs/diagrams/`
 - [x] **Source code frontend, backend và migration**: `frontend/`, `backend/`, `backend/prisma/`
