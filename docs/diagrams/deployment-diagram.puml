@@ -1,0 +1,78 @@
+@startuml deployment-diagram
+title Sơ đồ Triển Khai Hệ Thống Thực Tế (Deployment Diagram) - BrewLite Coffee
+skinparam backgroundColor #FFFFFF
+
+actor "Khách Hàng & Nhân Viên" as ClientUser
+
+node "Thiết Bị Người Dùng (Client Devices)" {
+  artifact "Mobile Browser / PWA\n(Chrome, Safari Mobile)" as BrowserPWA
+}
+
+cloud "Mạng Internet / Cloudflare Network" as Internet {
+  boundary "HTTPS / SSL (Cổng 443)\nTLS 1.3 Encryption" as SSLGateway
+}
+
+package "Nền Tảng Triển Khai Production (Cloud Host / VPS / Tunnel)" {
+  
+  node "Frontend Container Node" {
+    component "Next.js 14 Web Service\n(Node.js 20 Alpine)\nPort: 3000 (Internal)" as WebContainer
+    artifact "Static Assets & PWA Cache\n(Service Worker, Manifest)" as PwaAssets
+  }
+
+  node "Backend API Container Node" {
+    component "NestJS Application Server\n(Express HTTP Engine)\nPort: 3001 (Internal)" as ApiContainer
+    component "Prisma Client ORM\n(Query Engine & Migration)" as PrismaORM
+    component "Health Check Monitor\n(GET /api/health)" as HealthMonitor
+    component "Logger & Exception Filter\n(Structured JSON Logs)" as LoggerService
+  }
+
+  node "Database Container Node" {
+    database "PostgreSQL 16 Engine\nPort: 5432 (Internal Only)" as PostgresDB
+    storage "Persistent Storage Volume\n(/var/lib/postgresql/data)" as DbVolume
+  }
+}
+
+package "Hệ Thống Tự Động Hóa CI/CD & Registry" {
+  node "GitHub Actions Runner (CI Server)" as GitHubRunner {
+    artifact "Pipeline: Lint, Test, Build\n(.github/workflows/ci.yml)" as CiPipeline
+    artifact "Quality Gate Status" as QualityGate
+  }
+  
+  node "GitHub Container Registry (GHCR / Docker Hub)" as RegistryNode {
+    artifact "Docker Image: brewlite-api:latest" as ApiImage
+    artifact "Docker Image: brewlite-web:latest" as WebImage
+  }
+}
+
+' Connections
+ClientUser --> BrowserPWA : Thao tác UI
+BrowserPWA --> SSLGateway : HTTPS (Port 443)
+SSLGateway --> WebContainer : Reverse Proxy / HTTP Forward (Port 3000)
+SSLGateway --> ApiContainer : API Calls / HTTP Forward (Port 3001)
+
+WebContainer ..> PwaAssets : Serves
+WebContainer --> ApiContainer : Client-side Fetch (/api/...)
+
+ApiContainer --> PrismaORM : Database Calls
+PrismaORM --> PostgresDB : PostgreSQL Native Driver (Port 5432)
+PostgresDB --> DbVolume : Lưu trữ dữ liệu bền vững
+
+GitHubRunner --> RegistryNode : Push Docker Image có Tag (Commit SHA)
+RegistryNode --> WebContainer : Deploy Container
+RegistryNode --> ApiContainer : Deploy Container
+
+note right of PostgresDB
+  <b>Bảo mật CSDL:</b>
+  • Database nằm trong mạng nội bộ Docker Network (brewlite_net).
+  • KHÔNG mở public port trực tiếp ra Internet.
+  • Mọi biến môi trường và mật khẩu nạp qua Secret Environment Variables.
+end note
+
+note bottom of HealthMonitor
+  <b>Giám sát & Tự phục hồi:</b>
+  • Health Check URL: /api/health
+  • Trả về HTTP 200 { status: 'ok', database: 'connected' }
+  • Tự động khởi động lại container khi Health Check thất bại.
+end note
+
+@enduml

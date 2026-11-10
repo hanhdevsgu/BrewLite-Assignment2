@@ -329,3 +329,31 @@ Dữ liệu tài khoản đã nạp sẵn trong lệnh `npm run seed`:
 - **Bảng Phân Công Công Việc 7 Thành Viên**: [docs/TASK-ALLOCATION.md](./docs/TASK-ALLOCATION.md)
 - **Tài Liệu Đặc Tả Kỹ Thuật & 81 Hàm Nguyên Tử**: [docs/01-analysis-spec.md](./docs/01-analysis-spec.md)
 - **Kế Hoạch Triển Khai Chi Tiết**: [docs/02-implementation-plan.md](./docs/02-implementation-plan.md)
+
+---
+
+## 🏛️ 10. HỒ SƠ TÀI LIỆU & TẠO PHẨM BẮT BUỘC THEO ASSIGNMENT 2
+
+Toàn bộ các tạo phẩm theo đúng quy định tại đề tài **Assignment 2: Requirements to Deployment (Ver 1.0)**:
+
+| Nhóm Task | Tạo phẩm bắt buộc | Đường dẫn tài liệu / File nguồn | Trạng thái |
+|---|---|---|:---:|
+| **Task 1: Yêu Cầu** | • Bối cảnh, Stakeholders & Scope<br>• Đặc tả SRS rút gọn (FR, NFR, MoSCoW)<br>• Đặc tả use-case trọng tâm (Đặt & Thanh toán) | [docs/requirements/context-and-scope.md](./docs/requirements/context-and-scope.md)<br>[docs/requirements/srs.md](./docs/requirements/srs.md)<br>[docs/requirements/use-case-checkout.md](./docs/requirements/use-case-checkout.md) | **ĐÃ HOÀN THÀNH** |
+| **Task 2: Mô Hình Hóa** | • Activity Diagram End-to-End<br>• Sequence Diagram Checkout & Idempotency<br>• Domain Class Diagram<br>• Deployment Diagram | [docs/diagrams/activity-end-to-end.puml](./docs/diagrams/activity-end-to-end.puml) ([SVG](./docs/diagrams/activity-end-to-end.svg))<br>[docs/diagrams/sequence-checkout.puml](./docs/diagrams/sequence-checkout.puml) ([SVG](./docs/diagrams/sequence-checkout.svg))<br>[docs/diagrams/class-diagram.puml](./docs/diagrams/class-diagram.puml) ([SVG](./docs/diagrams/class-diagram.svg))<br>[docs/diagrams/deployment-diagram.puml](./docs/diagrams/deployment-diagram.puml) ([SVG](./docs/diagrams/deployment-diagram.svg)) | **ĐÃ HOÀN THÀNH** |
+| **Task 3: Kiến Trúc** | • Mô tả kiến trúc C4 / Layered<br>• 5 Bản ghi Quyết định Kiến trúc (ADR)<br>• Hướng dẫn triển khai thực tế (Deployment) | [docs/architecture/architecture.md](./docs/architecture/architecture.md)<br>[docs/architecture/adr/](./docs/architecture/adr/) (001 -> 005)<br>[docs/deployment.md](./docs/deployment.md) | **ĐÃ HOÀN THÀNH** |
+| **Task 4: Sprint 1** | • Monorepo, Backlog, DoD<br>• MVP Menu đồ uống<br>• Pipeline Continuous Integration (CI) | [frontend/src/app/menu/](./frontend/src/app/menu/)<br>[backend/src/modules/products/](./backend/src/modules/products/)<br>[.github/workflows/ci.yml](./.github/workflows/ci.yml) | **ĐÃ HOÀN THÀNH** |
+| **Task 5: Sprint 2 & Delivery** | • Hoàn thiện MVP giỏ hàng, đặt hàng, thanh toán<br>• Unit, Integration, E2E Test<br>• Continuous Delivery (CD) & Rollback<br>• Sprint Review & Retrospective | [tests/e2e/order-checkout.e2e-spec.ts](./tests/e2e/order-checkout.e2e-spec.ts)<br>[.github/workflows/cd.yml](./.github/workflows/cd.yml)<br>[docs/rollback-guide.md](./docs/rollback-guide.md)<br>[docs/sprints/sprint-retrospective.md](./docs/sprints/sprint-retrospective.md) | **ĐÃ HOÀN THÀNH** |
+| **Mục 8: Truy Vết** | • **Ma trận truy vết (Traceability Matrix)**<br>*(Ánh xạ FR/NFR ➔ Diagram ➔ Code ➔ Test)* | [docs/traceability-matrix.md](./docs/traceability-matrix.md) | **ĐÃ HOÀN THÀNH** |
+
+---
+
+## ✅ 11. CHECKLIST NỘP BÀI ASSIGNMENT 2 (MỤC 9.1 ĐỀ BÀI)
+- [x] **Link repository và quyền truy cập cho giảng viên**: [https://github.com/gphuoc-216/BrewLiteProject](https://github.com/gphuoc-216/BrewLiteProject)
+- [x] **SRS, đặc tả use-case và ma trận truy vết**: Đầy đủ tại `docs/requirements/` và `docs/traceability-matrix.md`
+- [x] **Activity, sequence, class và deployment diagram**: Đầy đủ cả tệp nguồn `.puml`, `.drawio` và ảnh kết xuất `.svg` tại `docs/diagrams/`
+- [x] **Source code frontend, backend và migration**: `frontend/`, `backend/`, `backend/prisma/`
+- [x] **Unit, integration và end-to-end test**: 50/50 Jest Unit Tests + 49 Postman API Tests + `tests/e2e/order-checkout.e2e-spec.ts`
+- [x] **Pipeline CI/CD chạy thành công**: `.github/workflows/ci.yml` và `.github/workflows/cd.yml`
+- [x] **URL production, API và health check**: `/api/health` trả về HTTP 200 `{ status: 'ok', database: 'connected' }`
+- [x] **Release notes, README và hướng dẫn rollback**: `docs/rollback-guide.md`
+- [x] **Video/demo và Sprint Retrospective**: `docs/sprints/sprint-retrospective.md` và file chạy test tự động 1-click `CHAY-TEST-POSTMAN-BREWLITE.bat`

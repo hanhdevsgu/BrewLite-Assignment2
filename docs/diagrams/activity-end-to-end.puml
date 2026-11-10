@@ -1,0 +1,75 @@
+@startuml activity-end-to-end
+title Sơ đồ Hoạt Động Toàn Trình (Activity Diagram End-to-End) - BrewLite Coffee
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+
+|Khách Hàng (Customer)|
+start
+:Truy cập BrewLite Web/PWA;
+:Duyệt thực đơn & chọn món;
+:Tùy chọn kích cỡ (S/M/L) và Topping;
+
+if (Đã đăng nhập tài khoản?) then (chưa)
+    :Chuyển hướng đến màn hình Đăng nhập;
+    :Nhập thông tin username/password;
+    |Hệ Thống (Next.js / NestJS)|
+    :Xác thực tài khoản & Cấp JWT Token;
+    |Khách Hàng (Customer)|
+else (rồi)
+endif
+
+:Thêm món vào Giỏ hàng;
+:Kiểm tra giỏ hàng & bấm "Đặt hàng";
+
+|Hệ Thống (Next.js / NestJS)|
+:Tạo đơn hàng mới (Trạng thái: PENDING);
+:Gửi yêu cầu thanh toán (Kèm x-idempotency-key);
+
+|Cổng Thanh Toán / Ngân Hàng (Payment)|
+:Xử lý trừ tiền giao dịch;
+
+if (Thanh toán thành công?) then (thất bại)
+    |Hệ Thống (Next.js / NestJS)|
+    :Ghi nhận trạng thái: PAYMENT_FAILED;
+    |Khách Hàng (Customer)|
+    :Nhận thông báo lỗi thanh toán;
+    :Chọn thử lại hoặc Hủy đơn;
+    stop
+else (thành công)
+    |Hệ Thống (Next.js / NestJS)|
+    :Mở Transaction kiểm tra tồn kho (OCC Lock);
+    if (Đủ nguyên liệu trong kho?) then (hết hàng / tranh chấp)
+        :Rollback Transaction;
+        :Báo lỗi HTTP 409 Conflict (Hết hàng);
+        |Khách Hàng (Customer)|
+        :Nhận thông báo hết nguyên liệu;
+        stop
+    else (đủ hàng)
+        :Trừ kho nguyên liệu & tăng Version;
+        :Chuyển trạng thái đơn: PENDING -> PAID;
+        :Lưu bản ghi Payment (idempotencyKey);
+    endif
+endif
+
+|Nhân Viên Quầy (Barista)|
+:Nhận thông báo đơn hàng mới;
+:Xem công thức pha chế theo kích cỡ;
+:Bấm "Nhận chế biến" (PAID -> PREPARING);
+:Thực hiện pha chế đồ uống;
+:Bấm "Pha xong" (PREPARING -> READY);
+
+|Khách Hàng (Customer)|
+:Nhận thông báo đơn hàng đã READY;
+:Đến quầy nhận đồ uống;
+
+|Nhân Viên Quầy (Barista)|
+:Giao đồ uống cho khách;
+:Bấm "Hoàn tất đơn" (READY -> COMPLETED);
+
+|Khách Hàng (Customer)|
+:Thưởng thức đồ uống;
+:Gửi đánh giá món (1-5 sao);
+stop
+
+@enduml

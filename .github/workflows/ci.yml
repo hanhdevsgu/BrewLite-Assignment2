@@ -1,0 +1,85 @@
+name: BrewLite CI Pipeline (Continuous Integration)
+
+on:
+  pull_request:
+    branches: [ develop, main ]
+  push:
+    branches: [ develop ]
+
+jobs:
+  quality-gate:
+    name: Install, Lint, Test & Build Quality Gate
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgrespassword
+          POSTGRES_DB: brewlite_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Runtime (v20)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      # Step 1: Install Dependencies
+      - name: 1. Install Root & Backend Dependencies
+        run: |
+          npm ci || npm install
+          cd backend && npm ci || npm install
+
+      - name: 2. Install Frontend Dependencies
+        run: |
+          cd frontend && npm ci || npm install
+
+      # Step 2: Linting Check
+      - name: 3. Run Lint Checks (Backend & Frontend)
+        run: |
+          cd backend && npm run lint || true
+          cd ../frontend && npm run lint || true
+
+      # Step 3: Database Migration & Schema Push
+      - name: 4. Push Prisma Schema & Run Seeds on Test DB
+        env:
+          DATABASE_URL: "postgresql://postgres:postgrespassword@localhost:5432/brewlite_db?schema=public"
+          JWT_SECRET: "brewlite_super_secret_jwt_key_2026"
+        run: |
+          cd backend
+          npx prisma db push
+          npm run seed
+
+      # Step 4: Unit & Integration Tests (Jest)
+      - name: 5. Execute Backend Unit & Integration Tests
+        env:
+          DATABASE_URL: "postgresql://postgres:postgrespassword@localhost:5432/brewlite_db?schema=public"
+          JWT_SECRET: "brewlite_super_secret_jwt_key_2026"
+        run: |
+          cd backend
+          npm test
+
+      # Step 5: Production Build Verification
+      - name: 6. Build Backend Application (NestJS)
+        run: |
+          cd backend
+          npm run build
+
+      - name: 7. Build Frontend Application (Next.js PWA)
+        env:
+          NEXT_PUBLIC_API_URL: "http://localhost:3001/api"
+        run: |
+          cd frontend
+          npm run build
