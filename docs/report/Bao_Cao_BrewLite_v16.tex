@@ -558,7 +558,7 @@ Phân hệ Quầy pha chế \& Máy trạng thái có tác nhân chính là Nhâ
 
 \subsubsection*{d. Phân hệ Đánh giá sản phẩm \& Lịch sử}
 
-Phân hệ Đánh giá sản phẩm \& Lịch sử có tác nhân là Khách hàng (Customer). Khách hàng Theo dõi tiến trình đơn hàng (UC-17, GET /orders/:id) và Hủy đơn hàng tự động hoàn kho (UC-18, POST /orders/:id/cancel, chặn khi PREPARING); Use-case hủy đơn \guillemotleft{}include\guillemotright{} Tự động hoàn kho \& Điểm thưởng và Ghi vết lịch sử hủy đơn (OrderStatusHistory). Khách hàng Xem lịch sử đơn hàng (UC-19, GET /orders/me), Gửi đánh giá sản phẩm đã mua (UC-20, 1--5 sao \& Nhận xét, POST /reviews) và Chỉnh sửa / Xóa đánh giá (UC-21, PATCH / DELETE /reviews/:id). Use-case Gửi đánh giá \guillemotleft{}include\guillemotright{} Kiểm tra điều kiện đã mua món (KiemTraDaMua), bảo đảm chỉ món thuộc đơn đã COMPLETED mới được đánh giá.
+Phân hệ Đánh giá sản phẩm \& Lịch sử có tác nhân là Khách hàng (Customer). Khách hàng Theo dõi tiến trình đơn hàng (UC-17, GET /orders/:id), Xem lịch sử đơn hàng (UC-19, GET /orders/me), Gửi đánh giá sản phẩm đã mua (UC-20, 1--5 sao \& Nhận xét, POST /reviews) và Chỉnh sửa / Xóa đánh giá (UC-21, PATCH / DELETE /reviews/:id). Use-case Gửi đánh giá \guillemotleft{}include\guillemotright{} Kiểm tra điều kiện đã mua món (KiemTraDaMua), bảo đảm chỉ món thuộc đơn đã COMPLETED mới được đánh giá.
 
 \begin{figure}[!htbp]
 \centering
