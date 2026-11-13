@@ -1,76 +1,92 @@
 <mxfile host="app.diagrams.net">
   <diagram id="BrewLite_Subsystem_Order_Payment" name="Phan-He-Dat-Hang-Thanh-Toan">
-    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1040" pageHeight="720" math="0" shadow="0">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1040" pageHeight="780" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
 
         <!-- System Boundary -->
         <mxCell id="sys" parent="1" style="swimlane;collapsible=0;startSize=30;fillColor=none;strokeColor=#000000;fontColor=#000000;fontSize=13;fontStyle=1;whiteSpace=wrap;" value="Phân Hệ Đặt Hàng &amp; Thanh Toán Đồng Thời" vertex="1">
-          <mxGeometry height="620" width="740" x="230" y="40" as="geometry" />
+          <mxGeometry height="700" width="750" x="230" y="35" as="geometry" />
         </mxCell>
 
         <!-- Actors -->
         <mxCell id="aCus" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="Khách hàng&lt;br&gt;(Customer)" vertex="1">
-          <mxGeometry height="60" width="30" x="65" y="195" as="geometry" />
+          <mxGeometry height="60" width="30" x="65" y="240" as="geometry" />
         </mxCell>
 
         <mxCell id="aGw" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="«System»&lt;br&gt;Cổng thanh toán&lt;br&gt;(MBBank/Gateway)" vertex="1">
-          <mxGeometry height="60" width="30" x="65" y="425" as="geometry" />
+          <mxGeometry height="60" width="30" x="65" y="520" as="geometry" />
         </mxCell>
 
         <!-- Primary Use Cases (Left Column inside boundary) -->
         <mxCell id="u10" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-10: Tra cứu voucher khả dụng" vertex="1">
-          <mxGeometry height="46" width="270" x="265" y="95" as="geometry" />
+          <mxGeometry height="46" width="270" x="265" y="80" as="geometry" />
         </mxCell>
 
         <mxCell id="u12" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-12: Khởi tạo đơn hàng (PENDING)" vertex="1">
-          <mxGeometry height="46" width="270" x="265" y="200" as="geometry" />
+          <mxGeometry height="46" width="270" x="265" y="170" as="geometry" />
         </mxCell>
 
         <mxCell id="u13" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-13: Thanh toán đơn hàng (PAID)" vertex="1">
-          <mxGeometry height="46" width="270" x="265" y="395" as="geometry" />
+          <mxGeometry height="46" width="270" x="265" y="310" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u18" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-18: Hủy đơn hàng tự động hoàn kho" vertex="1">
+          <mxGeometry height="46" width="270" x="265" y="465" as="geometry" />
         </mxCell>
 
         <mxCell id="u14" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-14: Đồng bộ thanh toán MBBank VietQR" vertex="1">
-          <mxGeometry height="46" width="270" x="265" y="545" as="geometry" />
+          <mxGeometry height="46" width="270" x="265" y="620" as="geometry" />
         </mxCell>
 
         <!-- Secondary / Extension / Included Use Cases (Right Column inside boundary) -->
         <mxCell id="u11" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-11: Áp dụng Voucher &amp; Điểm thưởng" vertex="1">
-          <mxGeometry height="46" width="260" x="675" y="200" as="geometry" />
+          <mxGeometry height="46" width="265" x="680" y="170" as="geometry" />
         </mxCell>
 
         <mxCell id="uAudit" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="Ghi nhận lịch sử OrderStatusHistory" vertex="1">
-          <mxGeometry height="46" width="260" x="675" y="295" as="geometry" />
+          <mxGeometry height="46" width="265" x="680" y="250" as="geometry" />
         </mxCell>
 
         <mxCell id="u15" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-15: Khấu trừ kho Optimistic Lock" vertex="1">
-          <mxGeometry height="46" width="260" x="675" y="395" as="geometry" />
+          <mxGeometry height="46" width="265" x="680" y="330" as="geometry" />
         </mxCell>
 
         <mxCell id="u16" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-16: Tự động tích lũy điểm Loyalty" vertex="1">
-          <mxGeometry height="46" width="260" x="675" y="495" as="geometry" />
+          <mxGeometry height="46" width="265" x="680" y="410" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uRefund" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="Tự động hoàn kho &amp; Điểm thưởng" vertex="1">
+          <mxGeometry height="46" width="265" x="680" y="490" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uAuditCancel" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="Ghi vết lịch sử hủy đơn&lt;br&gt;(OrderStatusHistory)" vertex="1">
+          <mxGeometry height="48" width="265" x="680" y="565" as="geometry" />
         </mxCell>
 
         <!-- Associations (Actor <-> UC): Solid lines, NO arrows -->
-        <mxCell id="eCus10" edge="1" parent="1" source="aCus" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u10">
+        <mxCell id="eCus10" edge="1" parent="1" source="aCus" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.2;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u10">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <mxCell id="eCus12" edge="1" parent="1" source="aCus" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u12">
+        <mxCell id="eCus12" edge="1" parent="1" source="aCus" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.35;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u12">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <mxCell id="eCus13" edge="1" parent="1" source="aCus" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.3;entryDx=0;entryDy=0;" target="u13">
+        <mxCell id="eCus13" edge="1" parent="1" source="aCus" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.6;exitDx=0;exitDy=0;entryX=0;entryY=0.35;entryDx=0;entryDy=0;" target="u13">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <mxCell id="eGw13" edge="1" parent="1" source="aGw" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.7;entryDx=0;entryDy=0;" target="u13">
+        <mxCell id="eCus18" edge="1" parent="1" source="aCus" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.85;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u18">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <mxCell id="eGw14" edge="1" parent="1" source="aGw" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u14">
+        <mxCell id="eGw13" edge="1" parent="1" source="aGw" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" target="u13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="eGw14" edge="1" parent="1" source="aGw" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.7;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u14">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
@@ -80,19 +96,27 @@
         </mxCell>
 
         <!-- Include relationships: Dashed arrows from Base to Included -->
-        <mxCell id="inc12Audit" edge="1" parent="1" source="u12" style="endArrow=open;endFill=0;dashed=1;html=1;fontSize=9.5;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;exitX=0.95;exitY=0.78;exitDx=0;exitDy=0;entryX=0;entryY=0.35;entryDx=0;entryDy=0;" target="uAudit" value="«include»">
+        <mxCell id="inc12Audit" edge="1" parent="1" source="u12" style="endArrow=open;endFill=0;dashed=1;html=1;fontSize=9.5;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;exitX=0.95;exitY=0.8;exitDx=0;exitDy=0;entryX=0;entryY=0.3;entryDx=0;entryDy=0;" target="uAudit" value="«include»">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <mxCell id="inc13Audit" edge="1" parent="1" source="u13" style="endArrow=open;endFill=0;dashed=1;html=1;fontSize=9.5;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;exitX=0.95;exitY=0.22;exitDx=0;exitDy=0;entryX=0;entryY=0.65;entryDx=0;entryDy=0;" target="uAudit" value="«include»">
+        <mxCell id="inc13Audit" edge="1" parent="1" source="u13" style="endArrow=open;endFill=0;dashed=1;html=1;fontSize=9.5;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;exitX=0.95;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.7;entryDx=0;entryDy=0;" target="uAudit" value="«include»">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <mxCell id="inc1315" edge="1" parent="1" source="u13" style="endArrow=open;endFill=0;dashed=1;html=1;fontSize=9.5;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u15" value="«include»">
+        <mxCell id="inc1315" edge="1" parent="1" source="u13" style="endArrow=open;endFill=0;dashed=1;html=1;fontSize=9.5;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.45;entryDx=0;entryDy=0;" target="u15" value="«include»">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <mxCell id="inc1316" edge="1" parent="1" source="u13" style="endArrow=open;endFill=0;dashed=1;html=1;fontSize=9.5;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;exitX=0.95;exitY=0.78;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u16" value="«include»">
+        <mxCell id="inc1316" edge="1" parent="1" source="u13" style="endArrow=open;endFill=0;dashed=1;html=1;fontSize=9.5;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;exitX=0.95;exitY=0.8;exitDx=0;exitDy=0;entryX=0;entryY=0.35;entryDx=0;entryDy=0;" target="u16" value="«include»">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="inc18Refund" edge="1" parent="1" source="u18" style="endArrow=open;endFill=0;dashed=1;html=1;fontSize=9.5;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;exitX=0.98;exitY=0.45;exitDx=0;exitDy=0;entryX=0;entryY=0.45;entryDx=0;entryDy=0;" target="uRefund" value="«include»">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="inc18Audit" edge="1" parent="1" source="u18" style="endArrow=open;endFill=0;dashed=1;html=1;fontSize=9.5;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;exitX=0.95;exitY=0.8;exitDx=0;exitDy=0;entryX=0;entryY=0.35;entryDx=0;entryDy=0;" target="uAuditCancel" value="«include»">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
