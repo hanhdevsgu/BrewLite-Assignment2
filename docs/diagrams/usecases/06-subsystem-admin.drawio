@@ -1,0 +1,97 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="BrewLite_Subsystem_Admin" name="Phan-He-Quan-Tri-He-Thong">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1040" pageHeight="660" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- System Boundary -->
+        <mxCell id="sys" parent="1" style="swimlane;collapsible=0;startSize=30;fillColor=none;strokeColor=#000000;fontColor=#000000;fontSize=13;fontStyle=1;whiteSpace=wrap;" value="Phân Hệ Quản Trị Hệ Thống (Admin)" vertex="1">
+          <mxGeometry height="560" width="760" x="220" y="40" as="geometry" />
+        </mxCell>
+
+        <!-- Actor -->
+        <mxCell id="aAdm" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="Quản trị viên&lt;br&gt;(Admin)" vertex="1">
+          <mxGeometry height="60" width="30" x="65" y="280" as="geometry" />
+        </mxCell>
+
+        <!-- Primary Use Cases (Left Column) -->
+        <mxCell id="u27" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-27: Xem thống kê doanh thu &amp; Báo cáo" vertex="1">
+          <mxGeometry height="46" width="275" x="265" y="85" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u28" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-28: Quản lý kho &amp; Nhập hàng" vertex="1">
+          <mxGeometry height="46" width="275" x="265" y="170" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u29" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-29: Quản lý sản phẩm &amp; Công thức" vertex="1">
+          <mxGeometry height="46" width="275" x="265" y="255" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u30" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-30: Quản lý mã khuyến mãi" vertex="1">
+          <mxGeometry height="46" width="275" x="265" y="340" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u31" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-31: Kiểm duyệt đánh giá khách hàng" vertex="1">
+          <mxGeometry height="46" width="275" x="265" y="425" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u32" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-32: Quản lý nhân sự &amp; Khách hàng" vertex="1">
+          <mxGeometry height="46" width="275" x="265" y="510" as="geometry" />
+        </mxCell>
+
+        <!-- Secondary / Included / Extended Use Cases (Right Column) -->
+        <mxCell id="uImport" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="Lập phiếu nhập &amp; Cộng dồn tồn kho" vertex="1">
+          <mxGeometry height="46" width="270" x="675" y="170" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uRecipe" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="Cấu hình Size &amp; Định lượng công thức" vertex="1">
+          <mxGeometry height="46" width="270" x="675" y="255" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uLock" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="Khóa / Mở khóa tài khoản người dùng" vertex="1">
+          <mxGeometry height="46" width="270" x="675" y="510" as="geometry" />
+        </mxCell>
+
+        <!-- Associations (Admin <-> UC): Solid lines, NO arrows -->
+        <mxCell id="eAdm27" edge="1" parent="1" source="aAdm" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u27">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="eAdm28" edge="1" parent="1" source="aAdm" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u28">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="eAdm29" edge="1" parent="1" source="aAdm" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u29">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="eAdm30" edge="1" parent="1" source="aAdm" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="eAdm31" edge="1" parent="1" source="aAdm" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u31">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="eAdm32" edge="1" parent="1" source="aAdm" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u32">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Include / Extend relationships -->
+        <mxCell id="inc28Imp" edge="1" parent="1" source="u28" style="endArrow=open;endFill=0;dashed=1;html=1;fontSize=9.5;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="uImport" value="«include»">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="inc29Rec" edge="1" parent="1" source="u29" style="endArrow=open;endFill=0;dashed=1;html=1;fontSize=9.5;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="uRecipe" value="«include»">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="extLock32" edge="1" parent="1" source="uLock" style="endArrow=open;endFill=0;dashed=1;html=1;fontSize=9.5;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="u32" value="«extend»">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
