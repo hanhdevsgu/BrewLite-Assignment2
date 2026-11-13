@@ -21,3 +21,4 @@ Lựa chọn hệ quản trị cơ sở dữ liệu quan hệ **PostgreSQL 16** 
   - Tự động hóa việc tạo và chạy seed dữ liệu mẫu phục vụ kiểm thử nhanh chóng.
 - **Hạn chế**:
   - Cần duy trì cấu hình môi trường Docker cho PostgreSQL trong cả quy trình phát triển local lẫn pipeline CI.
+

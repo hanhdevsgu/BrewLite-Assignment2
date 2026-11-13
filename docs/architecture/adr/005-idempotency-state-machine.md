@@ -23,3 +23,4 @@ Trong môi trường mạng di động, khách hàng thường gặp sự cố k
   - Cung cấp kịch bản kiểm thử rõ ràng, dễ dàng biểu diễn và bảo vệ trước Hội đồng chấm thi.
 - **Hạn chế**:
   - Cần thêm cột `idempotencyKey` và chỉ mục duy nhất (Unique Index) trong bảng `Payment` của CSDL.
+

@@ -1,0 +1,143 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="BrewLite_Subsystem_Account_Menu" name="Phan-He-Tai-Khoan-Thuc-Don-Gio-Hang">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="960" pageHeight="760" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- System Boundary -->
+        <mxCell id="sys" parent="1" style="swimlane;collapsible=0;startSize=30;fillColor=none;strokeColor=#000000;fontColor=#000000;fontSize=13;fontStyle=1;whiteSpace=wrap;" value="Phân Hệ Tài Khoản, Thực Đơn &amp; Giỏ Hàng" vertex="1">
+          <mxGeometry height="680" width="620" x="300" y="40" as="geometry" />
+        </mxCell>
+
+        <!-- Actors Column 1 (Left: Admin, Barista, Customer) -->
+        <mxCell id="aAdm" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="Quản trị viên&lt;br&gt;(Admin)" vertex="1">
+          <mxGeometry height="60" width="30" x="35" y="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="aBar" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="Nhân viên pha chế&lt;br&gt;(Barista)" vertex="1">
+          <mxGeometry height="60" width="30" x="35" y="210" as="geometry" />
+        </mxCell>
+
+        <mxCell id="aCus" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="Khách hàng&lt;br&gt;(Customer)" vertex="1">
+          <mxGeometry height="60" width="30" x="35" y="460" as="geometry" />
+        </mxCell>
+
+        <!-- Actor Column 2 (User) -->
+        <mxCell id="aGen" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="«Abstract»&lt;br&gt;Người dùng chung&lt;br&gt;(User)" vertex="1">
+          <mxGeometry height="60" width="30" x="175" y="210" as="geometry" />
+        </mxCell>
+
+        <!-- Generalization Tree: Balanced unified fork centered on User -->
+        <mxCell id="bus" edge="1" parent="1" style="endArrow=none;html=1;strokeColor=#000000;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="115" y="100" as="sourcePoint" />
+            <mxPoint x="115" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="bAdm" edge="1" parent="1" source="aAdm" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="115" y="100" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="bBar" edge="1" parent="1" source="aBar" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="115" y="230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="bCus" edge="1" parent="1" source="aCus" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="115" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Single Generalization Arrow from Bus into User -->
+        <mxCell id="stem" edge="1" parent="1" target="aGen" style="endArrow=block;endFill=0;endSize=11;html=1;strokeColor=#000000;entryX=0;entryY=0.33;entryDx=0;entryDy=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="115" y="230" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- User Use Cases (Top Section) -->
+        <mxCell id="u2" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-02: Đăng nhập hệ thống" vertex="1">
+          <mxGeometry height="44" width="280" x="360" y="85" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u3" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-03: Đổi mật khẩu" vertex="1">
+          <mxGeometry height="44" width="280" x="360" y="145" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u4" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-04: Xem thông tin cá nhân" vertex="1">
+          <mxGeometry height="44" width="280" x="360" y="205" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u5" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-05: Làm mới phiên đăng nhập" vertex="1">
+          <mxGeometry height="44" width="280" x="360" y="265" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u6" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-06: Đăng xuất" vertex="1">
+          <mxGeometry height="44" width="280" x="360" y="325" as="geometry" />
+        </mxCell>
+
+        <!-- Customer Specific Use Cases (Bottom Section) -->
+        <mxCell id="u1" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-01: Đăng ký tài khoản" vertex="1">
+          <mxGeometry height="44" width="280" x="360" y="415" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u7" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-07: Xem thực đơn &amp; Tìm kiếm" vertex="1">
+          <mxGeometry height="44" width="280" x="360" y="480" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u8" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-08: Xem chi tiết món, Size &amp; Topping" vertex="1">
+          <mxGeometry height="44" width="280" x="360" y="545" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u9" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-09: Quản lý giỏ hàng" vertex="1">
+          <mxGeometry height="44" width="280" x="360" y="610" as="geometry" />
+        </mxCell>
+
+        <!-- Associations from User -->
+        <mxCell id="eGen2" edge="1" parent="1" source="aGen" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="eGen3" edge="1" parent="1" source="aGen" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="eGen4" edge="1" parent="1" source="aGen" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="eGen5" edge="1" parent="1" source="aGen" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="eGen6" edge="1" parent="1" source="aGen" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Associations from Customer -->
+        <mxCell id="eCus1" edge="1" parent="1" source="aCus" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="eCus7" edge="1" parent="1" source="aCus" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="eCus8" edge="1" parent="1" source="aCus" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="eCus9" edge="1" parent="1" source="aCus" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -172,3 +172,4 @@ Order "0..*" -- "0..1" Promotion : applies >
 Order "0..1" -- "0..1" LoyaltyTransaction : generates >
 
 @enduml
+

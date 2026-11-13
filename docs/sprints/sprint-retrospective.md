@@ -50,3 +50,4 @@ Hoàn thành luồng mua hàng và xử lý đơn hàng trọn vẹn (End-to-End
 | **What went well (Làm tốt)** | • Giải quyết triệt để các bài toán kỹ thuật hóc búa của đề tài (Double-spending, Race conditions, State transitions).<br>• Tạo sẵn file kịch bản chạy test 1-click ngoài Desktop (`CHAY-TEST-POSTMAN-BREWLITE.bat`) và xuất file báo cáo HTML trực quan cho Giảng viên xem.<br>• Ma trận truy vết khớp nối 100% giữa yêu cầu, sơ đồ và mã nguồn. |
 | **What we learned (Bài học rút ra)** | • Hiểu sâu sắc về thiết kế hệ thống phân tán, cơ chế khóa lạc quan (OCC) và tầm quan trọng của việc kiểm thử phòng thủ (Defensive Programming). |
 | **Conclusion (Kết luận)** | Hệ thống BrewLite Coffee đã sẵn sàng 100% cho buổi bảo vệ đồ án trước Hội đồng chấm thi môn Công nghệ Phần mềm! |
+

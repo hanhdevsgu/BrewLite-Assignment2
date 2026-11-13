@@ -1,7 +1,7 @@
-# ĐẶC TẢ USE-CASE TRỌNG TÂM: ĐẶT VÀ THANH TOÁN ĐƠN HÀNG (UC-06)
+# ĐẶC TẢ USE-CASE TRỌNG TÂM: ĐẶT VÀ THANH TOÁN ĐƠN HÀNG (UC-12 & UC-13)
 **Dự án**: Hệ thống Đặt & Quản lý Đồ uống Trực tuyến BrewLite Coffee  
 **Môn học**: Công nghệ Phần mềm — Assignment 2  
-**Mã Use-case**: UC-06 (Order Checkout & Idempotent Payment)  
+**Mã Use-case**: UC-12 (Khởi tạo đơn hàng PENDING) & UC-13 (Thanh toán đơn hàng PAID Idempotent)  
 **Phiên bản**: Ver 1.0  
 
 ---
@@ -14,25 +14,28 @@ graph LR
     PaymentGW["Cổng Thanh Toán (Mock Gateway)"]
     Barista["Nhân Viên Pha Chế (Barista)"]
 
-    subgraph Scope["Phạm Vi Nghiệp Vụ: Đặt & Thanh Toán Đơn Hàng"]
-        UC_CreateOrder["Tạo Đơn Hàng (POST /orders)"]
-        UC_ApplyVoucher["Áp Dụng Khuyến Mãi (Validate Promo)"]
-        UC_PayOrder["Thanh Toán Đơn Hàng (POST /payments)"]
+    subgraph Scope["Phân Hệ: Đặt & Thanh Toán Đơn Hàng Đồng Thời"]
+        UC_CreateOrder["UC-12: Khởi Tạo Đơn Hàng (POST /orders)"]
+        UC_ApplyVoucher["UC-11: Áp Dụng Voucher & Điểm Thưởng"]
+        UC_PayOrder["UC-13: Thanh Toán Đơn Hàng (POST /payments)"]
+        UC_SyncQR["UC-14: Đồng Bộ MBBank VietQR"]
         UC_CheckIdemp["Kiểm Tra Idempotency Key"]
-        UC_DeductStock["Khấu Trừ Tồn Kho (OCC Lock)"]
-        UC_NotifyStaff["Chuyển Trạng Thái Đơn Sang PAID"]
+        UC_DeductStock["UC-15: Khấu Trừ Kho (OCC Lock)"]
+        UC_Loyalty["UC-16: Tự Động Tích Lũy Điểm Loyalty"]
+        UC_History["Ghi Nhận Lịch Sử OrderStatusHistory"]
     end
 
     Customer --> UC_CreateOrder
-    Customer --> UC_ApplyVoucher
     Customer --> UC_PayOrder
+    UC_ApplyVoucher -.->|extend| UC_CreateOrder
 
     UC_PayOrder -.->|include| UC_CheckIdemp
     UC_PayOrder -.->|include| UC_DeductStock
-    UC_PayOrder -.->|include| UC_NotifyStaff
+    UC_PayOrder -.->|include| UC_Loyalty
+    UC_PayOrder -.->|include| UC_History
 
     PaymentGW --> UC_PayOrder
-    UC_NotifyStaff --> Barista
+    PaymentGW --> UC_SyncQR
 ```
 
 ---
@@ -41,8 +44,8 @@ graph LR
 
 | Thuộc tính | Chi tiết mô tả |
 |---|---|
-| **Tên Use-case** | Đặt Hàng và Thanh Toán Trực Tuyến Đảm Bảo Idempotency (Order Checkout & Payment) |
-| **Mã định danh** | **UC-06** |
+| **Tên Use-case** | Đặt Hàng (UC-12) và Thanh Toán Trực Tuyến Đảm Bảo Idempotency (UC-13) |
+| **Mã định danh** | **UC-12 & UC-13** (tương ứng Hình 1.2 trong báo cáo kiến trúc) |
 | **Actor chính** | Khách hàng đã đăng nhập (`Customer`) |
 | **Actor phụ** | Cổng thanh toán mô phỏng (`Mock Payment Gateway`), Nhân viên quầy (`Barista`) |
 | **Trigger (Kích hoạt)** | Khách hàng bấm nút **"Xác nhận thanh toán"** trên màn hình Giỏ hàng / Thanh toán của giao diện Next.js PWA. |
@@ -94,10 +97,12 @@ graph LR
 
 ### 4.2. Luồng thay thế (Alternative Flows)
 
-#### A1: Khách hàng áp dụng mã giảm giá (Voucher)
-- Tại Bước 1, khách hàng nhập mã khuyến mãi (ví dụ: `BREW10`).
-- Client gọi API `POST /api/promotions/validate`.
-- Backend kiểm tra hợp lệ, trả về số tiền giảm giá.
+#### A1: Khách hàng áp dụng mã giảm giá (Voucher) và Điểm thưởng đa tầng
+- Tại Bước 1, khách hàng xem danh sách voucher tại quán (không có freeship vì mô hình BrewLite là nhận tại quầy/mang đi).
+- Mỗi mã hiển thị rõ điều kiện: Đơn tối thiểu, mức giảm tối đa, khung giờ vàng.
+- Nếu đơn chưa đủ điều kiện, giao diện làm mờ và báo rõ số tiền còn thiếu.
+- Khách hàng có thể chọn nhiều voucher theo quy tắc: tối đa 1 mã Giảm giá đơn hàng + 1 mã Giờ vàng (HAPPYHOUR) + Điểm thưởng Loyalty tích lũy.
+- Client gọi API `POST /api/promotions/validate` (hoặc tính toán tức thời), tự động khóa chọn thêm mã khi tổng đơn đã giảm về 0đ.
 - Hệ thống trừ tiền giảm giá vào tổng tiền thanh toán trước khi sang Bước 3.
 
 #### A2: Khách hàng click đúp chuột hoặc gửi lại cùng request do mạng lag (Idempotency Replay)
@@ -105,6 +110,12 @@ graph LR
 - Backend kiểm tra thấy `idempotencyKey` này **đã tồn tại** trong cơ sở dữ liệu và đã thanh toán thành công trước đó.
 - Backend **bỏ qua** toàn bộ bước trừ tiền và trừ kho, lập tức trả về kết quả của giao dịch trước đó với mã `HTTP 200 OK` kèm cờ `replayed: true`.
 - Khách hàng không bị trừ tiền thêm lần nào, giao diện hiển thị thông báo "Đơn hàng của bạn đã được ghi nhận trước đó".
+
+#### A3: Khách hàng hủy đơn hàng (Cancel Order & Hoàn kho tự động)
+- Khách hàng gửi yêu cầu hủy đơn qua API `POST /api/orders/:id/cancel`.
+- Nếu đơn ở trạng thái `PENDING`: Đơn lập tức chuyển sang `CANCELLED`.
+- Nếu đơn ở trạng thái `PAID` (trước khi Barista nhận đơn `PREPARING`): Backend kích hoạt giao dịch bù (Compensating Transaction) tự động hoàn trả số lượng tồn kho nguyên liệu (`stockQuantity.increment`) theo công thức, hoàn tiền ví điện tử và thu hồi điểm thưởng loyalty.
+- Nếu đơn đã sang `PREPARING`: Chức năng hủy bị chặn đứng (HTTP 400/409) do nguyên liệu đã đưa vào pha chế thực tế.
 
 ---
 
@@ -126,3 +137,4 @@ graph LR
 - Nếu client hoặc người dùng can thiệp gửi request thanh toán cho một đơn hàng đã bị hủy (`CANCELLED`) hoặc đã hoàn thành (`COMPLETED`).
 - Backend kiểm tra bộ quy tắc State Machine: Trạng thái hiện tại không cho phép chuyển sang `PAID`.
 - Hệ thống chặn đứng yêu cầu và phản hồi `HTTP 409 Conflict` với thông điệp: *"Không thể chuyển trạng thái từ CANCELLED sang PAID"*.
+

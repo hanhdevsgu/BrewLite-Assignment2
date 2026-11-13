@@ -109,3 +109,4 @@ Dự án hỗ trợ triển khai ra Internet bảo mật có HTTPS thông qua **
    node scripts/tunnel.js
    ```
 3. Cloudflare cấp phát URL HTTPS công khai (ví dụ: `https://brewlite.trycloudflare.com`), tự động mã hóa đầu cuối và chặn hoàn toàn truy cập trực tiếp vào CSDL.
+

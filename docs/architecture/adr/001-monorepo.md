@@ -22,3 +22,4 @@ Quyết định áp dụng mô hình **Monorepo** với cấu trúc thư mục r
   - Thiết lập một pipeline CI duy nhất để kiểm tra chất lượng của cả hệ thống.
 - **Hạn chế**:
   - Cần cấu hình file cấu hình Git, Docker và npm script cẩn thận để tránh xung đột dependencies giữa hai tầng ứng dụng.
+

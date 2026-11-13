@@ -18,3 +18,4 @@ Lựa chọn **NestJS Framework (TypeScript)** chạy trên nền Node.js làm k
   - Tích hợp sẵn Swagger Module (`@nestjs/swagger`), tự động sinh tài liệu API trực quan tại `/api/docs` từ mã nguồn TypeScript và Decorator.
 - **Hạn chế**:
   - Đường cong học tập ban đầu cao hơn so với Express.js truyền thống do yêu cầu hiểu biết về Dependency Injection và Decorators.
+

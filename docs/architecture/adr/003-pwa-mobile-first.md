@@ -20,3 +20,4 @@ Lựa chọn **Next.js (React/TypeScript)** kết hợp phong cách thiết kế
   - Khách hàng quét mã QR là vào thẳng menu gọi món trong vòng 2 giây.
 - **Hạn chế**:
   - Các tính năng đặc thù sâu của hệ điều hành (như Bluetooth Scanner phần cứng) bị giới hạn hơn so với ứng dụng Native.
+

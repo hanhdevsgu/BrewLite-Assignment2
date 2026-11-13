@@ -107,3 +107,4 @@ graph TD
 | **R-02** | Khách hàng nhấp liên tục nút thanh toán do mạng chậm, gây trừ tiền 2 lần. | **Cao** | Triển khai cơ chế **Idempotency-Key** (Task 8) ở tầng Backend Cache/Database. Request thứ 2 cùng key sẽ lập tức trả kết quả cũ mà không tạo thêm giao dịch thanh toán mới. |
 | **R-03** | Sai lệch trạng thái đơn hàng (nhân viên ấn nhầm nút Hoàn thành khi đơn chưa thanh toán). | **Trung bình** | Xây dựng **Order State Machine** nghiêm ngặt. Kiểm tra logic hợp lệ trước khi chuyển trạng thái; chặn đứng mọi hành vi nhảy cóc bằng mã lỗi `HTTP 409 Conflict`. |
 | **R-04** | Lỗi build hoặc test thất bại khi tích hợp mã nguồn của nhiều thành viên. | **Trung bình** | Thiết lập pipeline GitHub Actions CI bắt buộc: Chặn merge PR nếu Lint, Unit Test hoặc Build thất bại. |
+
