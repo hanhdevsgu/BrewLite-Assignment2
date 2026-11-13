@@ -849,9 +849,9 @@ Sơ đồ gồm 5 lifeline --- Khách hàng (actor), Next.js UI (Frontend App), 
 \rowcolor{gray!20} \textbf{Phân đoạn} & \textbf{Luồng chính} \\
 \hline
 \endhead
-1. Khởi tạo đơn hàng (PENDING) & Khách hàng bấm ``Xác nhận đặt hàng'' trên UI; UI gọi POST /api/orders (Header: Authorization: Bearer \texttt{<JWT>}, Body: \texttt{\{ items, promotionCode \}}) tới NestJS API. API kiểm tra JWT (JwtAuthGuard giải mã Bearer Token, lấy user.profileId), truy vấn ProductVariant, kiểm tra Voucher và tính tổng tiền, rồi tạo đơn trong \textit{prisma.\$transaction} (tx.order.create với status PENDING và tx.orderStatusHistory.create) và trả về HTTP 201 Created với đơn hàng PENDING. \\
+1. Khởi tạo đơn hàng (PENDING) & Khách hàng bấm ``Xác nhận đặt hàng'' trên UI; UI gọi POST /api/orders (Header: Authorization: Bearer \texttt{<JWT>}, Body: \texttt{\{ items, promotionCode, loyaltyPointsToUse \}}) tới NestJS API. API kiểm tra JWT (JwtAuthGuard giải mã Bearer Token, lấy user.profileId) và validate payload (ValidationPipe), truy vấn ProductVariant, kiểm tra Voucher và tính tổng tiền, rồi tạo đơn trong \textit{prisma.\$transaction} (tx.order.create với status PENDING và tx.orderStatusHistory.create) và trả về HTTP 201 Created với đơn hàng PENDING. \\
 \hline
-2. Xác thực thanh toán \& chống click đúp & UI sinh Idempotency-Key (UUIDv4) gắn vào Header rồi gọi POST /api/payments (Body: \texttt{\{ orderId, method: 'WALLET' \}}). API kiểm tra lại JWT và chuyển sang Payment Service (processPayment); Payment Service tra cứu Payment theo Idempotency-Key. Khối \textit{alt} có hai trường hợp: key đã tồn tại thì trả ngay kết quả cũ (HTTP 200 OK, cached: true, replayed: true), không trừ tiền lần hai; key chưa tồn tại thì kiểm tra máy trạng thái (assertTransition, chỉ PENDING / PAYMENT\_FAILED sang PAID) rồi thực hiện Database Transaction ACID qua \textit{prisma.\$transaction}: trừ kho bằng Optimistic Locking (khối \textit{loop}, retry tối đa 3 lần), gọi cổng thanh toán mô phỏng (mockGateway.processCharge), tạo giao dịch, chuyển đơn sang PAID, cộng điểm Loyalty và ghi OrderStatusHistory; kết quả trả về UI (HTTP 201 Created) và hiển thị cho khách hàng. \\
+2. Xác thực thanh toán \& chống click đúp & UI sinh Idempotency-Key (UUIDv4) gắn vào Header rồi gọi POST /api/payments (Body: \texttt{\{ orderId, method: 'WALLET' \}}). API kiểm tra lại JWT, validate DTO và chuyển sang Payment Service (processPayment); Payment Service tra cứu Payment theo Idempotency-Key. Khối \textit{alt} ngoài kiểm tra trùng khóa: nếu key đã tồn tại thì trả ngay kết quả cũ (HTTP 200 OK, cached: true, replayed: true), không trừ tiền lần hai; nếu key chưa tồn tại thì kiểm tra máy trạng thái (assertTransition, chỉ PENDING / PAYMENT\_FAILED sang PAID) rồi thực hiện Database Transaction ACID qua \textit{prisma.\$transaction}: trừ kho bằng Optimistic Locking (khối \textit{loop}, retry tối đa 3 lần) và gọi cổng thanh toán mô phỏng (mockGateway.processCharge). Khối \textit{alt} trong xử lý hai nhánh kết quả: thành công thì tạo giao dịch, chuyển đơn sang PAID, cộng điểm Loyalty, ghi OrderStatusHistory và trả về HTTP 201 Created; thất bại (hết kho HTTP 409 hoặc Gateway từ chối HTTP 402) thì Rollback Transaction, ghi nhận PAYMENT\_FAILED \& OrderStatusHistory rồi báo lỗi để khách thử lại. \\
 \hline
 \end{longtable}
 
@@ -865,7 +865,7 @@ Sơ đồ gồm 5 lifeline --- Khách hàng (actor), Next.js UI (Frontend App), 
 \rowcolor{gray!20} \textbf{Cơ chế} & \textbf{Mô tả} \\
 \hline
 \endhead
-Xác thực JWT & JwtAuthGuard kiểm tra Bearer Token ở cả hai API, xác thực tính hợp lệ và lấy định danh người dùng. \\
+Xác thực JWT \& Validate DTO & JwtAuthGuard kiểm tra Bearer Token ở cả hai API; ValidationPipe kiểm tra cấu trúc CreateOrderDto và ProcessPaymentDto trước khi xử lý. \\
 \hline
 Idempotency-Key & UI tự động sinh UUIDv4 duy nhất cho mỗi lần thanh toán, gắn vào Header của POST /payments. \\
 \hline

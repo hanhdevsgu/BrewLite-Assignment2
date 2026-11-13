@@ -1,88 +1,164 @@
-@startuml sequence-checkout
-title Sơ đồ Tuần Tự Thanh Toán & Xử Lý Giao Dịch (Sequence Diagram) - BrewLite
+@startuml
 autonumber
+
+skinparam dpi 300
 skinparam backgroundColor #FFFFFF
-skinparam responseMessageBelowArrow true
+skinparam shadowing false
 
-actor "Customer\n(Khách Hàng)" as User
-participant "Next.js UI\n(Frontend PWA)" as UI
-participant "NestJS API\n(Backend Server)" as API
-database "PostgreSQL DB\n(Prisma ORM)" as DB
-participant "Payment Service\n(Mock Gateway)" as Gateway
+skinparam defaultFontName sans-serif
+skinparam defaultFontSize 20
+skinparam ArrowFontSize 20
+skinparam NoteFontSize 19
+skinparam SequenceDividerFontSize 22
+skinparam SequenceGroupFontSize 20
+skinparam SequenceGroupHeaderFontSize 20
+skinparam ParticipantFontSize 22
+skinparam ActorFontSize 22
+skinparam DatabaseFontSize 22
 
-== 1. Khởi Tạo Đơn Hàng (Order Creation) ==
-User -> UI: Nhấn nút "Đặt & Thanh toán"
+skinparam maxMessageSize 220
+skinparam wrapWidth 220
+skinparam SequenceMessageAlign center
+<style>
+participant {
+  Padding 5
+}
+</style>
+
+skinparam ArrowThickness 2.5
+skinparam LifeLineBorderThickness 2
+skinparam ParticipantBorderThickness 2
+skinparam NoteBorderThickness 1.5
+
+skinparam ParticipantBackgroundColor #F8F8F8
+skinparam ParticipantBorderColor #333333
+skinparam ActorBackgroundColor #F8F8F8
+skinparam ActorBorderColor #333333
+skinparam DatabaseBackgroundColor #F8F8F8
+skinparam DatabaseBorderColor #333333
+skinparam NoteBorderColor #666666
+skinparam ArrowColor #000000
+skinparam LifeLineBorderColor #444444
+
+actor "Customer\n(Khách hàng)" as Customer
+participant "Next.js UI\n(Frontend)" as UI
+participant "NestJS API\n(Controller)" as API
+participant "Payment\nService" as Service
+database "Database\n(PostgreSQL)" as DB
+
+== PHẦN 1: KHỞI TẠO ĐƠN HÀNG (PENDING) ==
+
+Customer -> UI : Bấm "Xác nhận đặt hàng"
 activate UI
-UI -> UI: Tạo idempotencyKey duy nhất (UUID v4)
-UI -> API: POST /api/orders\nHeaders: Bearer <JWT>\nBody: { items: [{ variantId, quantity }] }
+
+UI -> API : POST /api/orders\n[Bearer <JWT>]\n{ items, promotionCode, loyaltyPointsToUse }
 activate API
 
-API -> API: JwtAuthGuard: Giải mã & kiểm tra JWT Token
-alt JWT không hợp lệ hoặc hết hạn
-    API --> UI: 401 Unauthorized
-    UI --> User: Thông báo phiên đăng nhập hết hạn
-end
+note over API #FFF9E6
+  <b>1. Check JWT & Validate DTO</b>
+  Xác thực Token, lấy user.profileId
+  & ValidationPipe kiểm tra payload
+end note
 
-API -> API: ValidationPipe: Validate cấu trúc DTO
-API -> DB: prisma.order.create({\n  status: 'PENDING',\n  totalAmount: ...\n})
+API -> DB : Query ProductVariant, kiểm tra Voucher & tính tổng tiền
 activate DB
-DB --> API: Bản ghi Order mới (orderId: 'ORD-123')
+DB --> API : Thông tin biến thể & chiết khấu
 deactivate DB
-API --> UI: 201 Created { id: 'ORD-123', status: 'PENDING' }
+
+API -> DB : prisma.$transaction:\n• order.create(PENDING)\n• orderStatusHistory.create()
+activate DB
+DB --> API : Commit & trả về Order
+deactivate DB
+
+API --> UI : HTTP 201 Created:\n{ success: true, data: order }
 deactivate API
 
-== 2. Xử Lý Thanh Toán & Kiểm Soát Idempotency ==
-UI -> API: POST /api/payments\nHeaders: Bearer <JWT>, x-idempotency-key: "KEY-999"\nBody: { orderId: 'ORD-123', method: 'MOCK_WALLET' }
-activate API
-
-API -> DB: prisma.payment.findUnique({ where: { idempotencyKey: 'KEY-999' } })
-activate DB
-DB --> API: null (Khóa chưa từng xử lý - First Run)
-deactivate DB
-
-API -> Gateway: POST /mock-gateway/charge { orderId, amount }
-activate Gateway
-Gateway --> API: 200 OK { chargeStatus: 'SUCCESS', transactionRef: 'TXN-001' }
-deactivate Gateway
-
-== 3. Transaction ACID & Khóa Lạc Quan (OCC) ==
-API -> DB: prisma.$transaction(async (tx) => { ... })
-activate DB
-note over API, DB: Mở Interactive Transaction: Kiểm tra và trừ kho
-
-API -> DB: tx.ingredient.findMany(nguyên liệu theo công thức)
-DB --> API: Robusta: stock = 20g, version = 1
-
-alt Không đủ tồn kho hoặc xung đột Version (Optimistic Lock Conflict)
-    API -> DB: Rollback Transaction!
-    API --> UI: 409 Conflict\n{ message: "Nguyên liệu không đủ để pha chế" }
-    UI --> User: Báo lỗi hết nguyên liệu (Chống bán âm kho)
-else Đủ tồn kho (Happy Path)
-    API -> DB: tx.ingredient.update({\n  where: { id, version: 1 },\n  data: { stockQuantity: 0, version: 2 }\n})
-    API -> DB: tx.order.update({\n  where: { id: 'ORD-123' },\n  data: { status: 'PAID' }\n})
-    API -> DB: tx.payment.create({\n  idempotencyKey: 'KEY-999',\n  status: 'COMPLETED'\n})
-    DB --> API: Transaction Committed thành công!
-    deactivate DB
-    API --> UI: 201 Created { status: 'PAID', replayed: false }
-    deactivate API
-    UI --> User: Hiển thị "Thanh toán thành công! Barista đang nhận đơn."
-end
-
-== 4. Kịch Bản Khách Hàng Gửi Lại (Idempotency Replay / Click Đúp) ==
-User -> UI: Nhấp đúp chuột / Mạng retry gửi lại request
-UI -> API: POST /api/payments\nHeaders: x-idempotency-key: "KEY-999" (Trùng lặp)
-activate API
-
-API -> DB: prisma.payment.findUnique({ where: { idempotencyKey: 'KEY-999' } })
-activate DB
-DB --> API: Đã tồn tại bản ghi thanh toán trước đó!
-deactivate DB
-
-note over API: Bỏ qua trừ tiền & trừ kho (Tránh trừ trùng)
-API --> UI: 200 OK { status: 'PAID', replayed: true }
-deactivate API
-UI --> User: Hiển thị lại kết quả đã thanh toán thành công
+UI --> Customer : Hiển thị chọn phương thức thanh toán
 deactivate UI
 
-@enduml
+== PHẦN 2: XÁC THỰC THANH TOÁN & IDEMPOTENCY ==
 
+Customer -> UI : Nhấn "Thanh toán ngay"\n(Hoặc bấm đúp 2 lần)
+activate UI
+
+note over UI #FFF9E6
+  <b>2. Sinh Idempotency-Key</b>
+  Tạo UUIDv4 gắn vào Header
+end note
+
+UI -> API : POST /api/payments\n[Idempotency-Key: <UUIDv4>]\n{ orderId, method: 'WALLET' }
+activate API
+
+note over API #FFF9E6
+  <b>3. Check JWT & Validate DTO</b>
+  Kiểm tra token & ProcessPaymentDto
+end note
+
+API -> Service : processPayment(dto, key, user)
+activate Service
+
+Service -> DB : payment.findUnique({\n where: { idempotencyKey }\n})
+activate DB
+DB --> Service : Kết quả tra cứu Payment
+deactivate DB
+
+alt TH 1: Idempotency-Key ĐÃ TỒN TẠI (Replay)
+
+  note over API, Service #FFF2CC
+    <b>4a. Xử lý Idempotency Replay</b>
+    Trả ngay kết quả cũ (KHÔNG trừ tiền/kho lần 2)
+  end note
+
+  Service --> API : { cached: true, replayed: true, payment, order }
+  API --> UI : HTTP 200 OK (Đã xử lý trước đó)
+  UI --> Customer : Hiển thị kết quả an toàn\n(Không trừ tiền 2 lần)
+
+else TH 2: Idempotency-Key CHƯA TỒN TẠI (Mới)
+
+  note over Service #FFF9E6
+    <b>4b. State Machine Check</b>
+    PENDING / PAYMENT_FAILED -> PAID
+  end note
+
+  note over Service, DB #E6FFEC
+    <b>5. DB Transaction ACID</b>
+    prisma.$transaction(...)
+  end note
+
+  Service -> DB : Bắt đầu Transaction ACID
+  activate DB
+
+  loop Khấu trừ kho (Optimistic Locking, Retry <= 3)
+    Service -> DB : ingredient.updateMany({\n stockQuantity: -qty,\n version: +1\n})
+  end
+
+  note over Service #FFF9E6
+    <b>6. Gọi Cổng thanh toán</b>
+    processCharge(WALLET / CARD)
+  end note
+
+  alt Thanh toán thành công (Đủ kho & Gateway OK)
+
+    Service -> DB : • payment.create(SUCCESS)\n• order.update(PAID)\n• customer.update(+points)\n• orderStatusHistory.create()
+    DB --> Service : 7. Commit thành công
+    deactivate DB
+
+    Service --> API : { success: true, payment, order }
+    API --> UI : HTTP 201 Created:\n{ message: 'Thành công' }
+    UI --> Customer : Hiển thị "Thanh toán thành công"\n& Mã nhận đơn
+
+  else Thanh toán thất bại (Hết kho 409 / Gateway từ chối)
+
+    Service -> DB : Rollback Transaction\n& ghi PAYMENT_FAILED + OrderStatusHistory
+    Service --> API : Throw Conflict (409) / Payment Error (402)
+    deactivate Service
+    API --> UI : HTTP 409 / 402 Error\n{ message: 'Hết hàng hoặc lỗi thẻ' }
+    deactivate API
+    UI --> Customer : Thông báo thất bại & Cho phép thử lại
+    deactivate UI
+
+  end
+
+end
+
+@enduml
