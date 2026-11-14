@@ -5,18 +5,18 @@ skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 
 skinparam defaultFontName Arial
-skinparam defaultFontSize 15
-skinparam ArrowFontSize 15
-skinparam NoteFontSize 14
-skinparam SequenceDividerFontSize 16
-skinparam SequenceGroupFontSize 15
-skinparam SequenceGroupHeaderFontSize 15
-skinparam ParticipantFontSize 16
-skinparam ActorFontSize 16
-skinparam DatabaseFontSize 16
+skinparam defaultFontSize 20
+skinparam ArrowFontSize 20
+skinparam NoteFontSize 19
+skinparam SequenceDividerFontSize 22
+skinparam SequenceGroupFontSize 20
+skinparam SequenceGroupHeaderFontSize 20
+skinparam ParticipantFontSize 22
+skinparam ActorFontSize 22
+skinparam DatabaseFontSize 22
 
-skinparam maxMessageSize 420
-skinparam wrapWidth 420
+skinparam maxMessageSize 260
+skinparam wrapWidth 260
 skinparam SequenceMessageAlign center
 
 skinparam ArrowThickness 2
