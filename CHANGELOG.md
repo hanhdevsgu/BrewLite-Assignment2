@@ -1,5 +1,14 @@
 # CHANGELOG - BrewLite Platform
 
+## [Unreleased] - 2026-11-14
+
+### Changed
+- **Strict RBAC Role Separation (`/staff`)**: Restricted `StaffController` endpoints (`/api/staff/*`), the `/staff` Kanban UI route (`useRequireRole(['STAFF'])`), and the Navbar `"Quầy Barista"` navigation links strictly to `STAFF` (Barista) instead of allowing `ADMIN` access, matching the overall Use Case specification where Admin does not inherit Barista.
+- **Documentation & Spec Sync**: Updated `/api/staff/orders` actor permission in `docs/01-analysis-spec.md` and UC-22/23/24/25/26 preconditions in `docs/report/Bao_Cao_BrewLite_v16.tex` to require `STAFF` only.
+
+### Added
+- Unit tests in `backend/src/modules/staff/staff.controller.spec.ts` verifying `StaffController` `@Roles` metadata (`[Role.STAFF]`) and `RolesGuard` enforcement (403 `ForbiddenException` for `ADMIN`, `CUSTOMER`, and unauthenticated callers).
+
 ## [Unreleased] - 2026-10-22
 
 ### Added

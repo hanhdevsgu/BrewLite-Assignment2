@@ -623,7 +623,7 @@ Dưới đây là đặc tả chi tiết của các Use-case cốt lõi theo mã
 \hline
 \cellcolor{blue!10}\textbf{Tóm tắt} & Cho phép Nhân viên pha chế xem bảng Kanban các đơn hàng ở 3 cột trạng thái (PAID, PREPARING, READY), sắp xếp theo thứ tự FIFO (\texttt{createdAt} tăng dần) qua API GET /staff/orders, kèm mã đơn, số lượng món và thời gian đặt. Đây là điểm bắt đầu cho các thao tác tiếp nhận đơn, xem công thức pha chế và cập nhật trạng thái. \\
 \hline
-\cellcolor{blue!10}\textbf{Tiền điều kiện} & -- Nhân viên pha chế đã đăng nhập (UC-02) với quyền truy cập màn hình quầy pha chế (STAFF hoặc ADMIN). \newline
+\cellcolor{blue!10}\textbf{Tiền điều kiện} & -- Nhân viên pha chế đã đăng nhập (UC-02) với quyền truy cập màn hình quầy pha chế (STAFF). \newline
 -- Hệ thống đang hoạt động và có kết nối đến cơ sở dữ liệu. \\
 \hline
 \cellcolor{blue!10}\textbf{Hậu điều kiện} & -- Bảng Kanban được hiển thị đúng thứ tự FIFO và tự động làm mới định kỳ khi có đơn mới; dữ liệu đơn hàng không bị thay đổi. \\
@@ -677,7 +677,7 @@ Dưới đây là đặc tả chi tiết của các Use-case cốt lõi theo mã
 \hline
 \cellcolor{blue!10}\textbf{Tóm tắt} & Cho phép Nhân viên pha chế xem công thức pha chế chi tiết từng ly của một đơn hàng (GET /staff/orders/:id/recipes), gồm tên nguyên liệu, định lượng và đơn vị tính, để pha chế đúng công thức chuẩn. \\
 \hline
-\cellcolor{blue!10}\textbf{Tiền điều kiện} & -- Nhân viên pha chế đã đăng nhập (UC-02) với quyền STAFF hoặc ADMIN. \newline
+\cellcolor{blue!10}\textbf{Tiền điều kiện} & -- Nhân viên pha chế đã đăng nhập (UC-02) với quyền STAFF. \newline
 -- Đơn hàng tồn tại và đang hiển thị trên quầy pha chế. \\
 \hline
 \cellcolor{blue!10}\textbf{Hậu điều kiện} & -- Công thức pha chế của từng ly trong đơn được hiển thị đầy đủ; dữ liệu đơn hàng và công thức không bị thay đổi. \\
@@ -708,7 +708,7 @@ Dưới đây là đặc tả chi tiết của các Use-case cốt lõi theo mã
 \hline
 \cellcolor{blue!10}\textbf{Tóm tắt} & Cho phép Nhân viên pha chế cập nhật trạng thái đơn hàng theo đúng máy trạng thái của hệ thống: Tiếp nhận đơn (UC-22, PAID $\rightarrow$ PREPARING, POST /staff/orders/:id/accept), Pha chế hoàn tất (UC-23, PREPARING $\rightarrow$ READY, POST /staff/orders/:id/ready) và Bàn giao cho khách (UC-24, READY $\rightarrow$ COMPLETED, POST /staff/orders/:id/complete). Mỗi lần chuyển đổi trạng thái đều được ghi vết vào lịch sử OrderStatusHistory. \\
 \hline
-\cellcolor{blue!10}\textbf{Tiền điều kiện} & -- Nhân viên pha chế đã đăng nhập (UC-02) với quyền STAFF hoặc ADMIN. \newline
+\cellcolor{blue!10}\textbf{Tiền điều kiện} & -- Nhân viên pha chế đã đăng nhập (UC-02) với quyền STAFF. \newline
 -- Đơn hàng đang ở trạng thái hợp lệ để chuyển sang trạng thái tiếp theo. \\
 \hline
 \cellcolor{blue!10}\textbf{Hậu điều kiện} & -- Trạng thái mới được lưu kèm thời điểm chuyển đổi, được ghi vết vào OrderStatusHistory và đồng bộ đến màn hình theo dõi của khách hàng (UC-17); đơn hàng đạt COMPLETED được ghi nhận hoàn thành. \\
