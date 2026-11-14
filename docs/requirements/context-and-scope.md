@@ -58,6 +58,10 @@ graph TD
 ```
 
 ### 3.1. Trong phạm vi (In-Scope — MVP Sprint 1 & Sprint 2)
+
+**Luồng nghiệp vụ tối thiểu (End-to-End)**:
+`Xem menu → Chọn tùy chọn → Giỏ hàng → Đặt đơn → Thanh toán → Theo dõi đơn`
+
 - **Sprint 1 (Nền tảng & Menu)**:
   - Repository monorepo, quy chuẩn Git, CI cơ bản (Lint, Test, Build).
   - API sản phẩm (`GET /api/products`, `GET /api/products/:id`, `GET /api/products/toppings`).
