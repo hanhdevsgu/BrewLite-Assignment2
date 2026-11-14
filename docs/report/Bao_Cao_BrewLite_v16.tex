@@ -809,9 +809,9 @@ Sơ đồ gồm 5 lifeline --- Khách hàng (actor), Next.js UI (Frontend App), 
 \rowcolor{gray!20} \textbf{Phân đoạn} & \textbf{Luồng chính} \\
 \hline
 \endhead
-1. Khởi tạo đơn hàng (PENDING) & Khách hàng bấm ``Xác nhận đặt hàng'' trên UI; UI gọi POST /api/orders (Header: Authorization: Bearer \texttt{<JWT>}, Body: \texttt{\{ items, promotionCode, loyaltyPointsToUse \}}) tới NestJS API. API kiểm tra JWT (JwtAuthGuard giải mã Bearer Token, lấy user.profileId) và validate payload (ValidationPipe), truy vấn ProductVariant, kiểm tra Voucher và tính tổng tiền, rồi tạo đơn trong \textit{prisma.\$transaction} (tx.order.create với status PENDING và tx.orderStatusHistory.create) và trả về HTTP 201 Created với đơn hàng PENDING. \\
+1. Khởi tạo đơn hàng (PENDING) & Khách hàng bấm ``Xác nhận đặt hàng'' trên UI; UI gọi POST /api/orders (Header: Authorization: Bearer \texttt{<JWT>}, Body: \texttt{\{ items, promotionCode, loyaltyPointsToUse \}}) tới NestJS API. API kiểm tra JWT (\texttt{JwtAuthGuard}), phân quyền (\texttt{RolesGuard + @Roles(Role.CUSTOMER)}), trích xuất \texttt{customerId} (\texttt{user.customerId || user.profileId}) và validate payload (\texttt{ValidationPipe}), truy vấn \texttt{ProductVariant}, validate Voucher và truy vấn \texttt{customer.findUnique(loyaltyPoints)}; sau đó thực hiện \textit{prisma.\$transaction} (khấu trừ \texttt{loyaltyPoints} nếu dùng, \texttt{tx.order.create} trạng thái \texttt{PENDING} và \texttt{tx.orderStatusHistory.create}) và trả về HTTP 201 Created (\texttt{\{ success: true, statusCode: 201, data: order \}}). \\
 \hline
-2. Xác thực thanh toán \& chống click đúp & UI sinh Idempotency-Key (UUIDv4) gắn vào Header rồi gọi POST /api/payments (Body: \texttt{\{ orderId, method: 'WALLET' \}}). API kiểm tra lại JWT, validate DTO và chuyển sang Payment Service (processPayment); Payment Service tra cứu Payment theo Idempotency-Key. Khối \textit{alt} ngoài kiểm tra trùng khóa: nếu key đã tồn tại thì trả ngay kết quả cũ (HTTP 200 OK, cached: true, replayed: true), không trừ tiền lần hai; nếu key chưa tồn tại thì kiểm tra máy trạng thái (assertTransition, chỉ PENDING / PAYMENT\_FAILED sang PAID) rồi thực hiện Database Transaction ACID qua \textit{prisma.\$transaction}: trừ kho bằng Optimistic Locking (khối \textit{loop}, retry tối đa 3 lần) và gọi cổng thanh toán mô phỏng (mockGateway.processCharge). Khối \textit{alt} trong xử lý hai nhánh kết quả: thành công thì tạo giao dịch, chuyển đơn sang PAID, cộng điểm Loyalty, ghi OrderStatusHistory và trả về HTTP 201 Created; thất bại (hết kho HTTP 409 hoặc Gateway từ chối HTTP 402) thì Rollback Transaction, ghi nhận PAYMENT\_FAILED \& OrderStatusHistory rồi báo lỗi để khách thử lại. \\
+2. Xác thực thanh toán \& chống click đúp & UI sinh Idempotency-Key (UUIDv4) gắn vào Header rồi gọi POST /api/payments (Body: \texttt{\{ orderId, method: 'WALLET' | 'CARD' \}}). API kiểm tra JWT, quyền \texttt{CUSTOMER}, validate DTO và chuyển sang Payment Service (\texttt{processPayment}); Payment Service tra cứu Payment theo \texttt{idempotencyKey}. Khối \textit{alt} kiểm tra trùng khóa: nếu key đã tồn tại và khớp chủ đơn, \texttt{orderId}, \texttt{method} (nếu khác chủ đơn trả HTTP 403, lệch payload trả HTTP 422) thì trả ngay kết quả cũ (HTTP 200 OK, \texttt{cached: true, replayed: true}), không trừ tiền lần hai; nếu key chưa tồn tại thì kiểm tra chủ đơn (403), chặn đơn đã \texttt{PAID} (409) và kiểm tra máy trạng thái (\texttt{assertTransition}, chỉ \texttt{PENDING} / \texttt{PAYMENT\_FAILED} $\rightarrow$ \texttt{PAID}) rồi thực hiện \textit{prisma.\$transaction}: trừ kho bằng Optimistic Locking (khối \textit{loop}, retry tối đa 3 lần) rồi gọi cổng thanh toán mô phỏng (\texttt{mockGateway.processCharge}). Nếu thành công thì tạo \texttt{Payment (SUCCESS)}, chuyển đơn sang \texttt{PAID}, tăng \texttt{promotion.usedCount} (nếu có voucher), cộng điểm Loyalty, ghi \texttt{OrderStatusHistory} và trả về HTTP 201 Created; nếu thất bại (hết kho / xung đột OCC HTTP 409, hoặc cổng thanh toán từ chối HTTP 400 / timeout HTTP 408) thì Rollback Transaction, và riêng trường hợp lỗi từ cổng thanh toán hệ thống ghi nhận \texttt{order.update(PAYMENT\_FAILED)} cùng \texttt{OrderStatusHistory} (không tạo bản ghi \texttt{Payment} thất bại) rồi trả mã lỗi để khách thử lại hoặc hủy đơn. \\
 \hline
 \end{longtable}
 
@@ -825,19 +825,19 @@ Sơ đồ gồm 5 lifeline --- Khách hàng (actor), Next.js UI (Frontend App), 
 \rowcolor{gray!20} \textbf{Cơ chế} & \textbf{Mô tả} \\
 \hline
 \endhead
-Xác thực JWT \& Validate DTO & JwtAuthGuard kiểm tra Bearer Token ở cả hai API; ValidationPipe kiểm tra cấu trúc CreateOrderDto và ProcessPaymentDto trước khi xử lý. \\
+Xác thực JWT, RBAC \& Validate DTO & \texttt{JwtAuthGuard} và \texttt{RolesGuard} (\texttt{@Roles(Role.CUSTOMER)}) kiểm tra Bearer Token và vai trò ở cả hai API; \texttt{ValidationPipe} kiểm tra \texttt{CreateOrderDto} và \texttt{ProcessPaymentDto}. \\
 \hline
-Idempotency-Key & UI tự động sinh UUIDv4 duy nhất cho mỗi lần thanh toán, gắn vào Header của POST /payments. \\
+Idempotency-Key & UI tự động sinh UUIDv4 duy nhất cho mỗi lần thanh toán, gắn vào Header của \texttt{POST /api/payments}. \\
 \hline
-Idempotency Replay & Phát hiện Idempotency-Key đã tồn tại thì trả ngay kết quả cũ (HTTP 200 OK, cached: true, replayed: true), KHÔNG gọi trừ tiền và KHÔNG trừ kho lần hai. \\
+Idempotency Replay & Phát hiện \texttt{Idempotency-Key} đã tồn tại và khớp chủ đơn, \texttt{orderId}, \texttt{method} (lệch payload trả HTTP 422, khác chủ đơn trả HTTP 403) thì trả ngay kết quả cũ (HTTP 200 OK, \texttt{cached: true, replayed: true}), KHÔNG trừ tiền và KHÔNG trừ kho lần hai. \\
 \hline
-Kiểm tra máy trạng thái & \textit{assertTransition(order.status, 'PAID')}: chỉ cho phép chuyển từ PENDING hoặc PAYMENT\_FAILED sang PAID. \\
+Kiểm tra máy trạng thái & \textit{assertTransition(order.status, 'PAID')}: chỉ cho phép chuyển từ \texttt{PENDING} hoặc \texttt{PAYMENT\_FAILED} sang \texttt{PAID} (kết hợp chặn đơn đã \texttt{PAID} trả HTTP 409). \\
 \hline
-Database Transaction & Mọi thao tác ghi (tạo giao dịch, trừ kho, chuyển trạng thái, cộng điểm Loyalty, ghi OrderStatusHistory) thực hiện trong ACID Transaction qua \textit{prisma.\$transaction}. \\
+Database Transaction & Mọi thao tác ghi (tạo \texttt{Payment}, trừ kho, chuyển \texttt{PAID}, tăng \texttt{promotion.usedCount}, cộng \texttt{loyaltyPoints}, ghi \texttt{OrderStatusHistory}) thực hiện nguyên tử qua \textit{prisma.\$transaction}; nếu thất bại sẽ rollback toàn bộ phần trừ kho. \\
 \hline
-Khấu trừ kho (Optimistic Locking) & Khối \textit{loop} trừ kho nguyên liệu bằng tx.ingredient.updateMany với điều kiện version và stockQuantity, retry tối đa 3 lần. \\
+Khấu trừ kho (Optimistic Locking) & Khối \textit{loop} trừ kho nguyên liệu bằng \texttt{tx.ingredient.updateMany} với điều kiện \texttt{version} và \texttt{stockQuantity}, retry tối đa 3 lần (hết kho/xung đột trả HTTP 409). \\
 \hline
-Cổng thanh toán mô phỏng & Gọi \textit{mockGateway.processCharge(\{ amount, method: 'WALLET' \})} để xử lý trừ tiền trong phạm vi MVP. \\
+Cổng thanh toán mô phỏng & Gọi \textit{mockGateway.processCharge(\{ amount, method \})} sau bước giữ chỗ OCC (hỗ trợ \texttt{WALLET}/\texttt{CARD}; lỗi từ chối trả HTTP 400, timeout trả HTTP 408 và ghi \texttt{PAYMENT\_FAILED}). \\
 \hline
 \end{longtable}
 
