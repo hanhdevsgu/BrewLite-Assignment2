@@ -8,11 +8,12 @@
 
 ## 1. Sơ Đồ Use-Case (Use-Case Diagram)
 
+Sơ đồ Use-case phạm vi đặt hàng & thanh toán được lưu tại [03-subsystem-order-payment.drawio](../diagrams/usecases/03-subsystem-order-payment.drawio) và ảnh [Usecase_cnpm_03.drawio.png](../report/img/Usecase_cnpm_03.drawio.png):
+
 ```mermaid
 graph LR
     Customer["Khách Hàng (Customer)"]
     PaymentGW["Cổng Thanh Toán (Mock Gateway)"]
-    Barista["Nhân Viên Pha Chế (Barista)"]
 
     subgraph Scope["Phân Hệ: Đặt & Thanh Toán Đơn Hàng Đồng Thời"]
         UC_CreateOrder["UC-12: Khởi Tạo Đơn Hàng (POST /orders)"]
@@ -81,7 +82,7 @@ graph LR
 2. **Bước 2**: Client Frontend Next.js tự động tạo một khóa ngẫu nhiên duy nhất `idempotencyKey` (chuẩn UUID v4).
 3. **Bước 3**: Client gửi request `POST /api/orders` kèm theo Bearer JWT Token để khởi tạo đơn hàng mới.
 4. **Bước 4**: Backend NestJS xác thực JWT, tính toán tổng tiền, tạo bản ghi `Order` với trạng thái `PENDING` và trả về `orderId`.
-5. **Bước 5**: Client gửi tiếp request thanh toán `POST /api/payments` chứa `orderId`, phương thức thanh toán (`BANK_TRANSFER` / `WALLET`) và header `x-idempotency-key: <idempotencyKey>`.
+5. **Bước 5**: Client gửi tiếp request thanh toán `POST /api/payments` chứa `orderId`, phương thức thanh toán (`BANK_TRANSFER` / `WALLET`) và header `Idempotency-Key: <idempotencyKey>`.
 6. **Bước 6**: Backend kiểm tra `idempotencyKey` trong bảng `Payment`:
    - Không tìm thấy khóa trùng ➔ Xác định đây là giao dịch mới (First Execution).
 7. **Bước 7**: Backend mở một Interactive Database Transaction (`prisma.$transaction`):
@@ -105,8 +106,8 @@ graph LR
 - Client gọi API `POST /api/promotions/validate` (hoặc tính toán tức thời), tự động khóa chọn thêm mã khi tổng đơn đã giảm về 0đ.
 - Hệ thống trừ tiền giảm giá vào tổng tiền thanh toán trước khi sang Bước 3.
 
-#### A2: Khách hàng click đúp chuột hoặc gửi lại cùng request do mạng lag (Idempotency Replay)
-- Tại Bước 5, do mạng chập chờn, khách hàng bấm nút thanh toán lần 2 (hoặc client tự động retry) với cùng mã `idempotencyKey`.
+#### A2: Khách hàng nhấn đúp nút thanh toán hoặc gửi lại yêu cầu khi mạng không ổn định (Idempotency Replay)
+- Tại Bước 5, do kết nối mạng không ổn định, khách hàng nhấn thanh toán lần 2 (hoặc client tự động retry) với cùng mã `idempotencyKey`.
 - Backend kiểm tra thấy `idempotencyKey` này **đã tồn tại** trong cơ sở dữ liệu và đã thanh toán thành công trước đó.
 - Backend **bỏ qua** toàn bộ bước trừ tiền và trừ kho, lập tức trả về kết quả của giao dịch trước đó với mã `HTTP 200 OK` kèm cờ `replayed: true`.
 - Khách hàng không bị trừ tiền thêm lần nào, giao diện hiển thị thông báo "Đơn hàng của bạn đã được ghi nhận trước đó".
@@ -115,7 +116,7 @@ graph LR
 - Khách hàng gửi yêu cầu hủy đơn qua API `POST /api/orders/:id/cancel`.
 - Nếu đơn ở trạng thái `PENDING`: Đơn lập tức chuyển sang `CANCELLED`.
 - Nếu đơn ở trạng thái `PAID` (trước khi Barista nhận đơn `PREPARING`): Backend kích hoạt giao dịch bù (Compensating Transaction) tự động hoàn trả số lượng tồn kho nguyên liệu (`stockQuantity.increment`) theo công thức, hoàn tiền ví điện tử và thu hồi điểm thưởng loyalty.
-- Nếu đơn đã sang `PREPARING`: Chức năng hủy bị chặn đứng (HTTP 400/409) do nguyên liệu đã đưa vào pha chế thực tế.
+- Nếu đơn đã sang `PREPARING`: Yêu cầu hủy bị từ chối (HTTP 400/409) do nguyên liệu đã đưa vào pha chế thực tế.
 
 ---
 
@@ -126,8 +127,8 @@ graph LR
 - Backend trả về mã lỗi `HTTP 401 Unauthorized`.
 - Client hiển thị thông báo "Phiên đăng nhập đã hết hạn" và tự động điều hướng khách hàng về màn hình Đăng nhập.
 
-#### E2: Xung đột tồn kho do khách khác vừa mua ly cuối cùng (Optimistic Lock Conflict)
-- Tại Bước 7, khách hàng A và khách hàng B cùng thanh toán ly cà phê cuối cùng.
+#### E2: Xung đột tồn kho khi nhiều khách hàng cùng thanh toán nguyên liệu sắp hết (Optimistic Lock Conflict)
+- Tại Bước 7, khách hàng A và khách hàng B cùng thanh toán đơn hàng sử dụng phần nguyên liệu cuối cùng.
 - Khách hàng A giao dịch thành công trước, số lượng nguyên liệu trong kho giảm về 0 và `version` tăng lên.
 - Giao dịch của khách hàng B phát hiện số lượng tồn kho không đủ (hoặc `version` đã thay đổi).
 - Backend kích hoạt Rollback toàn bộ transaction, hủy trạng thái thanh toán và trả về mã lỗi `HTTP 409 Conflict` kèm thông điệp: *"Nguyên liệu Cà phê hạt Robusta không đủ để thực hiện món này"*.
@@ -136,5 +137,5 @@ graph LR
 #### E3: Cố tình chuyển đổi trạng thái đơn hàng trái phép (State Machine Violation)
 - Nếu client hoặc người dùng can thiệp gửi request thanh toán cho một đơn hàng đã bị hủy (`CANCELLED`) hoặc đã hoàn thành (`COMPLETED`).
 - Backend kiểm tra bộ quy tắc State Machine: Trạng thái hiện tại không cho phép chuyển sang `PAID`.
-- Hệ thống chặn đứng yêu cầu và phản hồi `HTTP 409 Conflict` với thông điệp: *"Không thể chuyển trạng thái từ CANCELLED sang PAID"*.
+- Hệ thống từ chối yêu cầu và phản hồi `HTTP 409 Conflict` với thông điệp: *"Không thể chuyển trạng thái từ CANCELLED sang PAID"*.
 
