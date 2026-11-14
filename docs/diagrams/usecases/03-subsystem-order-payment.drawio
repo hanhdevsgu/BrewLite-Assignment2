@@ -57,7 +57,7 @@
           <mxGeometry height="46" width="265" x="680" y="410" as="geometry" />
         </mxCell>
 
-        <mxCell id="uRefund" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="Tự động hoàn kho &amp; Điểm thưởng" vertex="1">
+        <mxCell id="uRefund" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="Hoàn kho, thu hồi điểm đã tích&lt;br&gt;&amp; hoàn lượt voucher" vertex="1">
           <mxGeometry height="46" width="265" x="680" y="490" as="geometry" />
         </mxCell>
 
@@ -112,11 +112,20 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <mxCell id="inc18Refund" edge="1" parent="1" source="u18" style="endArrow=open;endFill=0;dashed=1;html=1;fontSize=9.5;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;exitX=0.98;exitY=0.45;exitDx=0;exitDy=0;entryX=0;entryY=0.45;entryDx=0;entryDy=0;" target="uRefund" value="«include»">
+        <mxCell id="inc18Refund" edge="1" parent="1" source="uRefund" style="endArrow=open;endFill=0;dashed=1;html=1;fontSize=9.5;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.45;exitDx=0;exitDy=0;entryX=0.98;entryY=0.45;entryDx=0;entryDy=0;" target="u18" value="«extend»&lt;br&gt;[đơn đã PAID]">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
         <mxCell id="inc18Audit" edge="1" parent="1" source="u18" style="endArrow=open;endFill=0;dashed=1;html=1;fontSize=9.5;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;exitX=0.95;exitY=0.8;exitDx=0;exitDy=0;entryX=0;entryY=0.35;entryDx=0;entryDy=0;" target="uAuditCancel" value="«include»">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+
+        <!-- Actor phụ: Barista / Admin cũng được hủy đơn (OrdersService.cancelOrder cho mọi role có JWT) -->
+        <mxCell id="aBar" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="Nhân viên / Quản trị&lt;br&gt;(Barista / Admin)" vertex="1">
+          <mxGeometry height="60" width="30" x="65" y="385" as="geometry" />
+        </mxCell>
+        <mxCell id="eBar18" edge="1" parent="1" source="aBar" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u18">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 

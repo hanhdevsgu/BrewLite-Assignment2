@@ -34,7 +34,7 @@
         <mxCell id="u3" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-08: Xem chi tiết món, Size &amp; Topping" vertex="1">
           <mxGeometry height="44" width="240" x="370" y="200" as="geometry" />
         </mxCell>
-        <mxCell id="u4" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-09: Quản lý giỏ hàng" vertex="1">
+        <mxCell id="u4" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-09: Quản lý giỏ hàng (phía client)" vertex="1">
           <mxGeometry height="44" width="240" x="370" y="260" as="geometry" />
         </mxCell>
         <mxCell id="u5" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-10: Tra cứu voucher khả dụng" vertex="1">
@@ -55,7 +55,7 @@
         <mxCell id="u9" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-19: Xem lịch sử đơn hàng" vertex="1">
           <mxGeometry height="44" width="240" x="370" y="560" as="geometry" />
         </mxCell>
-        <mxCell id="u9e" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-20: Gửi đánh giá sản phẩm đã mua" vertex="1">
+        <mxCell id="u9e" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-20: Gửi đánh giá sản phẩm" vertex="1">
           <mxGeometry height="44" width="240" x="370" y="620" as="geometry" />
         </mxCell>
         <mxCell id="u9f" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-21: Chỉnh sửa / Xóa đánh giá" vertex="1">
@@ -100,9 +100,6 @@
         <mxCell id="u17" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-05: Làm mới phiên đăng nhập" vertex="1">
           <mxGeometry height="44" width="240" x="370" y="1360" as="geometry" />
         </mxCell>
-        <mxCell id="u21" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-06: Đăng xuất" vertex="1">
-          <mxGeometry height="44" width="240" x="370" y="1420" as="geometry" />
-        </mxCell>
         <mxCell id="u20" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-27: Xem thống kê doanh thu &amp; Báo cáo" vertex="1">
           <mxGeometry height="44" width="240" x="370" y="1510" as="geometry" />
         </mxCell>
@@ -115,7 +112,7 @@
         <mxCell id="u23" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-30: Quản lý mã khuyến mãi" vertex="1">
           <mxGeometry height="44" width="240" x="370" y="1690" as="geometry" />
         </mxCell>
-        <mxCell id="u24" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-31: Kiểm duyệt đánh giá khách hàng" vertex="1">
+        <mxCell id="u24" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-31: Kiểm duyệt đánh giá (ẩn / hiện / xóa)" vertex="1">
           <mxGeometry height="44" width="240" x="370" y="1750" as="geometry" />
         </mxCell>
         <mxCell id="u25" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-32: Quản lý nhân sự &amp; Khách hàng" vertex="1">
@@ -187,9 +184,6 @@
         <mxCell id="e22" edge="1" parent="1" source="aGen" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u17">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e23" edge="1" parent="1" source="aGen" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u21">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
         <mxCell id="e24" edge="1" parent="1" source="aAdm" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u20">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
@@ -208,6 +202,12 @@
         <mxCell id="e29" edge="1" parent="1" source="aAdm" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u25">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
+        <mxCell id="e30" edge="1" parent="1" source="aBar" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e31" edge="1" parent="1" source="aBar" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
         <mxCell id="g1" edge="1" parent="1" source="aCus" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;endFill=0;endSize=12;html=1;strokeColor=#000000;exitX=0;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.33;entryDx=0;entryDy=0;" target="aGen">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
@@ -223,11 +223,12 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="g3" edge="1" parent="1" source="aAdm" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;endFill=0;endSize=12;html=1;strokeColor=#000000;exitX=0;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.33;entryDx=0;entryDy=0;" target="aGen">
+        <mxCell id="g3" edge="1" parent="1" source="aAdm" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;endFill=0;endSize=12;html=1;strokeColor=#000000;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="aBar">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="20" y="1672" />
-              <mxPoint x="20" y="1310" />
+              <mxPoint x="75" y="1620" />
+              <mxPoint x="143" y="1620" />
+              <mxPoint x="143" y="1020" />
             </Array>
           </mxGeometry>
         </mxCell>
