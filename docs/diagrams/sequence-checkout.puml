@@ -1,7 +1,7 @@
 @startuml
 autonumber
 
-skinparam dpi 300
+skinparam dpi 150
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 
