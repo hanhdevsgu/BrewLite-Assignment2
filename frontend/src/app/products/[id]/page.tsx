@@ -1202,7 +1202,7 @@ export default function ProductDetailPage() {
           {reviewToDelete && (
             <div className="p-3 bg-surface-2 rounded-lg border border-line space-y-1">
               <span className="text-[11px] text-ink-3 block">Nội dung đánh giá sẽ xóa:</span>
-              <p className="text-ink font-medium italic">"{reviewToDelete.content}"</p>
+              <p className="text-ink font-medium italic">&ldquo;{reviewToDelete.content}&rdquo;</p>
             </div>
           )}
 

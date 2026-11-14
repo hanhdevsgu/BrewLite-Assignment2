@@ -21,45 +21,71 @@ jobs:
         with:
           node-version: 20
 
-      # 1. Quality Gate (Lint, Test, Build)
-      - name: 1. Run Quality Gate (Install, Test & Build)
+      # 1. Quality Gate (Install, Lint, Test, Build)
+      - name: 1. Run Quality Gate (Install, Lint, Test & Build)
         run: |
           npm install
-          cd backend && npm install && npm run build
-          cd ../frontend && npm install && npm run build
+          cd backend && npm install && npm run lint && npm test && npm run build
+          cd ../frontend && npm install && npm run lint && npm run build
 
       # 2. Tag image with Commit SHA & Semantic Version
       - name: 2. Generate Image Tags
         id: meta
         run: |
           echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-          echo "TIMESTAMP=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+          echo "VERSION_TAG=${GITHUB_REF_NAME:-$GITHUB_SHA}" >> $GITHUB_ENV
 
-      # 3. Docker Image Build (Backend & Frontend)
+      # 3. Docker Image Build & Push Registry (ghcr.io)
       - name: 3. Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: 4. Build Docker Images Locally
-        run: |
-          echo "Building Docker images with tag: ${{ env.SHORT_SHA }}..."
-          docker compose build || echo "Docker build simulation passed."
+      - name: 4. Log in to GitHub Container Registry (ghcr.io)
+        if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 4. Deploy Simulation & Production Verification
-      - name: 5. Safe Database Migration (Zero-Downtime)
+      - name: 5. Build & Push Docker Images
         run: |
-          echo "Running Prisma Safe Migrations on Production..."
+          REPO_OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          docker build -t ghcr.io/$REPO_OWNER_LOWER/brewlite-backend:${{ env.SHORT_SHA }} -t ghcr.io/$REPO_OWNER_LOWER/brewlite-backend:${{ env.VERSION_TAG }} ./backend
+          docker build -t ghcr.io/$REPO_OWNER_LOWER/brewlite-frontend:${{ env.SHORT_SHA }} -t ghcr.io/$REPO_OWNER_LOWER/brewlite-frontend:${{ env.VERSION_TAG }} ./frontend
+          if [ "${{ github.event_name }}" = "push" ] && [[ "${{ github.ref }}" == refs/tags/v* || "${{ github.ref }}" == "refs/heads/main" ]]; then
+            docker push ghcr.io/$REPO_OWNER_LOWER/brewlite-backend:${{ env.SHORT_SHA }}
+            docker push ghcr.io/$REPO_OWNER_LOWER/brewlite-backend:${{ env.VERSION_TAG }}
+            docker push ghcr.io/$REPO_OWNER_LOWER/brewlite-frontend:${{ env.SHORT_SHA }}
+            docker push ghcr.io/$REPO_OWNER_LOWER/brewlite-frontend:${{ env.VERSION_TAG }}
+          fi
+
+      # 4. Safe Database Migration & Deploy Hook
+      - name: 6. Safe Database Migration & Deploy Trigger
+        env:
+          DEPLOY_WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
+        run: |
           cd backend && npx prisma -v
+          if [ -n "$DEPLOY_WEBHOOK_URL" ]; then
+            curl -fsSL -X POST "$DEPLOY_WEBHOOK_URL"
+          else
+            echo "DEPLOY_WEBHOOK_URL secret not configured — skipping remote deploy hook."
+          fi
 
       # 5. Health Check & Smoke Test
-      - name: 6. Automated Post-Deployment Smoke Test
+      - name: 7. Automated Post-Deployment Smoke Test
+        env:
+          PROD_HEALTH_URL: ${{ secrets.PROD_HEALTH_URL }}
         run: |
-          echo "Executing Smoke Test on Health Endpoint..."
-          echo "Testing /api/health response format..."
-          # Giả lập lệnh smoke test
-          curl -s --head http://localhost:3001/api/health || true
+          if [ -n "$PROD_HEALTH_URL" ]; then
+            echo "Executing Smoke Test on $PROD_HEALTH_URL..."
+            curl -fsSL "$PROD_HEALTH_URL"
+          else
+            echo "PROD_HEALTH_URL secret not configured — verifying local health route definition."
+            grep -q "api/health" backend/src/app.controller.ts
+          fi
 
       # 6. Rollback Mechanism (Triggered on Failure)
-      - name: 7. Rollback Trigger (On Failure)
+      - name: 8. Rollback Trigger (On Failure)
         if: failure()
         run: |
           echo "========================================================="

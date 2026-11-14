@@ -46,11 +46,11 @@ jobs:
         run: |
           cd frontend && npm ci || npm install
 
-      # Step 2: Linting Check
+      # Step 2: Linting & Type Check (Strict Quality Gate)
       - name: 3. Run Lint Checks (Backend & Frontend)
         run: |
-          cd backend && npm run lint || true
-          cd ../frontend && npm run lint || true
+          cd backend && npm run lint
+          cd ../frontend && npm run lint
 
       # Step 3: Database Migration & Schema Push
       - name: 4. Push Prisma Schema & Run Seeds on Test DB
