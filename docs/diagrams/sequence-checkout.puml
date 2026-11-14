@@ -1,34 +1,28 @@
 @startuml
 autonumber
 
-skinparam dpi 150
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 
-skinparam defaultFontName sans-serif
-skinparam defaultFontSize 20
-skinparam ArrowFontSize 20
-skinparam NoteFontSize 19
-skinparam SequenceDividerFontSize 22
-skinparam SequenceGroupFontSize 20
-skinparam SequenceGroupHeaderFontSize 20
-skinparam ParticipantFontSize 22
-skinparam ActorFontSize 22
-skinparam DatabaseFontSize 22
+skinparam defaultFontName Arial
+skinparam defaultFontSize 15
+skinparam ArrowFontSize 15
+skinparam NoteFontSize 14
+skinparam SequenceDividerFontSize 16
+skinparam SequenceGroupFontSize 15
+skinparam SequenceGroupHeaderFontSize 15
+skinparam ParticipantFontSize 16
+skinparam ActorFontSize 16
+skinparam DatabaseFontSize 16
 
-skinparam maxMessageSize 220
-skinparam wrapWidth 220
+skinparam maxMessageSize 420
+skinparam wrapWidth 420
 skinparam SequenceMessageAlign center
-<style>
-participant {
-  Padding 5
-}
-</style>
 
-skinparam ArrowThickness 2.5
-skinparam LifeLineBorderThickness 2
-skinparam ParticipantBorderThickness 2
-skinparam NoteBorderThickness 1.5
+skinparam ArrowThickness 2
+skinparam LifeLineBorderThickness 1.5
+skinparam ParticipantBorderThickness 1.5
+skinparam NoteBorderThickness 1.2
 
 skinparam ParticipantBackgroundColor #F8F8F8
 skinparam ParticipantBorderColor #333333
@@ -39,6 +33,12 @@ skinparam DatabaseBorderColor #333333
 skinparam NoteBorderColor #666666
 skinparam ArrowColor #000000
 skinparam LifeLineBorderColor #444444
+
+<style>
+participant {
+  Padding 8
+}
+</style>
 
 actor "Customer\n(Khách hàng)" as Customer
 participant "Next.js UI\n(Frontend)" as UI
@@ -51,13 +51,12 @@ database "Database\n(PostgreSQL)" as DB
 Customer -> UI : Bấm "Xác nhận đặt hàng"
 activate UI
 
-UI -> API : POST /api/orders\n[Bearer <JWT>]\n{ items, promotionCode, loyaltyPointsToUse }
+UI -> API : POST /api/orders [Bearer <JWT>]\n{ items, promotionCode, loyaltyPointsToUse }
 activate API
 
 note over API #FFF9E6
   <b>1. Check JWT & Validate DTO</b>
-  Xác thực Token, lấy user.profileId
-  & ValidationPipe kiểm tra payload
+  Xác thực Token, lấy user.profileId & Validate payload
 end note
 
 API -> DB : Query ProductVariant, kiểm tra Voucher & tính tổng tiền
@@ -65,12 +64,12 @@ activate DB
 DB --> API : Thông tin biến thể & chiết khấu
 deactivate DB
 
-API -> DB : prisma.$transaction:\n• order.create(PENDING)\n• orderStatusHistory.create()
+API -> DB : prisma.$transaction: order.create(PENDING) & orderStatusHistory.create()
 activate DB
 DB --> API : Commit & trả về Order
 deactivate DB
 
-API --> UI : HTTP 201 Created:\n{ success: true, data: order }
+API --> UI : HTTP 201 Created: { success: true, data: order }
 deactivate API
 
 UI --> Customer : Hiển thị chọn phương thức thanh toán
@@ -78,7 +77,7 @@ deactivate UI
 
 == PHẦN 2: XÁC THỰC THANH TOÁN & IDEMPOTENCY ==
 
-Customer -> UI : Nhấn "Thanh toán ngay"\n(Hoặc bấm đúp 2 lần)
+Customer -> UI : Nhấn "Thanh toán ngay" (Hoặc bấm đúp 2 lần)
 activate UI
 
 note over UI #FFF9E6
@@ -86,7 +85,7 @@ note over UI #FFF9E6
   Tạo UUIDv4 gắn vào Header
 end note
 
-UI -> API : POST /api/payments\n[Idempotency-Key: <UUIDv4>]\n{ orderId, method: 'WALLET' }
+UI -> API : POST /api/payments [Idempotency-Key: <UUIDv4>]\n{ orderId, method: 'WALLET' }
 activate API
 
 note over API #FFF9E6
@@ -97,7 +96,7 @@ end note
 API -> Service : processPayment(dto, key, user)
 activate Service
 
-Service -> DB : payment.findUnique({\n where: { idempotencyKey }\n})
+Service -> DB : payment.findUnique({ where: { idempotencyKey } })
 activate DB
 DB --> Service : Kết quả tra cứu Payment
 deactivate DB
@@ -111,48 +110,45 @@ alt TH 1: Idempotency-Key ĐÃ TỒN TẠI (Replay)
 
   Service --> API : { cached: true, replayed: true, payment, order }
   API --> UI : HTTP 200 OK (Đã xử lý trước đó)
-  UI --> Customer : Hiển thị kết quả an toàn\n(Không trừ tiền 2 lần)
+  UI --> Customer : Hiển thị kết quả an toàn (Không trừ tiền 2 lần)
 
 else TH 2: Idempotency-Key CHƯA TỒN TẠI (Mới)
 
   note over Service #FFF9E6
-    <b>4b. State Machine Check</b>
-    PENDING / PAYMENT_FAILED -> PAID
+    <b>4b. State Machine Check:</b> PENDING / PAYMENT_FAILED -> PAID
   end note
 
   note over Service, DB #E6FFEC
-    <b>5. DB Transaction ACID</b>
-    prisma.$transaction(...)
+    <b>5. DB Transaction ACID:</b> prisma.$transaction(...)
   end note
 
   Service -> DB : Bắt đầu Transaction ACID
   activate DB
 
   loop Khấu trừ kho (Optimistic Locking, Retry <= 3)
-    Service -> DB : ingredient.updateMany({\n stockQuantity: -qty,\n version: +1\n})
+    Service -> DB : ingredient.updateMany({ stockQuantity: -qty, version: +1 })
   end
 
   note over Service #FFF9E6
-    <b>6. Gọi Cổng thanh toán</b>
-    processCharge(WALLET / CARD)
+    <b>6. Gọi Cổng thanh toán:</b> processCharge(WALLET / CARD)
   end note
 
   alt Thanh toán thành công (Đủ kho & Gateway OK)
 
-    Service -> DB : • payment.create(SUCCESS)\n• order.update(PAID)\n• customer.update(+points)\n• orderStatusHistory.create()
+    Service -> DB : payment.create(SUCCESS), order.update(PAID),\ncustomer.update(+points), orderStatusHistory.create()
     DB --> Service : 7. Commit thành công
     deactivate DB
 
     Service --> API : { success: true, payment, order }
-    API --> UI : HTTP 201 Created:\n{ message: 'Thành công' }
-    UI --> Customer : Hiển thị "Thanh toán thành công"\n& Mã nhận đơn
+    API --> UI : HTTP 201 Created: { message: 'Thành công' }
+    UI --> Customer : Hiển thị "Thanh toán thành công" & Mã nhận đơn
 
   else Thanh toán thất bại (Hết kho 409 / Gateway từ chối)
 
-    Service -> DB : Rollback Transaction\n& ghi PAYMENT_FAILED + OrderStatusHistory
+    Service -> DB : Rollback Transaction & ghi PAYMENT_FAILED + OrderStatusHistory
     Service --> API : Throw Conflict (409) / Payment Error (402)
     deactivate Service
-    API --> UI : HTTP 409 / 402 Error\n{ message: 'Hết hàng hoặc lỗi thẻ' }
+    API --> UI : HTTP 409 / 402 Error { message: 'Hết hàng hoặc lỗi thẻ' }
     deactivate API
     UI --> Customer : Thông báo thất bại & Cho phép thử lại
     deactivate UI
