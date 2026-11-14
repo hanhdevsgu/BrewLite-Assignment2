@@ -76,10 +76,10 @@ graph TD
     User --> UC04
     User --> UC05
     User --> UC06
+    User --> UC07
+    User --> UC08
 
     Customer --> UC01
-    Customer --> UC07
-    Customer --> UC08
     Customer --> UC09
     Customer --> UC10
     Customer --> UC12

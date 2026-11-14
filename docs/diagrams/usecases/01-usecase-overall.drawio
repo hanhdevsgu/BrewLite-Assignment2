@@ -14,13 +14,13 @@
           <mxGeometry height="60" width="30" x="60" y="300" as="geometry" />
         </mxCell>
         <mxCell id="aGw" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="«System»&lt;br&gt;Cổng thanh toán&lt;br&gt;(MBBank/Gateway)" vertex="1">
-          <mxGeometry height="60" width="30" x="110" y="795" as="geometry" />
+          <mxGeometry height="60" width="30" x="110" y="675" as="geometry" />
         </mxCell>
         <mxCell id="aBar" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="Nhân viên pha chế&lt;br&gt;(Barista)" vertex="1">
-          <mxGeometry height="60" width="30" x="190" y="990" as="geometry" />
+          <mxGeometry height="60" width="30" x="190" y="870" as="geometry" />
         </mxCell>
         <mxCell id="aGen" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="«Abstract»&lt;br&gt;Người dùng chung&lt;br&gt;(User)" vertex="1">
-          <mxGeometry height="60" width="30" x="60" y="1290" as="geometry" />
+          <mxGeometry height="60" width="30" x="60" y="1230" as="geometry" />
         </mxCell>
         <mxCell id="aAdm" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=11;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="Quản trị viên&lt;br&gt;(Admin)" vertex="1">
           <mxGeometry height="60" width="30" x="60" y="1652" as="geometry" />
@@ -28,79 +28,79 @@
         <mxCell id="u1" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-01: Đăng ký tài khoản" vertex="1">
           <mxGeometry height="44" width="240" x="370" y="80" as="geometry" />
         </mxCell>
-        <mxCell id="u2" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-07: Xem thực đơn &amp; Tìm kiếm" vertex="1">
+        <mxCell id="u4" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-09: Quản lý giỏ hàng" vertex="1">
           <mxGeometry height="44" width="240" x="370" y="140" as="geometry" />
         </mxCell>
-        <mxCell id="u3" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-08: Xem chi tiết món, Size &amp; Topping" vertex="1">
+        <mxCell id="u5" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-10: Tra cứu voucher khả dụng" vertex="1">
           <mxGeometry height="44" width="240" x="370" y="200" as="geometry" />
         </mxCell>
-        <mxCell id="u4" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-09: Quản lý giỏ hàng" vertex="1">
+        <mxCell id="u6" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-12: Khởi tạo đơn hàng (PENDING)" vertex="1">
           <mxGeometry height="44" width="240" x="370" y="260" as="geometry" />
         </mxCell>
-        <mxCell id="u5" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-10: Tra cứu voucher khả dụng" vertex="1">
-          <mxGeometry height="44" width="240" x="370" y="320" as="geometry" />
-        </mxCell>
-        <mxCell id="u6" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-12: Khởi tạo đơn hàng (PENDING)" vertex="1">
-          <mxGeometry height="44" width="240" x="370" y="380" as="geometry" />
-        </mxCell>
         <mxCell id="u6e" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-11: Áp dụng Voucher &amp; Điểm thưởng" vertex="1">
-          <mxGeometry height="44" width="230" x="700" y="380" as="geometry" />
+          <mxGeometry height="44" width="230" x="700" y="260" as="geometry" />
         </mxCell>
         <mxCell id="u7" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-17: Theo dõi tiến trình đơn hàng" vertex="1">
-          <mxGeometry height="44" width="240" x="370" y="440" as="geometry" />
+          <mxGeometry height="44" width="240" x="370" y="320" as="geometry" />
         </mxCell>
         <mxCell id="u8" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-18: Hủy đơn hàng tự động hoàn kho" vertex="1">
-          <mxGeometry height="44" width="240" x="370" y="500" as="geometry" />
+          <mxGeometry height="44" width="240" x="370" y="380" as="geometry" />
         </mxCell>
         <mxCell id="u9" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-19: Xem lịch sử đơn hàng" vertex="1">
-          <mxGeometry height="44" width="240" x="370" y="560" as="geometry" />
+          <mxGeometry height="44" width="240" x="370" y="440" as="geometry" />
         </mxCell>
         <mxCell id="u9e" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-20: Gửi đánh giá sản phẩm đã mua" vertex="1">
-          <mxGeometry height="44" width="240" x="370" y="620" as="geometry" />
+          <mxGeometry height="44" width="240" x="370" y="500" as="geometry" />
         </mxCell>
         <mxCell id="u9f" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-21: Chỉnh sửa / Xóa đánh giá" vertex="1">
-          <mxGeometry height="44" width="240" x="370" y="680" as="geometry" />
+          <mxGeometry height="44" width="240" x="370" y="560" as="geometry" />
         </mxCell>
         <mxCell id="u10" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-13: Thanh toán đơn hàng (PAID)" vertex="1">
-          <mxGeometry height="44" width="240" x="370" y="770" as="geometry" />
+          <mxGeometry height="44" width="240" x="370" y="650" as="geometry" />
         </mxCell>
         <mxCell id="u15_occ" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-15: Khấu trừ kho Optimistic Lock" vertex="1">
-          <mxGeometry height="44" width="240" x="700" y="740" as="geometry" />
+          <mxGeometry height="44" width="240" x="700" y="620" as="geometry" />
         </mxCell>
         <mxCell id="u16_loy" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-16: Tự động tích lũy điểm Loyalty" vertex="1">
-          <mxGeometry height="44" width="240" x="700" y="800" as="geometry" />
+          <mxGeometry height="44" width="240" x="700" y="680" as="geometry" />
         </mxCell>
         <mxCell id="u11" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-14: Đồng bộ thanh toán MBBank VietQR" vertex="1">
-          <mxGeometry height="44" width="240" x="370" y="830" as="geometry" />
+          <mxGeometry height="44" width="240" x="370" y="710" as="geometry" />
         </mxCell>
         <mxCell id="u12" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-22: Tiếp nhận pha chế đơn hàng" vertex="1">
-          <mxGeometry height="44" width="240" x="370" y="910" as="geometry" />
+          <mxGeometry height="44" width="240" x="370" y="790" as="geometry" />
         </mxCell>
         <mxCell id="u13" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-23: Xác nhận pha chế hoàn tất" vertex="1">
-          <mxGeometry height="44" width="240" x="370" y="970" as="geometry" />
+          <mxGeometry height="44" width="240" x="370" y="850" as="geometry" />
         </mxCell>
         <mxCell id="u14" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-24: Bàn giao đồ uống cho khách" vertex="1">
-          <mxGeometry height="44" width="240" x="370" y="1030" as="geometry" />
+          <mxGeometry height="44" width="240" x="370" y="910" as="geometry" />
         </mxCell>
         <mxCell id="u15" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-25: Xem bảng Kanban pha chế (FIFO)" vertex="1">
-          <mxGeometry height="44" width="240" x="370" y="1090" as="geometry" />
+          <mxGeometry height="44" width="240" x="370" y="970" as="geometry" />
         </mxCell>
         <mxCell id="u15e" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-26: Xem công thức pha chế (Recipes)" vertex="1">
-          <mxGeometry height="44" width="230" x="700" y="1090" as="geometry" />
+          <mxGeometry height="44" width="230" x="700" y="970" as="geometry" />
         </mxCell>
         <mxCell id="u16" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-02: Đăng nhập hệ thống" vertex="1">
-          <mxGeometry height="44" width="240" x="370" y="1180" as="geometry" />
+          <mxGeometry height="44" width="240" x="370" y="1060" as="geometry" />
         </mxCell>
         <mxCell id="u16i" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-03: Đổi mật khẩu" vertex="1">
-          <mxGeometry height="44" width="240" x="370" y="1240" as="geometry" />
+          <mxGeometry height="44" width="240" x="370" y="1120" as="geometry" />
         </mxCell>
         <mxCell id="u18" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-04: Xem thông tin cá nhân" vertex="1">
-          <mxGeometry height="44" width="240" x="370" y="1300" as="geometry" />
+          <mxGeometry height="44" width="240" x="370" y="1180" as="geometry" />
         </mxCell>
         <mxCell id="u17" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-05: Làm mới phiên đăng nhập" vertex="1">
-          <mxGeometry height="44" width="240" x="370" y="1360" as="geometry" />
+          <mxGeometry height="44" width="240" x="370" y="1240" as="geometry" />
         </mxCell>
         <mxCell id="u21" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-06: Đăng xuất" vertex="1">
+          <mxGeometry height="44" width="240" x="370" y="1300" as="geometry" />
+        </mxCell>
+        <mxCell id="u2" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-07: Xem thực đơn &amp; Tìm kiếm" vertex="1">
+          <mxGeometry height="44" width="240" x="370" y="1360" as="geometry" />
+        </mxCell>
+        <mxCell id="u3" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-08: Xem chi tiết món, Size &amp; Topping" vertex="1">
           <mxGeometry height="44" width="240" x="370" y="1420" as="geometry" />
         </mxCell>
         <mxCell id="u20" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10.5;strokeColor=#000000;fontColor=#000000;fillColor=#FFFFFF;" value="UC-27: Xem thống kê doanh thu &amp; Báo cáo" vertex="1">
@@ -124,10 +124,10 @@
         <mxCell id="e1" edge="1" parent="1" source="aCus" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e2" edge="1" parent="1" source="aCus" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u2">
+        <mxCell id="e2" edge="1" parent="1" source="aGen" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u2">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e3" edge="1" parent="1" source="aCus" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u3">
+        <mxCell id="e3" edge="1" parent="1" source="aGen" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u3">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="e4" edge="1" parent="1" source="aCus" style="endArrow=none;html=1;strokeColor=#000000;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="u4">
@@ -212,14 +212,14 @@
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="20" y="320" />
-              <mxPoint x="20" y="1310" />
+              <mxPoint x="20" y="1250" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="g2" edge="1" parent="1" source="aBar" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;endFill=0;endSize=12;html=1;strokeColor=#000000;exitX=0;exitY=0.33;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="aGen">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="75" y="1010" />
+              <mxPoint x="75" y="890" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -227,7 +227,7 @@
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="20" y="1672" />
-              <mxPoint x="20" y="1310" />
+              <mxPoint x="20" y="1250" />
             </Array>
           </mxGeometry>
         </mxCell>

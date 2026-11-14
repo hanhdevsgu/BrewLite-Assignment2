@@ -1,76 +1,144 @@
-@startuml activity-end-to-end
-title Sơ đồ Hoạt Động Toàn Trình (Activity Diagram End-to-End) - BrewLite Coffee
-skinparam backgroundColor #FFFFFF
-skinparam defaultFontName Arial
-skinparam defaultFontSize 12
+@startuml
+title BrewLite - End-to-End Customer Order, Payment & Fulfillment Activity Diagram
 
-|Khách Hàng (Customer)|
+|Khách hàng (Customer)|
 start
-:Truy cập BrewLite Web/PWA;
-:Duyệt thực đơn & chọn món;
-:Tùy chọn kích cỡ (S/M/L) và Topping;
+:1. Mở Web App BrewLite;
 
-if (Đã đăng nhập tài khoản?) then (chưa)
-    :Chuyển hướng đến màn hình Đăng nhập;
-    :Nhập thông tin username/password;
-    |Hệ Thống (Next.js / NestJS)|
-    :Xác thực tài khoản & Cấp JWT Token;
-    |Khách Hàng (Customer)|
-else (rồi)
+|Hệ thống Backend|
+:2. Truy vấn Menu, chi tiết, Topping
+(GET /products, GET /products/:id, GET /products/toppings);
+
+|Khách hàng (Customer)|
+:3. Xem thực đơn, tìm kiếm, lọc danh mục,
+xem chi tiết món (có cờ hết hàng theo từng size);
+:4. Chọn món, Size & Topping;
+:5. Thêm vào Giỏ hàng;
+
+if (Đã đăng nhập?) then (Đã)
+else (Chưa)
+  repeat
+    :6a. Đăng nhập (username, mật khẩu) hoặc Đăng ký;
+    |Hệ thống Backend|
+    :6b. Xác thực / tạo tài khoản & cấp Access + Refresh JWT;
+  repeat while (Thông tin hợp lệ?) is (Không) not (Hợp lệ)
+  |Khách hàng (Customer)|
 endif
 
-:Thêm món vào Giỏ hàng;
-:Kiểm tra giỏ hàng & bấm "Đặt hàng";
+:7. Xem voucher khả dụng, nhập Voucher / điểm thưởng & nhấn Đặt hàng;
 
-|Hệ Thống (Next.js / NestJS)|
-:Tạo đơn hàng mới (Trạng thái: PENDING);
-:Gửi yêu cầu thanh toán (Kèm x-idempotency-key);
+|Hệ thống Backend|
+if (Giỏ hàng & món hợp lệ? (POST /orders)) then (Không hợp lệ)
+  |Khách hàng (Customer)|
+  :Hiển thị lỗi: giỏ hàng rỗng / món không còn tồn tại;
+  stop
+else (Hợp lệ)
+  :8. Validate voucher (bỏ qua mã sai), trừ điểm đã dùng,
+  tạo đơn PENDING (POST /orders) + ghi audit log;
+endif
 
-|Cổng Thanh Toán / Ngân Hàng (Payment)|
-:Xử lý trừ tiền giao dịch;
+repeat
+  |Khách hàng (Customer)|
+  :9. Chọn Ví / Thẻ & Nhấn Thanh toán;
 
-if (Thanh toán thành công?) then (thất bại)
-    |Hệ Thống (Next.js / NestJS)|
-    :Ghi nhận trạng thái: PAYMENT_FAILED;
-    |Khách Hàng (Customer)|
-    :Nhận thông báo lỗi thanh toán;
-    :Chọn thử lại hoặc Hủy đơn;
-    stop
-else (thành công)
-    |Hệ Thống (Next.js / NestJS)|
-    :Mở Transaction kiểm tra tồn kho (OCC Lock);
-    if (Đủ nguyên liệu trong kho?) then (hết hàng / tranh chấp)
-        :Rollback Transaction;
-        :Báo lỗi HTTP 409 Conflict (Hết hàng);
-        |Khách Hàng (Customer)|
-        :Nhận thông báo hết nguyên liệu;
-        stop
-    else (đủ hàng)
-        :Trừ kho nguyên liệu & tăng Version;
-        :Chuyển trạng thái đơn: PENDING -> PAID;
-        :Lưu bản ghi Payment (idempotencyKey);
+  |Hệ thống Backend|
+  :10. POST /payments: nhận yêu cầu & kiểm tra Idempotency-Key;
+
+  if (Key đã được dùng?) then (Đã dùng)
+    if (Cùng đơn & phương thức?) then (Đúng)
+      |Khách hàng (Customer)|
+      :Hiển thị lại kết quả đã thanh toán (tránh trừ tiền 2 lần);
+      stop
+    else (Không khớp)
+      |Khách hàng (Customer)|
+      :Hiển thị thông báo lỗi (trùng khóa giao dịch);
+      stop
     endif
+  else (Chưa)
+  endif
+
+  if (Đúng chủ đơn & PENDING / PAYMENT_FAILED?) then (Không hợp lệ)
+    |Khách hàng (Customer)|
+    :Hiển thị thông báo lỗi (đơn không hợp lệ);
+    stop
+  else (Hợp lệ)
+  endif
+
+  :11. Mở transaction, trừ kho
+  (Optimistic Locking: version, retry tối đa 3 lần);
+
+  if (Đủ nguyên liệu & không xung đột?) then (Không đủ)
+    :Báo xung đột tồn kho & Rollback;
+    |Khách hàng (Customer)|
+    :Hiển thị: Hết nguyên liệu / xung đột!;
+    stop
+  else (Đủ)
+  endif
+
+  |Cổng thanh toán|
+  :12. Cổng thanh toán xử lý trừ tiền
+  (giả lập: OK / FAIL / TIMEOUT);
+
+  if (Thanh toán thành công?) then (Thất bại)
+    :Báo thất bại / TIMEOUT;
+    |Hệ thống Backend|
+    :Rollback kho, cập nhật PAYMENT_FAILED & audit log;
+    |Khách hàng (Customer)|
+    :Hiển thị: Thanh toán thất bại!;
+  else (Thành công)
+    break
+  endif
+repeat while (Thử lại hay hủy?) is (Thử lại) not (Hủy)
+
+if (Khách hàng chọn Hủy đơn chưa thanh toán?) then (Hủy)
+  |Khách hàng (Customer)|
+  :Hủy đơn chưa thanh toán (POST /orders/:id/cancel);
+  |Hệ thống Backend|
+  :Kiểm tra chủ đơn & trạng thái PENDING / PAYMENT_FAILED
+  -> CANCELLED + ghi audit log;
+  stop
+else (Đã thanh toán)
 endif
 
-|Nhân Viên Quầy (Barista)|
-:Nhận thông báo đơn hàng mới;
-:Xem công thức pha chế theo kích cỡ;
-:Bấm "Nhận chế biến" (PAID -> PREPARING);
-:Thực hiện pha chế đồ uống;
-:Bấm "Pha xong" (PREPARING -> READY);
+|Hệ thống Backend|
+:13. Commit ACID: tạo Payment, đơn -> PAID,
+voucher +1, cộng điểm (1đ/10.000đ), ghi audit log;
 
-|Khách Hàng (Customer)|
-:Nhận thông báo đơn hàng đã READY;
-:Đến quầy nhận đồ uống;
+|Khách hàng (Customer)|
+:14. Màn hình Đặt thành công & Mã đơn (PAID);
 
-|Nhân Viên Quầy (Barista)|
-:Giao đồ uống cho khách;
-:Bấm "Hoàn tất đơn" (READY -> COMPLETED);
+if (Hủy đơn trước pha chế?) then (Hủy)
+  :Hủy đơn (POST /orders/:id/cancel);
+  |Hệ thống Backend|
+  if (Kiểm tra chủ đơn & State Machine: đơn còn PAID?) then (Đang PAID)
+    :Hoàn kho nguyên liệu, thu hồi điểm đã tích,
+    hoàn lượt voucher -> CANCELLED + audit log;
+    stop
+  else (Đã PREPARING+)
+    |Khách hàng (Customer)|
+    :Hiển thị thông báo: Đơn đang pha, không thể hủy;
+    :Chờ pha chế xong (polling 2s);
+  endif
+else (Không)
+  |Nhân viên quầy (Barista)|
+  :15. Nhận đơn PAID (Kanban FIFO);
+  :16. Bấm Tiếp nhận: PAID -> PREPARING;
+  :17. Xem Recipes & Pha chế;
+endif
 
-|Khách Hàng (Customer)|
-:Thưởng thức đồ uống;
-:Gửi đánh giá món (1-5 sao);
+|Nhân viên quầy (Barista)|
+:18. Pha xong: PREPARING -> READY;
+
+|Khách hàng (Customer)|
+:19. Thông báo: "Đồ uống sẵn sàng!";
+:20. Đến quầy xuất trình mã;
+
+|Nhân viên quầy (Barista)|
+:21. Đối chiếu mã, giao nước & bấm Hoàn tất:
+READY -> COMPLETED;
+
+|Khách hàng (Customer)|
+:22. Nhận đồ uống & Thưởng thức;
+:23. (Tùy chọn) Đánh giá món (POST /reviews);
 stop
-
 @enduml
-

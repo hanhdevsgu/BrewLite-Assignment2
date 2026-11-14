@@ -411,7 +411,7 @@ Sơ đồ Use-case toàn hệ thống của BrewLite được trình bày trong 
 \label{fig:uc-overall}
 \end{figure}
 
-Qua sơ đồ Hình 1.1 có thể thấy sự phân công chức năng giữa các tác nhân là rõ ràng và không chồng chéo. Khách hàng thực hiện toàn bộ quy trình tự phục vụ: đăng ký tài khoản (UC-01), xem thực đơn và tìm kiếm (UC-07), xem chi tiết món (UC-08), quản lý giỏ hàng (UC-09), tra cứu voucher khả dụng (UC-10), khởi tạo đơn hàng (UC-12, mở rộng bởi UC-11 Áp dụng Voucher \& Điểm thưởng), thanh toán đơn hàng (UC-13), theo dõi tiến trình đơn hàng (UC-17), hủy đơn hàng (UC-18), xem lịch sử đơn hàng (UC-19), gửi đánh giá sản phẩm đã mua (UC-20) và chỉnh sửa/xóa đánh giá (UC-21). Nhân viên pha chế tập trung vào nghiệp vụ tại quầy: tiếp nhận pha chế (UC-22), xác nhận pha chế hoàn tất (UC-23), bàn giao đồ uống cho khách (UC-24), xem bảng Kanban pha chế (UC-25, mở rộng bởi UC-26 Xem công thức pha chế). Cổng thanh toán tham gia vào Use-case Thanh toán đơn hàng (UC-13) và Đồng bộ thanh toán MBBank VietQR (UC-14). Quản trị viên thực hiện 6 nhóm chức năng quản trị (UC-27 đến UC-32): xem thống kê doanh thu \& báo cáo, quản lý kho \& nhập hàng, quản lý sản phẩm \& công thức, quản lý mã khuyến mãi, kiểm duyệt đánh giá khách hàng và quản lý nhân sự \& khách hàng. Các Use-case Đăng nhập (UC-02), Đổi mật khẩu (UC-03), Xem thông tin cá nhân (UC-04), Làm mới phiên đăng nhập (UC-05) và Đăng xuất (UC-06) thuộc về tác nhân trừu tượng Người dùng chung (User); cả Khách hàng, Nhân viên pha chế và Quản trị viên đều kế thừa các Use-case này từ User. Phân công tác nhân -- Use-case được tổng hợp trong Bảng 1.6.
+Qua sơ đồ Hình 1.1 có thể thấy sự phân công chức năng giữa các tác nhân là rõ ràng và khớp với phân quyền thực tế trong mã nguồn. Khách hàng thực hiện toàn bộ quy trình tự phục vụ mua hàng: đăng ký tài khoản (UC-01), quản lý giỏ hàng (UC-09), tra cứu voucher khả dụng (UC-10), khởi tạo đơn hàng (UC-12, mở rộng bởi UC-11 Áp dụng Voucher \& Điểm thưởng), thanh toán đơn hàng (UC-13), theo dõi tiến trình đơn hàng (UC-17), hủy đơn hàng (UC-18), xem lịch sử đơn hàng (UC-19), gửi đánh giá sản phẩm đã mua (UC-20) và chỉnh sửa/xóa đánh giá (UC-21). Nhân viên pha chế tập trung vào nghiệp vụ tại quầy: tiếp nhận pha chế (UC-22), xác nhận pha chế hoàn tất (UC-23), bàn giao đồ uống cho khách (UC-24), xem bảng Kanban pha chế (UC-25, mở rộng bởi UC-26 Xem công thức pha chế). Cổng thanh toán tham gia vào Use-case Thanh toán đơn hàng (UC-13) và Đồng bộ thanh toán MBBank VietQR (UC-14). Quản trị viên thực hiện 6 nhóm chức năng quản trị (UC-27 đến UC-32): xem thống kê doanh thu \& báo cáo, quản lý kho \& nhập hàng, quản lý sản phẩm \& công thức, quản lý mã khuyến mãi, kiểm duyệt đánh giá khách hàng và quản lý nhân sự \& khách hàng. Các Use-case Đăng nhập (UC-02), Đổi mật khẩu (UC-03), Xem thông tin cá nhân (UC-04), Làm mới phiên đăng nhập (UC-05), Đăng xuất (UC-06), Xem thực đơn \& Tìm kiếm (UC-07) và Xem chi tiết món, Size \& Topping (UC-08) thuộc về tác nhân trừu tượng Người dùng chung (User); cả Khách hàng, Nhân viên pha chế và Quản trị viên đều kế thừa các Use-case này từ User (riêng thao tác đặt hàng và gửi đánh giá khi xem chi tiết món chỉ mở cho Khách hàng). Phân công tác nhân -- Use-case được tổng hợp trong Bảng 1.6.
 
 \begin{longtable}{>{\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}p{11.8cm}}
 \caption{Phân công Use-case theo tác nhân}\\
@@ -423,21 +423,21 @@ Qua sơ đồ Hình 1.1 có thể thấy sự phân công chức năng giữa c�
 \rowcolor{gray!20} \textbf{Tác nhân} & \textbf{Các Use-case đảm nhiệm} \\
 \hline
 \endhead
-Khách hàng (Customer) & UC-01 Đăng ký tài khoản; UC-07 Xem thực đơn \& Tìm kiếm; UC-08 Xem chi tiết món, Size \& Topping; UC-09 Quản lý giỏ hàng; UC-10 Tra cứu voucher khả dụng; UC-11 Áp dụng Voucher \& Điểm thưởng; UC-12 Khởi tạo đơn hàng (PENDING); UC-13 Thanh toán đơn hàng (PAID); UC-17 Theo dõi tiến trình đơn hàng; UC-18 Hủy đơn hàng tự động hoàn kho; UC-19 Xem lịch sử đơn hàng; UC-20 Gửi đánh giá sản phẩm đã mua; UC-21 Chỉnh sửa / Xóa đánh giá; kế thừa từ User: UC-02 Đăng nhập, UC-03 Đổi mật khẩu, UC-04 Xem thông tin cá nhân, UC-05 Làm mới phiên đăng nhập, UC-06 Đăng xuất. \\
+Khách hàng (Customer) & UC-01 Đăng ký tài khoản; UC-09 Quản lý giỏ hàng; UC-10 Tra cứu voucher khả dụng; UC-11 Áp dụng Voucher \& Điểm thưởng; UC-12 Khởi tạo đơn hàng (PENDING); UC-13 Thanh toán đơn hàng (PAID); UC-17 Theo dõi tiến trình đơn hàng; UC-18 Hủy đơn hàng tự động hoàn kho; UC-19 Xem lịch sử đơn hàng; UC-20 Gửi đánh giá sản phẩm đã mua; UC-21 Chỉnh sửa / Xóa đánh giá; kế thừa từ User: UC-02 Đăng nhập, UC-03 Đổi mật khẩu, UC-04 Xem thông tin cá nhân, UC-05 Làm mới phiên đăng nhập, UC-06 Đăng xuất, UC-07 Xem thực đơn \& Tìm kiếm, UC-08 Xem chi tiết món, Size \& Topping. \\
 \hline
-Nhân viên pha chế (Barista) & UC-22 Tiếp nhận pha chế đơn hàng (PAID $\rightarrow$ PREPARING); UC-23 Xác nhận pha chế hoàn tất (PREPARING $\rightarrow$ READY); UC-24 Bàn giao đồ uống cho khách (READY $\rightarrow$ COMPLETED); UC-25 Xem bảng Kanban pha chế (FIFO); UC-26 Xem công thức pha chế (Recipes); kế thừa từ User: UC-02 đến UC-06. \\
+Nhân viên pha chế (Barista) & UC-22 Tiếp nhận pha chế đơn hàng (PAID $\rightarrow$ PREPARING); UC-23 Xác nhận pha chế hoàn tất (PREPARING $\rightarrow$ READY); UC-24 Bàn giao đồ uống cho khách (READY $\rightarrow$ COMPLETED); UC-25 Xem bảng Kanban pha chế (FIFO); UC-26 Xem công thức pha chế (Recipes); kế thừa từ User: UC-02 đến UC-08. \\
 \hline
-Quản trị viên (Admin) & UC-27 Xem thống kê doanh thu \& Báo cáo; UC-28 Quản lý kho \& Nhập hàng; UC-29 Quản lý sản phẩm \& Công thức; UC-30 Quản lý mã khuyến mãi; UC-31 Kiểm duyệt đánh giá khách hàng; UC-32 Quản lý nhân sự \& Khách hàng; kế thừa từ User: UC-02 đến UC-06. \\
+Quản trị viên (Admin) & UC-27 Xem thống kê doanh thu \& Báo cáo; UC-28 Quản lý kho \& Nhập hàng; UC-29 Quản lý sản phẩm \& Công thức; UC-30 Quản lý mã khuyến mãi; UC-31 Kiểm duyệt đánh giá khách hàng; UC-32 Quản lý nhân sự \& Khách hàng; kế thừa từ User: UC-02 đến UC-08. \\
 \hline
 Cổng thanh toán (Payment Gateway) & UC-13 Thanh toán đơn hàng (PAID): tiếp nhận và xử lý giao dịch thanh toán; UC-14 Đồng bộ thanh toán MBBank VietQR. \\
 \hline
-Người dùng chung (User, \guillemotleft{}Abstract\guillemotright{}) & UC-02 Đăng nhập hệ thống; UC-03 Đổi mật khẩu; UC-04 Xem thông tin cá nhân; UC-05 Làm mới phiên đăng nhập; UC-06 Đăng xuất. Tác nhân trừu tượng: Khách hàng, Nhân viên pha chế và Quản trị viên kế thừa các Use-case này. \\
+Người dùng chung (User, \guillemotleft{}Abstract\guillemotright{}) & UC-02 Đăng nhập hệ thống; UC-03 Đổi mật khẩu; UC-04 Xem thông tin cá nhân; UC-05 Làm mới phiên đăng nhập; UC-06 Đăng xuất; UC-07 Xem thực đơn \& Tìm kiếm; UC-08 Xem chi tiết món, Size \& Topping. Tác nhân trừu tượng: Khách hàng, Nhân viên pha chế và Quản trị viên kế thừa các Use-case này. \\
 \hline
 Hệ thống (nội bộ Hình 1.2) & UC-15 Khấu trừ kho Optimistic Lock (trừ nguyên liệu với cột \texttt{version} chống bán âm); UC-16 Tự động tích lũy điểm Loyalty (+1đ / 10.000đ khi PAID); cùng các bước nội bộ \guillemotleft{}include\guillemotright{}: Ghi nhận lịch sử OrderStatusHistory và Tự động hoàn kho \& Điểm thưởng. \\
 \hline
 \end{longtable}
 
-Về quan hệ giữa các Use-case, sơ đồ sử dụng hai quan hệ chuẩn của UML. Quan hệ \guillemotleft{}extend\guillemotright{} thể hiện chức năng mở rộng có điều kiện: Áp dụng Voucher \& Điểm thưởng (UC-11) mở rộng cho Khởi tạo đơn hàng (UC-12), Xem công thức pha chế (UC-26) mở rộng cho Xem bảng Kanban pha chế (UC-25), và Khóa / Mở khóa tài khoản người dùng mở rộng cho Quản lý nhân sự \& Khách hàng (UC-32). Quan hệ \guillemotleft{}include\guillemotright{} thể hiện các bước bắt buộc được kích hoạt tự động: Thanh toán đơn hàng (UC-13) \guillemotleft{}include\guillemotright{} Khấu trừ kho Optimistic Lock (UC-15) và Tự động tích lũy điểm Loyalty (UC-16) ngay trên Hình 1.1; đồng thời sơ đồ Use-case trọng tâm (Hình 1.2) làm rõ thêm việc ghi nhận lịch sử OrderStatusHistory và tự động hoàn kho khi hủy đơn.
+Về quan hệ giữa các Use-case, sơ đồ sử dụng hai quan hệ chuẩn của UML. Quan hệ \guillemotleft{}extend\guillemotright{} thể hiện chức năng mở rộng có điều kiện: Áp dụng Voucher \& Điểm thưởng (UC-11) mở rộng cho Khởi tạo đơn hàng (UC-12) và Xem công thức pha chế (UC-26) mở rộng cho Xem bảng Kanban pha chế (UC-25); thao tác Khóa / Mở khóa tài khoản người dùng của Quản trị viên được gộp trực tiếp trong UC-32 (Quản lý nhân sự \& Khách hàng). Quan hệ \guillemotleft{}include\guillemotright{} thể hiện các bước bắt buộc được kích hoạt tự động: Thanh toán đơn hàng (UC-13) \guillemotleft{}include\guillemotright{} Khấu trừ kho Optimistic Lock (UC-15) và Tự động tích lũy điểm Loyalty (UC-16) ngay trên Hình 1.1; đồng thời sơ đồ Use-case trọng tâm (Hình 1.2) làm rõ thêm việc ghi nhận lịch sử OrderStatusHistory và tự động hoàn kho khi hủy đơn.
 
 \subsection{Danh sách các Use-case của hệ thống}
 
@@ -465,9 +465,9 @@ UC-05 & Làm mới phiên đăng nhập & User (Customer, Barista, Admin) & Hệ
 \hline
 UC-06 & Đăng xuất & User (Customer, Barista, Admin) & Người dùng kết thúc phiên đăng nhập hiện tại và xóa thông tin xác thực trên trình duyệt. \\
 \hline
-UC-07 & Xem thực đơn \& Tìm kiếm & Customer & Khách hàng xem danh sách đồ uống theo danh mục, tìm kiếm theo tên, xem giá cơ bản và trạng thái còn/hết hàng. \\
+UC-07 & Xem thực đơn \& Tìm kiếm & User (Customer, Barista, Admin) & Người dùng (kể cả Customer, Barista, Admin và khách vãng lai) xem danh sách đồ uống theo danh mục, tìm kiếm theo tên, xem giá cơ bản và trạng thái còn/hết hàng. \\
 \hline
-UC-08 & Xem chi tiết món, Size \& Topping & Customer & Khách hàng xem mô tả, đánh giá món và tùy chọn kích cỡ (S/M/L), topping, mức đường, mức đá trước khi thêm vào giỏ. \\
+UC-08 & Xem chi tiết món, Size \& Topping & User (Customer, Barista, Admin) & Người dùng xem mô tả, đánh giá món và tùy chọn kích cỡ (S/M/L), topping, mức đường, mức đá (chỉ Customer được thêm vào giỏ và mua ngay). \\
 \hline
 UC-09 & Quản lý giỏ hàng & Customer & Khách hàng thêm món vào giỏ kèm tùy chọn, tăng/giảm số lượng, xóa món; hỗ trợ mua $N$ ly với các topping khác nhau vào cùng một giỏ hàng. \\
 \hline
@@ -741,7 +741,7 @@ Sơ đồ hoạt động mô tả luồng nghiệp vụ end-to-end của BrewLit
 \caption{Sơ đồ hoạt động luồng đặt và thanh toán đơn hàng BrewLite}
 \end{figure}
 
-Sơ đồ sử dụng 4 swimlane --- Khách hàng (Customer), Hệ thống Backend, Cổng thanh toán và Nhân viên quầy (Barista) --- với điểm bắt đầu và điểm kết thúc rõ ràng. Luồng chính gồm 22 bước, được tóm tắt theo ba giai đoạn trong Bảng 2.1; các điểm rẽ nhánh xử lý trường hợp đặc biệt được liệt kê trong Bảng 2.2.
+Sơ đồ sử dụng 4 swimlane --- Khách hàng (Customer), Hệ thống Backend, Cổng thanh toán và Nhân viên quầy (Barista) --- với điểm bắt đầu và điểm kết thúc rõ ràng. Luồng chính gồm 23 bước, được tóm tắt theo ba giai đoạn trong Bảng 2.1; các điểm rẽ nhánh xử lý trường hợp đặc biệt được liệt kê trong Bảng 2.2.
 
 \begin{longtable}{>{\raggedright\arraybackslash}p{3.2cm}>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}p{9.6cm}}
 \caption{Các giai đoạn chính của luồng đặt và thanh toán}\\
@@ -753,11 +753,11 @@ Sơ đồ sử dụng 4 swimlane --- Khách hàng (Customer), Hệ thống Backe
 \rowcolor{gray!20} \textbf{Giai đoạn} & \textbf{Bước} & \textbf{Nội dung} \\
 \hline
 \endhead
-Xem menu và chuẩn bị đặt hàng & 1--6 & Khách hàng mở Web App, hệ thống truy vấn menu (GET /products); khách hàng xem thực đơn, chọn món kèm Size \& Topping và thêm vào giỏ hàng; nhánh chưa đăng nhập thực hiện xác thực và cấp JWT (6a, 6b) rồi hợp nhất vào luồng chính. \\
+Xem menu và chuẩn bị đặt hàng & 1--6 & Khách hàng mở Web App, hệ thống truy vấn menu, chi tiết món và topping (\texttt{GET /products}, \texttt{GET /products/:id}, \texttt{GET /products/toppings}); khách hàng xem thực đơn, chọn món kèm Size \& Topping và thêm vào giỏ hàng; nhánh chưa đăng nhập thực hiện xác thực bằng \texttt{username} và cấp JWT (6a, 6b) rồi hợp nhất vào luồng chính. \\
 \hline
-Đặt đơn và thanh toán & 7--14 & Khách hàng nhập voucher và đặt hàng, backend tạo đơn PENDING (POST /orders); khách hàng thanh toán, backend nhận POST /payments (Idempotency) và kiểm tra kho bằng Optimistic Locking (bước 11); khi thanh toán thành công, hệ thống thực hiện ACID Transaction chuyển đơn PENDING $\rightarrow$ PAID đồng thời trừ kho (bước 13) rồi hiển thị mã đơn (bước 14). \\
+Đặt đơn và thanh toán & 7--14 & Khách hàng xem voucher khả dụng, nhập voucher/điểm thưởng và đặt hàng, backend kiểm tra giỏ hàng, validate voucher, trừ điểm đã dùng và tạo đơn \texttt{PENDING} (\texttt{POST /orders}); khách hàng thanh toán, backend nhận \texttt{POST /payments} (kiểm tra \texttt{Idempotency-Key} trước, sau đó kiểm tra chủ đơn \& trạng thái \texttt{PENDING}/\texttt{PAYMENT\_FAILED}), mở transaction trừ kho bằng Optimistic Locking (bước 11) trước khi gọi cổng thanh toán (bước 12); khi thành công, hệ thống commit ACID tạo Payment, chuyển \texttt{PENDING} $\rightarrow$ \texttt{PAID}, cộng lượt voucher, tích điểm thưởng (1đ/10.000đ) và ghi audit log (bước 13) rồi hiển thị mã đơn \texttt{PAID} (bước 14). \\
 \hline
-Pha chế và nhận món & 15--22 & Nhân viên quầy nhận đơn PAID trên bảng Kanban FIFO (bước 15), tiếp nhận (PAID $\rightarrow$ PREPARING), xem công thức và pha chế (bước 17), hoàn tất (PREPARING $\rightarrow$ READY); khách hàng nhận thông báo, đến quầy xuất trình mã và nhận đồ uống (bước 19--22). \\
+Pha chế và nhận món & 15--23 & Nếu khách không hủy trước khi pha chế, nhân viên quầy nhận đơn \texttt{PAID} trên bảng Kanban FIFO (bước 15), tiếp nhận (\texttt{PAID} $\rightarrow$ \texttt{PREPARING}), xem công thức và pha chế (bước 17), hoàn tất (\texttt{PREPARING} $\rightarrow$ \texttt{READY}); khách hàng nhận thông báo, đến quầy xuất trình mã, quầy hoàn tất (\texttt{READY} $\rightarrow$ \texttt{COMPLETED}), khách nhận đồ uống và tùy chọn đánh giá món (\texttt{POST /reviews}, bước 19--23). \\
 \hline
 \end{longtable}
 
@@ -771,15 +771,19 @@ Pha chế và nhận món & 15--22 & Nhân viên quầy nhận đơn PAID trên 
 \rowcolor{gray!20} \textbf{Điểm rẽ} & \textbf{Điều kiện} & \textbf{Xử lý} \\
 \hline
 \endhead
-Đã đăng nhập? & Khách hàng chưa đăng nhập & Thực hiện 6a.~Nhập Email \& Mật khẩu và 6b.~Xác thực \& Cấp JWT, sau đó hợp nhất vào luồng chính. \\
+Đã đăng nhập? & Khách hàng chưa đăng nhập & Thực hiện 6a.~Đăng nhập (\texttt{username}, mật khẩu) hoặc Đăng ký và 6b.~Xác thực / tạo tài khoản \& cấp Access + Refresh JWT; lặp lại nếu không hợp lệ rồi hợp nhất vào luồng chính. \\
 \hline
-Đủ nguyên liệu? & Tồn kho không đủ (bước 11) & Ném HTTP 409 và rollback; khách hàng nhận thông báo ``Hết nguyên liệu'', luồng kết thúc. \\
+Key đã được dùng? & Trùng \texttt{Idempotency-Key} (bước 10) & Backend kiểm tra ``Cùng đơn \& phương thức?'': nếu đúng thì hiển thị lại kết quả đã thanh toán tránh trừ tiền 2 lần (\texttt{HTTP 200 Replay}); nếu không khớp (\texttt{HTTP 422}) hoặc đơn không hợp lệ thì hợp nhất qua nhánh báo lỗi và kết thúc. \\
 \hline
-Thanh toán thành công? & Giao dịch thất bại (bước 12) & Thông báo thất bại cho khách hàng, luồng kết thúc; đơn hàng giữ trạng thái PENDING và có thể thanh toán lại. \\
+Đủ nguyên liệu \& không xung đột? & Tồn kho không đủ hoặc hết lượt retry OCC (bước 11) & Báo xung đột tồn kho (\texttt{HTTP 409}) và rollback transaction; khách hàng nhận thông báo ``Hết nguyên liệu / xung đột!'', luồng kết thúc. \\
+\hline
+Thanh toán thành công? & Giao dịch thất bại / \texttt{TIMEOUT} (bước 12) & Backend rollback kho đã trừ, cập nhật \texttt{PAYMENT\_FAILED} và ghi audit log; khách hàng thấy thông báo thất bại và chọn ``Thử lại'' (quay về bước 9) hoặc ``Hủy'' (\texttt{POST /orders/:id/cancel} chuyển \texttt{PENDING}/\texttt{PAYMENT\_FAILED} $\rightarrow$ \texttt{CANCELLED} và kết thúc). \\
+\hline
+Hủy đơn trước pha chế? & Khách bấm hủy sau bước 14 (\texttt{POST /orders/:id/cancel}) & Backend kiểm tra chủ đơn và State Machine: nếu đơn còn \texttt{PAID}, hệ thống hoàn kho nguyên liệu, thu hồi điểm đã tích, hoàn lượt voucher $\rightarrow$ \texttt{CANCELLED} + audit log và kết thúc; nếu Barista đã chuyển \texttt{PREPARING} trở đi, hệ thống từ chối (\texttt{HTTP 409}) và khách hàng nhận thông báo ``Đơn đang pha, không thể hủy'', tiếp tục chờ pha chế xong (\textit{polling} 2s) đến bước 19. \\
 \hline
 \end{longtable}
 
-Sơ đồ đáp ứng các yêu cầu của Task 2.1: có điểm bắt đầu/kết thúc, decision/merge cho các nhánh thành công và thất bại, swimlane cho cả bốn bên tham gia, và bao phủ đầy đủ ba trường hợp bắt buộc (hết hàng, chưa đăng nhập, thanh toán thất bại).
+Sơ đồ đáp ứng các yêu cầu của Task 2.1: có điểm bắt đầu/kết thúc, decision/merge cho các nhánh thành công, lỗi, replay và hủy đơn, swimlane cho cả bốn bên tham gia, và bao phủ đầy đủ các trường hợp bắt buộc (hết hàng/xung đột OCC, chưa đăng nhập, thanh toán thất bại \& rollback/thử lại/hủy, idempotent replay vs trùng khóa giao dịch, và hủy đơn sau \texttt{PAID} trước pha chế).
 
 \section{Biểu đồ tuần tự (Sequence Diagram)}
 
