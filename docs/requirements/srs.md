@@ -8,7 +8,7 @@
 
 ## 1. Sơ Đồ Use-Case Tổng Quát Toàn Hệ Thống
 
-Toàn bộ hệ thống BrewLite gồm **32 Use-Case (UC-01 đến UC-32)** phân bổ trên 4 nhóm tác nhân chính (`Customer`, `Barista`, `Admin`, `Payment Gateway`) và tác nhân trừu tượng `User` («Abstract»), được chi tiết hóa trong file [01-usecase-overall.drawio](file:///C:/Users/Lenovo/Desktop/tong%20hop/Assigment2/docs/diagrams/usecases/01-usecase-overall.drawio) và ảnh [Usecase_cnpm_01.drawio.png](file:///C:/Users/Lenovo/Desktop/tong%20hop/Assigment2/docs/report/img/Usecase_cnpm_01.drawio.png):
+Toàn bộ hệ thống BrewLite gồm **32 Use-Case (UC-01 đến UC-32)** phân bổ trên 4 nhóm tác nhân chính (`Customer`, `Barista`, `Admin`, `Payment Gateway`) và tác nhân trừu tượng `User` («Abstract»), được chi tiết hóa trong file [01-usecase-overall.drawio](../diagrams/usecases/01-usecase-overall.drawio) và ảnh [Usecase_cnpm_01.drawio.png](../report/img/Usecase_cnpm_01.drawio.png):
 
 ```mermaid
 graph TD
