@@ -433,11 +433,11 @@ Cổng thanh toán (Payment Gateway) & UC-13 Thanh toán đơn hàng (PAID): ti�
 \hline
 Người dùng chung (User, \guillemotleft{}Abstract\guillemotright{}) & UC-02 Đăng nhập hệ thống; UC-03 Đổi mật khẩu; UC-04 Xem thông tin cá nhân; UC-05 Làm mới phiên đăng nhập; UC-06 Đăng xuất. Tác nhân trừu tượng: Khách hàng, Nhân viên pha chế và Quản trị viên kế thừa các Use-case này. \\
 \hline
-Hệ thống (nội bộ Hình 1.2--1.6) & UC-15 Khấu trừ kho Optimistic Lock (trừ nguyên liệu với cột \texttt{version} chống bán âm); UC-16 Tự động tích lũy điểm Loyalty (+1đ / 10.000đ khi PAID); cùng các bước nội bộ \guillemotleft{}include\guillemotright{}: Ghi nhận lịch sử OrderStatusHistory, Kiểm tra điều kiện đã mua món (KiemTraDaMua), Tự động hoàn kho \& Điểm thưởng. \\
+Hệ thống (nội bộ Hình 1.2) & UC-15 Khấu trừ kho Optimistic Lock (trừ nguyên liệu với cột \texttt{version} chống bán âm); UC-16 Tự động tích lũy điểm Loyalty (+1đ / 10.000đ khi PAID); cùng các bước nội bộ \guillemotleft{}include\guillemotright{}: Ghi nhận lịch sử OrderStatusHistory và Tự động hoàn kho \& Điểm thưởng. \\
 \hline
 \end{longtable}
 
-Về quan hệ giữa các Use-case, sơ đồ sử dụng hai quan hệ chuẩn của UML. Quan hệ \guillemotleft{}extend\guillemotright{} thể hiện chức năng mở rộng có điều kiện: Áp dụng Voucher \& Điểm thưởng (UC-11) mở rộng cho Khởi tạo đơn hàng (UC-12), Xem công thức pha chế (UC-26) mở rộng cho Xem bảng Kanban pha chế (UC-25), và Khóa / Mở khóa tài khoản người dùng mở rộng cho Quản lý nhân sự \& Khách hàng (UC-32). Quan hệ \guillemotleft{}include\guillemotright{} thể hiện các bước bắt buộc được kích hoạt tự động: Thanh toán đơn hàng (UC-13) \guillemotleft{}include\guillemotright{} Khấu trừ kho Optimistic Lock (UC-15) và Tự động tích lũy điểm Loyalty (UC-16) ngay trên Hình 1.1; đồng thời các sơ đồ phân hệ chi tiết (Hình 1.2--1.6) làm rõ thêm việc ghi nhận lịch sử OrderStatusHistory, hoàn kho khi hủy đơn, kiểm tra điều kiện đã mua món (KiemTraDaMua), lập phiếu nhập kho và cấu hình công thức pha chế.
+Về quan hệ giữa các Use-case, sơ đồ sử dụng hai quan hệ chuẩn của UML. Quan hệ \guillemotleft{}extend\guillemotright{} thể hiện chức năng mở rộng có điều kiện: Áp dụng Voucher \& Điểm thưởng (UC-11) mở rộng cho Khởi tạo đơn hàng (UC-12), Xem công thức pha chế (UC-26) mở rộng cho Xem bảng Kanban pha chế (UC-25), và Khóa / Mở khóa tài khoản người dùng mở rộng cho Quản lý nhân sự \& Khách hàng (UC-32). Quan hệ \guillemotleft{}include\guillemotright{} thể hiện các bước bắt buộc được kích hoạt tự động: Thanh toán đơn hàng (UC-13) \guillemotleft{}include\guillemotright{} Khấu trừ kho Optimistic Lock (UC-15) và Tự động tích lũy điểm Loyalty (UC-16) ngay trên Hình 1.1; đồng thời sơ đồ Use-case trọng tâm (Hình 1.2) làm rõ thêm việc ghi nhận lịch sử OrderStatusHistory và tự động hoàn kho khi hủy đơn.
 
 \subsection{Danh sách các Use-case của hệ thống}
 
@@ -481,9 +481,9 @@ UC-13 & Thanh toán đơn hàng (PAID) & Customer, Gateway & Khách hàng thanh 
 \hline
 UC-14 & Đồng bộ thanh toán MBBank VietQR & Gateway & Cổng thanh toán đồng bộ trạng thái giao dịch chuyển khoản VietQR từ MBBank về hệ thống BrewLite. \\
 \hline
-UC-15 & Khấu trừ kho Optimistic Lock & Hệ thống (nội bộ Hình 1.3) & Hệ thống tự động trừ nguyên liệu theo công thức khi thanh toán thành công (PAID), dùng Optimistic Locking (cột version) để chống bán âm khi đặt đồng thời. \\
+UC-15 & Khấu trừ kho Optimistic Lock & Hệ thống (nội bộ Hình 1.2) & Hệ thống tự động trừ nguyên liệu theo công thức khi thanh toán thành công (PAID), dùng Optimistic Locking (cột version) để chống bán âm khi đặt đồng thời. \\
 \hline
-UC-16 & Tự động tích lũy điểm Loyalty & Hệ thống (nội bộ Hình 1.3) & Hệ thống tự động cộng điểm thưởng (+1 điểm / 10.000đ thanh toán thực tế) cho khách hàng khi đơn chuyển sang PAID. \\
+UC-16 & Tự động tích lũy điểm Loyalty & Hệ thống (nội bộ Hình 1.2) & Hệ thống tự động cộng điểm thưởng (+1 điểm / 10.000đ thanh toán thực tế) cho khách hàng khi đơn chuyển sang PAID. \\
 \hline
 UC-17 & Theo dõi tiến trình đơn hàng & Customer & Khách hàng theo dõi tiến độ đơn hàng theo thời gian thực qua máy trạng thái (GET /orders/:id) từ PENDING đến COMPLETED. \\
 \hline
@@ -519,66 +519,22 @@ UC-32 & Quản lý nhân sự \& Khách hàng & Admin & Quản trị viên tạo
 \hline
 \end{longtable}
 
-\subsection{Sơ đồ Use-case riêng và đặc tả Use-case}
+\subsection{Sơ đồ Use-case trọng tâm và đặc tả Use-case}
 
-Trên cơ sở sơ đồ Use-case toàn hệ thống, nhóm thực hiện tiếp tục phân rã đầy đủ 100\% hệ thống thành năm sơ đồ Use-case riêng (Hình 1.2 đến Hình 1.6) bao phủ toàn bộ các phân hệ từ Khách hàng, Quầy pha chế đến Quản trị hệ thống. Mỗi bảng đặc tả dưới đây gồm các thành phần: mã Use-case (Use Case ID), tên Use-case, tác nhân, liên kết yêu cầu, tóm tắt, tiền điều kiện, hậu điều kiện, dòng sự kiện chính và dòng sự kiện phụ.
+Theo đúng yêu cầu Task 1.3 của Assignment 2, trên cơ sở sơ đồ Use-case tổng quát (Hình 1.1), nhóm chọn phạm vi trọng tâm có giá trị nghiệp vụ cốt lõi là \textbf{Đặt hàng \& Thanh toán đồng thời} (\texttt{UC-10..UC-16, UC-18}) để vẽ sơ đồ Use-case phạm vi riêng (Hình 1.2) và đặc tả chi tiết. Mỗi bảng đặc tả dưới đây gồm các thành phần: mã Use-case (Use Case ID), tên Use-case, tác nhân, liên kết yêu cầu, tóm tắt, tiền điều kiện, hậu điều kiện, dòng sự kiện chính và dòng sự kiện phụ.
 
-\subsubsection*{a. Phân hệ Tài khoản, thực đơn \& giỏ hàng}
-
-Phân hệ Tài khoản, thực đơn \& giỏ hàng bao gồm các Use-case trải nghiệm mua hàng ban đầu của Khách hàng trên sơ đồ toàn hệ thống: Đăng ký tài khoản (UC-01), Xem thực đơn \& Tìm kiếm (UC-07), Xem chi tiết món, Size \& Topping (UC-08) và Quản lý giỏ hàng (UC-09). Các Use-case Đăng nhập hệ thống (UC-02), Đổi mật khẩu (UC-03), Xem thông tin cá nhân (UC-04), Làm mới phiên đăng nhập (UC-05) và Đăng xuất (UC-06) thuộc về tác nhân trừu tượng Người dùng chung (User) mà Khách hàng, Nhân viên pha chế và Quản trị viên đều kế thừa.
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=\textwidth]{img/Usecase_cnpm_02.drawio.png}
-\caption{Sơ đồ Use-case Phân hệ Tài khoản, thực đơn \& giỏ hàng}
-\label{fig:uc-account-menu-cart}
-\end{figure}
-
-\subsubsection*{b. Phân hệ Đặt hàng \& Thanh toán đồng thời}
+\subsubsection*{a. Sơ đồ Use-case trọng tâm: Đặt hàng \& Thanh toán đồng thời}
 
 Phân hệ Đặt hàng \& Thanh toán đồng thời có hai tác nhân là Khách hàng (Customer) và Cổng thanh toán (Payment Gateway). Khách hàng tra cứu voucher khả dụng (UC-10) và thực hiện Khởi tạo đơn hàng PENDING (UC-12, POST /orders); Use-case này được mở rộng (\guillemotleft{}extend\guillemotright{}) bởi Áp dụng Voucher \& Điểm thưởng (UC-11, POST /promotions/validate) và \guillemotleft{}include\guillemotright{} Ghi nhận lịch sử OrderStatusHistory. Khách hàng và Cổng thanh toán cùng thực hiện Thanh toán đơn hàng (UC-13, POST /payments + Idempotency-Key); Use-case này \guillemotleft{}include\guillemotright{} Khấu trừ kho Optimistic Lock (UC-15), Tự động tích lũy điểm Loyalty (UC-16, +1đ / 10.000đ khi PAID) và Ghi nhận lịch sử OrderStatusHistory (PENDING $\rightarrow$ PAID). Đồng thời, Khách hàng có quyền thực hiện Hủy đơn hàng tự động hoàn kho (UC-18, POST /orders/:id/cancel) khi đơn còn ở trạng thái PENDING hoặc PAID (hệ thống chặn hủy từ PREPARING trở đi để bảo vệ chi phí pha chế); Use-case hủy đơn \guillemotleft{}include\guillemotright{} Tự động hoàn kho \& Điểm thưởng và Ghi vết lịch sử hủy đơn (OrderStatusHistory). Cổng thanh toán thực hiện Đồng bộ thanh toán MBBank VietQR (UC-14).
 
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=\textwidth]{img/Usecase_cnpm_03.drawio.png}
-\caption{Sơ đồ Use-case Phân hệ Đặt hàng \& Thanh toán đồng thời}
+\caption{Sơ đồ Use-case trọng tâm: Phân hệ Đặt hàng \& Thanh toán đồng thời}
 \label{fig:uc-order-payment}
 \end{figure}
 
-\subsubsection*{c. Phân hệ Quầy pha chế \& Máy trạng thái}
-
-Phân hệ Quầy pha chế \& Máy trạng thái có tác nhân chính là Nhân viên pha chế (Barista). Nhân viên pha chế xem bảng Kanban pha chế theo FIFO (UC-25, GET /staff/orders); Use-case này được mở rộng (\guillemotleft{}extend\guillemotright{}) bởi Xem công thức pha chế chi tiết từng ly (UC-26, GET /staff/orders/:id/recipes). Tiếp nhận pha chế đơn hàng (UC-22, PAID $\rightarrow$ PREPARING, POST /staff/orders/:id/accept), Xác nhận pha chế hoàn tất (UC-23, PREPARING $\rightarrow$ READY, POST /staff/orders/:id/ready) và Bàn giao đồ uống cho khách (UC-24, READY $\rightarrow$ COMPLETED, POST /staff/orders/:id/complete) đều \guillemotleft{}include\guillemotright{} Ghi vết kiểm toán trạng thái (OrderStatusHistory).
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=\textwidth]{img/Usecase_cnpm_04.drawio.png}
-\caption{Sơ đồ Use-case Phân hệ Quầy pha chế \& Máy trạng thái}
-\label{fig:uc-barista}
-\end{figure}
-
-\subsubsection*{d. Phân hệ Đánh giá sản phẩm \& Lịch sử}
-
-Phân hệ Đánh giá sản phẩm \& Lịch sử có tác nhân là Khách hàng (Customer). Khách hàng Theo dõi tiến trình đơn hàng (UC-17, GET /orders/:id), Xem lịch sử đơn hàng (UC-19, GET /orders/me), Gửi đánh giá sản phẩm đã mua (UC-20, 1--5 sao \& Nhận xét, POST /reviews) và Chỉnh sửa / Xóa đánh giá (UC-21, PATCH / DELETE /reviews/:id). Use-case Gửi đánh giá \guillemotleft{}include\guillemotright{} Kiểm tra điều kiện đã mua món (KiemTraDaMua), bảo đảm chỉ món thuộc đơn đã COMPLETED mới được đánh giá.
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=\textwidth]{img/Usecase_cnpm_05.drawio.png}
-\caption{Sơ đồ Use-case Phân hệ Đánh giá sản phẩm \& Lịch sử}
-\label{fig:uc-review-history}
-\end{figure}
-
-\subsubsection*{e. Phân hệ Quản trị hệ thống (Admin)}
-
-Phân hệ Quản trị hệ thống có tác nhân là Quản trị viên (Admin), phụ trách toàn bộ 6 nhóm chức năng quản trị từ UC-27 đến UC-32: Xem thống kê doanh thu \& Báo cáo (UC-27, \texttt{GET /admin/stats/*}), Quản lý kho \& Nhập hàng (UC-28, \texttt{GET/POST /admin/ingredients}, \texttt{/suppliers}, \texttt{/import-receipts}) \guillemotleft{}include\guillemotright{} Lập phiếu nhập \& Cộng dồn tồn kho tự động, Quản lý sản phẩm \& Công thức (UC-29, \texttt{/admin/products}, \texttt{/variants}, \texttt{/recipes}) \guillemotleft{}include\guillemotright{} Cấu hình Size \& Định lượng công thức, Quản lý mã khuyến mãi (UC-30, \texttt{/admin/promotions}), Kiểm duyệt đánh giá khách hàng (UC-31, ẩn/hiện qua \texttt{PATCH /admin/reviews/:id/hide|show}), và Quản lý nhân sự \& Khách hàng (UC-32, \texttt{/admin/accounts}, \texttt{/staff}) được mở rộng (\guillemotleft{}extend\guillemotright{}) bởi Khóa / Mở khóa tài khoản người dùng (\texttt{PATCH /admin/accounts/:id/lock|unlock}).
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=\textwidth]{img/Usecase_cnpm_06.drawio.png}
-\caption{Sơ đồ Use-case Phân hệ Quản trị hệ thống (Admin)}
-\label{fig:uc-admin}
-\end{figure}
-
-\subsubsection*{f. Đặc tả chi tiết Use-case}
+\subsubsection*{b. Đặc tả chi tiết Use-case}
 
 Dưới đây là đặc tả chi tiết của các Use-case cốt lõi theo mã Use-case mới trong Bảng 1.7: Thanh toán đơn hàng Idempotent (UC-13), Gửi đánh giá sản phẩm đã mua (UC-20), Xem bảng Kanban pha chế (UC-25), Xem chi tiết đơn hàng (luồng chi tiết của UC-25), Xem công thức pha chế chi tiết (UC-26) và Cập nhật trạng thái pha chế (UC-22 / UC-23 / UC-24).
 
