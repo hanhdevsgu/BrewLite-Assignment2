@@ -358,6 +358,10 @@ export class OrdersService {
    *    c) Ghi bản ghi Audit Log vào `orderStatusHistory` ghi rõ ai hủy và ghi chú hoàn kho.
    */
   async cancelOrder(orderId: string, user: any) {
+    if (user.role === 'STAFF') {
+      throw new ForbiddenException('Nhân viên pha chế (Barista) không có quyền hủy đơn hàng');
+    }
+
     try {
       const order = await this.prisma.order.findUnique({
         where: { id: orderId },
