@@ -50,41 +50,37 @@ class Account {
   + id: String [PK, UUID]
   + username: String [Unique]
   + passwordHash: String
+  + fullName: String
+  + email: String [Unique]
   + role: Role
   + status: AccountStatus
   + createdAt: DateTime
   + updatedAt: DateTime
+  + changePassword(): Void
+  + checkStatus(): Boolean
+  + refreshToken(): String
 }
+
+note top of Account
+  Generalization {complete, disjoint}:
+  Customer, Staff, Admin ke thua tu Account
+  (trong CSDL Prisma anh xa 1-1 qua khoa ngoai accountId).
+end note
 
 class Customer {
   + id: String [PK, UUID]
-  + accountId: String [FK, Unique]
-  + fullName: String
-  + email: String [Unique]
   + loyaltyPoints: Int = 0
-  + createdAt: DateTime
-  + updatedAt: DateTime
   + addLoyaltyPoints(pts: Int): Void
   + refundLoyaltyPoints(pts: Int): Void
 }
 
 class Staff {
   + id: String [PK, UUID]
-  + accountId: String [FK, Unique]
-  + fullName: String
-  + email: String
-  + createdAt: DateTime
-  + updatedAt: DateTime
   + updateOrderStatus(): Void
 }
 
 class Admin {
   + id: String [PK, UUID]
-  + accountId: String [FK, Unique]
-  + fullName: String
-  + email: String
-  + createdAt: DateTime
-  + updatedAt: DateTime
   + manageCatalog(): Void
   + managePromotions(): Void
 }
@@ -243,23 +239,23 @@ class OrderStatusHistory {
   + createdAt: DateTime
 }
 
-Account "1" -- "0..1" Customer
-Account "1" -- "0..1" Staff
-Account "1" -- "0..1" Admin
+Account <|-- Customer : "{complete, disjoint}"
+Account <|-- Staff : "{complete, disjoint}"
+Account <|-- Admin : "{complete, disjoint}"
 
 Customer "1" -- "0..*" Order : places
 Staff "0..1" -- "0..*" Order : processes
 Promotion "0..1" -- "0..*" Order : applies
 Customer "1" -- "0..*" LoyaltyTransaction : owns
-Order "0..1" -- "0..*" LoyaltyTransaction : generates
+Order "1" -- "0..*" LoyaltyTransaction : generates
 
 Order "1" *-- "1..*" OrderItem : contains
-ProductVariant "1" -- "0..*" OrderItem
-Order "1" *-- "0..*" Payment : idempotent
-Order "1" *-- "0..*" OrderStatusHistory : logs
+Order "1" -- "0..*" Payment : idempotent
+Order "1" *-- "1..*" OrderStatusHistory : logs
 
-Product "1" *-- "1..*" ProductVariant : has
-ProductVariant "1" -- "0..*" Recipe : requires
+Product "1" *-- "0..*" ProductVariant : has
+ProductVariant "1" -- "0..*" OrderItem
+ProductVariant "1" *-- "0..*" Recipe : requires
 Ingredient "1" -- "0..*" Recipe : used in
 
 Customer "1" -- "0..*" Review : writes

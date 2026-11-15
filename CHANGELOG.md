@@ -2,6 +2,17 @@
 
 ## [Unreleased] - 2026-11-15
 
+### Changed (Diagrams, Report TOC/Stakeholders, Production URLs & Task 9 Completeness)
+- **UML Class & Deployment Diagrams Sync (`docs/diagrams/class-diagram.{drawio,puml,svg}`, `docs/diagrams/deployment-diagram.{drawio,puml,svg}`, `docs/traceability-matrix.md`)**:
+  - Updated `class-diagram.drawio` & `.puml`/`.svg` with the `{complete, disjoint}` generalization hierarchy from superclass `TaiKhoan` (`Account`, owning shared `hoTen`/`fullName` & `email`) to `KhachHang` (`Customer`), `NhanVien` (`Staff`), and `Admin`, plus 5 compositions (`DonHang -> ChiTietDonHang`, `DonHang -> LichSuTrangThaiDonHang`, `SanPham -> ChiTietSanPham`, `ChiTietSanPham -> CongThuc`, `PhieuNhap -> ChiTietPhieuNhap`), 13 associations, and 8 enum dependencies (29 edges total).
+  - Updated `deployment-diagram.drawio` & `.puml`/`.svg` and `docs/deployment.md` with exact `ghcr.io` image names (`brewlite-web`, `brewlite-api`), 13 Next.js client pages, `/api/mock-gateway/charge`, `FallbackStore`, `/api/health` + `/health`, and live PaaS option (`Vercel` + `Render` via `render.yaml`) alongside `docker-compose.yml`.
+- **LaTeX Report Full Alignment on Overleaf `v75` Base (`docs/report/Bao_Cao_BrewLite_v16.tex`)**:
+  - Preserved collaborator Section 1.3 (`UC-01`) updates and all existing report images untouched.
+  - Added dedicated front-matter section (`Thông tin dự án và phân công đóng góp`) containing verified live URLs (GitHub, Vercel Frontend, Render Backend API, `/api/health`, `/api/docs`, Google Drive demo video) and 7-member contribution table (`14,29%` each).
+  - Promoted `Phân tích các bên liên quan (Stakeholders)` (`1.2`) and `Phạm vi dự án, giả định, ràng buộc và rủi ro ban đầu` (`1.3`) to top-level sections in the Table of Contents (without raw `Task x.y` or `9.1` prefixes), added missing `Admin` functional requirements (`1.4.1 c`), promoted the standardized Repository structure (`7.1`) and 9-item Handover Checklist with concrete live Production/CI-CD/test/video evidence (`7.2`) into Chapter 7 (`Chương 7`), and placed Conclusions & Future Work cleanly in Chapter 8 (`Chương 8`).
+- **Release Notes & README Demo Video Link (`README.md`, `docs/RELEASE_NOTES.md`, `docs/deployment.md`)**:
+  - Added the Google Drive End-to-End Demo Video URL and verified live Vercel/Render/Health endpoints across `README.md`, `docs/RELEASE_NOTES.md`, and `docs/deployment.md`, and corrected `ghcr.io` image references in `docs/deployment.md`.
+
 ### Changed (Documentation, Report & Overleaf Sync)
 - **LaTeX Report TOC, Class Diagram Section 2.3 & Monorepo Path Alignment (`docs/report/Bao_Cao_BrewLite_v16.tex`)**:
   - Updated Section `1.1` and `1.1.2` headings to explicitly include `Stakeholder` / `Stakeholders` in the Table of Contents (`\section{Bối cảnh, các bên liên quan (Stakeholder) và phạm vi}`, `\subsection{Các bên liên quan chính (Stakeholders)}`), Section `3.1` to `Phương pháp và quyết định kiến trúc`, and Section `7.3` to `Đối chiếu cấu trúc Repository và Hạng mục bàn giao`.

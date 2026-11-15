@@ -1,189 +1,189 @@
 <?xml version="1.0" ?>
 <mxfile host="app.diagrams.net">
   <diagram id="brewlite-deployment" name="Deployment - BrewLite">
-    <mxGraphModel dx="1600" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1620" pageHeight="1215" math="0" shadow="0">
+    <mxGraphModel dx="1640" dy="1250" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1640" pageHeight="1250" math="0" shadow="0">
       <root>
         <mxCell id="0"/>
         <mxCell id="1" parent="0"/>
         <mxCell id="edge_proxy" value="&lt;b&gt;Edge CDN &amp;amp; HTTPS Reverse Proxy&lt;/b&gt;&lt;br&gt;«cloud / edge» Cloudflare Tunnel / Reverse Proxy" style="shape=cube;boundedLbl=1;backgroundOutline=1;darkOpacity=0;darkOpacity2=0;size=12;verticalAlign=top;spacingTop=6;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=12;fontFamily=Helvetica;" parent="1" vertex="1">
-          <mxGeometry x="20" y="20" width="400" height="175" as="geometry"/>
+          <mxGeometry x="20" y="20" width="410" height="180" as="geometry"/>
         </mxCell>
-        <mxCell id="edge_artifact" value="&lt;b&gt;TLS 1.3 Termination — Public Port: 443 (HTTPS)&lt;/b&gt;&lt;br&gt;• Forward Web UI &amp;amp; /api/* → &lt;i&gt;brewlite_frontend (:3000)&lt;/i&gt;&lt;br&gt;• Runner: &lt;i&gt;scripts/tunnel.js&lt;/i&gt; (&lt;i&gt;*.trycloudflare.com&lt;/i&gt;)&lt;br&gt;• Security: Không public Port 5432 DB &amp;amp; Port 3001 nội bộ" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=left;verticalAlign=middle;spacingLeft=10;" parent="edge_proxy" vertex="1">
-          <mxGeometry x="18" y="68" width="352" height="92" as="geometry"/>
+        <mxCell id="edge_artifact" value="&lt;b&gt;TLS 1.3 Termination — Public Port: 443 (HTTPS)&lt;/b&gt;&lt;br&gt;• Forward Web UI &amp;amp; /api/* → &lt;i&gt;brewlite_frontend (:3000)&lt;/i&gt;&lt;br&gt;• Dev/Demo Edge: &lt;i&gt;scripts/tunnel.js&lt;/i&gt; (&lt;i&gt;*.trycloudflare.com&lt;/i&gt;) / PaaS Edge&lt;br&gt;• Prod Security: Chặn public Port 5432 &amp;amp; 3001 qua Firewall/Proxy" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=left;verticalAlign=middle;spacingLeft=10;" parent="edge_proxy" vertex="1">
+          <mxGeometry x="18" y="68" width="362" height="96" as="geometry"/>
         </mxCell>
         <mxCell id="cicd" value="&lt;b&gt;CI/CD Pipeline &amp;amp; Container Registry&lt;/b&gt;&lt;br&gt;«infrastructure» GitHub Actions (.github/workflows/ci.yml, cd.yml) + GHCR" style="shape=cube;boundedLbl=1;backgroundOutline=1;darkOpacity=0;darkOpacity2=0;size=12;verticalAlign=top;spacingTop=6;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=12;fontFamily=Helvetica;" parent="1" vertex="1">
-          <mxGeometry x="595" y="20" width="1000" height="175" as="geometry"/>
+          <mxGeometry x="595" y="20" width="1025" height="180" as="geometry"/>
         </mxCell>
-        <mxCell id="gh_actions" value="&lt;b&gt;GitHub Actions Runner&lt;/b&gt; (&lt;i&gt;ubuntu-latest&lt;/i&gt;)&lt;br&gt;• &lt;b&gt;ci.yml&lt;/b&gt; (PR / develop): service &lt;i&gt;postgres:16-alpine&lt;/i&gt;, lint, prisma db push, seed, Jest Unit &amp;amp; Integration (test:e2e), build&lt;br&gt;• &lt;b&gt;cd.yml&lt;/b&gt; (main / v*.*.*): Quality Gate → Build Images → Prisma Validate/Migrate → Deploy Webhook → Health Smoke Test&lt;br&gt;• Failure handler: Cảnh báo lỗi &amp;amp; tham chiếu quy trình tại &lt;i&gt;docs/rollback-guide.md&lt;/i&gt;" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=left;verticalAlign=middle;spacingLeft=10;" parent="cicd" vertex="1">
-          <mxGeometry x="20" y="62" width="550" height="100" as="geometry"/>
+        <mxCell id="gh_actions" value="&lt;b&gt;GitHub Actions Runner&lt;/b&gt; (&lt;i&gt;ubuntu-latest&lt;/i&gt;)&lt;br&gt;• &lt;b&gt;ci.yml&lt;/b&gt; (PR develop/main, push develop): &lt;i&gt;postgres:16-alpine&lt;/i&gt;, lint (tsc/eslint), &lt;b&gt;prisma migrate deploy&lt;/b&gt;, seed, Jest Unit &amp;amp; test:e2e, build&lt;br&gt;• &lt;b&gt;cd.yml&lt;/b&gt; (push main/v*.*.*, dispatch): Quality Gate (lint, Unit, build) → Push GHCR → prisma validate/migrate → Hook / Compose Smoke Test&lt;br&gt;• &lt;b&gt;Failure handler:&lt;/b&gt; Dọn Compose (&lt;i&gt;docker compose down -v&lt;/i&gt;) &amp;amp; tham chiếu &lt;i&gt;docs/rollback-guide.md&lt;/i&gt;" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=left;verticalAlign=middle;spacingLeft=10;" parent="cicd" vertex="1">
+          <mxGeometry x="20" y="60" width="575" height="108" as="geometry"/>
         </mxCell>
-        <mxCell id="ghcr" value="&lt;b&gt;Container Registry&lt;/b&gt;&lt;br&gt;«registry» &lt;b&gt;ghcr.io&lt;/b&gt;&lt;br&gt;• brewlite-frontend:&amp;lt;SHORT_SHA | v*.*.*&amp;gt;&lt;br&gt;• brewlite-backend:&amp;lt;SHORT_SHA | v*.*.*&amp;gt;" style="shape=cube;boundedLbl=1;backgroundOutline=1;darkOpacity=0;darkOpacity2=0;size=10;verticalAlign=top;spacingTop=6;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" parent="cicd" vertex="1">
-          <mxGeometry x="645" y="62" width="330" height="100" as="geometry"/>
+        <mxCell id="ghcr" value="&lt;b&gt;Container Registry&lt;/b&gt;&lt;br&gt;«registry» &lt;b&gt;ghcr.io&lt;/b&gt;&lt;br&gt;• brewlite-web:&amp;lt;SHORT_SHA | main | v*.*.*&amp;gt;&lt;br&gt;• brewlite-api:&amp;lt;SHORT_SHA | main | v*.*.*&amp;gt;" style="shape=cube;boundedLbl=1;backgroundOutline=1;darkOpacity=0;darkOpacity2=0;size=10;verticalAlign=top;spacingTop=6;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" parent="cicd" vertex="1">
+          <mxGeometry x="670" y="60" width="335" height="108" as="geometry"/>
         </mxCell>
         <mxCell id="e_ci_reg" style="html=1;rounded=0;strokeColor=#000000;strokeWidth=1.5;endArrow=open;endFill=0;endSize=8;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="1165" y="136" as="sourcePoint"/>
-            <mxPoint x="1240" y="136" as="targetPoint"/>
+            <mxPoint x="1190" y="136" as="sourcePoint"/>
+            <mxPoint x="1265" y="136" as="targetPoint"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="l_ci_reg" value="docker push" style="text;html=1;align=center;verticalAlign=middle;fillColor=#ffffff;fontSize=10;fontFamily=Helvetica;fontColor=#000000;whiteSpace=wrap;" parent="1" vertex="1">
-          <mxGeometry x="1168" y="111" width="68" height="20" as="geometry"/>
+          <mxGeometry x="1193" y="111" width="68" height="20" as="geometry"/>
         </mxCell>
         <mxCell id="device" value="&lt;b&gt;Thiết bị Người dùng&lt;/b&gt;&lt;br&gt;«device» [Laptop, PC, Smartphone]" style="shape=cube;boundedLbl=1;backgroundOutline=1;darkOpacity=0;darkOpacity2=0;size=12;verticalAlign=top;spacingTop=6;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=12;fontFamily=Helvetica;" parent="1" vertex="1">
-          <mxGeometry x="20" y="290" width="280" height="445" as="geometry"/>
+          <mxGeometry x="20" y="295" width="292" height="450" as="geometry"/>
         </mxCell>
         <mxCell id="browser" value="&lt;b&gt;Trình duyệt Web (Mobile-First)&lt;/b&gt;&lt;br&gt;«executionEnvironment»" style="shape=cube;boundedLbl=1;backgroundOutline=1;darkOpacity=0;darkOpacity2=0;size=10;verticalAlign=top;spacingTop=6;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" parent="device" vertex="1">
-          <mxGeometry x="16" y="64" width="238" height="364" as="geometry"/>
+          <mxGeometry x="16" y="64" width="250" height="368" as="geometry"/>
         </mxCell>
-        <mxCell id="webui" value="«artifact»&lt;br&gt;&lt;b&gt;BrewLite Web UI Client&lt;/b&gt;&lt;br&gt;&lt;br&gt;• React 18.3, TailwindCSS 3.4&lt;br&gt;• Zustand Store &amp;amp; &lt;i&gt;lib/api.ts&lt;/i&gt; (JWT Refresh)&lt;br&gt;• Mobile-First UI + &lt;i&gt;manifest.webmanifest&lt;/i&gt;&lt;br&gt;• Sinh UUID &lt;i&gt;Idempotency-Key&lt;/i&gt;" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=left;verticalAlign=middle;spacingLeft=10;" parent="browser" vertex="1">
-          <mxGeometry x="14" y="60" width="200" height="168" as="geometry"/>
+        <mxCell id="webui" value="«artifact»&lt;br&gt;&lt;b&gt;BrewLite Web UI Client&lt;/b&gt;&lt;br&gt;&lt;br&gt;• React 18.3, TailwindCSS 3.4&lt;br&gt;• Zustand Store &amp;amp; &lt;i&gt;lib/api.ts&lt;/i&gt; (JWT Refresh)&lt;br&gt;• Mobile-First UI + &lt;i&gt;manifest.webmanifest&lt;/i&gt;&lt;br&gt;• Sinh &lt;i&gt;crypto.randomUUID()&lt;/i&gt; &lt;i&gt;Idempotency-Key&lt;/i&gt;" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=8;" parent="browser" vertex="1">
+          <mxGeometry x="14" y="60" width="212" height="170" as="geometry"/>
         </mxCell>
-        <mxCell id="mbbank_client" value="«artifact»&lt;br&gt;&lt;b&gt;MBBank VietQR Client&lt;/b&gt;&lt;br&gt;• Đường dẫn: &lt;i&gt;/mbbank&lt;/i&gt;&lt;br&gt;• Quét QR trên Camera điện thoại&lt;br&gt;• Gọi POST /api/payments/mbbank-sync" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=left;verticalAlign=middle;spacingLeft=10;" parent="browser" vertex="1">
-          <mxGeometry x="14" y="242" width="200" height="106" as="geometry"/>
+        <mxCell id="mbbank_client" value="«artifact»&lt;br&gt;&lt;b&gt;MBBank VietQR Client&lt;/b&gt;&lt;br&gt;• Đường dẫn: &lt;i&gt;/mbbank&lt;/i&gt;, &lt;i&gt;/mbbank/admin&lt;/i&gt;&lt;br&gt;• Quét QR Camera (&lt;i&gt;jsQR / html5-qrcode&lt;/i&gt;)&lt;br&gt;• POST &lt;i&gt;/api/payments/mbbank-sync&lt;/i&gt;" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=8;" parent="browser" vertex="1">
+          <mxGeometry x="14" y="244" width="212" height="108" as="geometry"/>
         </mxCell>
-        <mxCell id="vps" value="&lt;b&gt;Production Container Host / Cloud VPS (Ubuntu 22.04)&lt;/b&gt;&lt;br&gt;«device» Triển khai đồng bộ 3 dịch vụ theo &lt;i&gt;docker-compose.yml&lt;/i&gt; (name: brewlite)" style="shape=cube;boundedLbl=1;backgroundOutline=1;darkOpacity=0;darkOpacity2=0;size=14;verticalAlign=top;spacingTop=6;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=13;fontFamily=Helvetica;align=left;spacingLeft=20;" parent="1" vertex="1">
-          <mxGeometry x="365" y="260" width="1230" height="640" as="geometry"/>
+        <mxCell id="vps" value="&lt;b&gt;Production Container Host / Cloud VPS (Ubuntu 22.04)&lt;/b&gt;&lt;br&gt;«device» Stack Docker Compose: &lt;i&gt;docker-compose.yml&lt;/i&gt; (name: &lt;i&gt;brewlite&lt;/i&gt;) — Hoặc PaaS tùy chọn: Vercel (Web) + Render (&lt;i&gt;render.yaml&lt;/i&gt;)" style="shape=cube;boundedLbl=1;backgroundOutline=1;darkOpacity=0;darkOpacity2=0;size=14;verticalAlign=top;spacingTop=6;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=12.5;fontFamily=Helvetica;align=left;spacingLeft=12;" parent="1" vertex="1">
+          <mxGeometry x="390" y="265" width="1230" height="660" as="geometry"/>
         </mxCell>
-        <mxCell id="docker" value="&lt;b&gt;Docker Engine 24+&lt;/b&gt; «executionEnvironment» — Mạng nội bộ cô lập: &lt;b&gt;brewlite_network&lt;/b&gt;" style="shape=cube;boundedLbl=1;backgroundOutline=1;darkOpacity=0;darkOpacity2=0;size=12;verticalAlign=top;spacingTop=6;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=12;fontFamily=Helvetica;align=left;spacingLeft=18;" parent="vps" vertex="1">
-          <mxGeometry x="18" y="62" width="1186" height="564" as="geometry"/>
+        <mxCell id="docker" value="&lt;b&gt;Docker Engine 24+&lt;/b&gt; «executionEnvironment» — Mạng nội bộ: &lt;b&gt;brewlite_network&lt;/b&gt; (Build local &lt;i&gt;./apps/*&lt;/i&gt; hoặc Pull GHCR)" style="shape=cube;boundedLbl=1;backgroundOutline=1;darkOpacity=0;darkOpacity2=0;size=12;verticalAlign=top;spacingTop=6;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=12;fontFamily=Helvetica;align=left;spacingLeft=10;" parent="vps" vertex="1">
+          <mxGeometry x="22" y="68" width="1190" height="578" as="geometry"/>
         </mxCell>
         <mxCell id="c_frontend" value="&lt;b&gt;Container: brewlite_frontend&lt;/b&gt;&lt;br&gt;«container» node:20-alpine | Port: 3000" style="shape=cube;boundedLbl=1;backgroundOutline=1;darkOpacity=0;darkOpacity2=0;size=10;verticalAlign=top;spacingTop=6;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" parent="docker" vertex="1">
-          <mxGeometry x="18" y="62" width="262" height="484" as="geometry"/>
+          <mxGeometry x="16" y="58" width="268" height="504" as="geometry"/>
         </mxCell>
-        <mxCell id="fe_app" value="«artifact» &lt;b&gt;brewlite-frontend&lt;/b&gt;&lt;br&gt;Next.js 14.2.5 (App Router)&lt;br&gt;Command: &lt;i&gt;npm start&lt;/i&gt;&lt;br&gt;&lt;br&gt;• App Router Pages ('use client'):&lt;br&gt;&amp;nbsp;&amp;nbsp;/, /cart, /checkout, /orders/[id],&lt;br&gt;&amp;nbsp;&amp;nbsp;/staff, /admin&lt;br&gt;• Static VietQR: /mbbank, /mbbank/admin" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=left;verticalAlign=middle;spacingLeft=10;" parent="c_frontend" vertex="1">
-          <mxGeometry x="14" y="66" width="224" height="164" as="geometry"/>
+        <mxCell id="fe_app" value="«artifact» &lt;b&gt;brewlite-frontend&lt;/b&gt;&lt;br&gt;Next.js 14.2.5 (App Router) | &lt;i&gt;npm start&lt;/i&gt;&lt;br&gt;• 13 Client Pages ('use client'):&lt;br&gt;&amp;nbsp;&amp;nbsp;/, /products/[id], /cart, /checkout, /orders,&lt;br&gt;&amp;nbsp;&amp;nbsp;/orders/[id], /orders/me, /orders/history,&lt;br&gt;&amp;nbsp;&amp;nbsp;/login, /register, /profile, /staff, /admin&lt;br&gt;• Redirect: /products → / | Static: /mbbank, /mbbank/admin" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=left;verticalAlign=middle;spacingLeft=10;" parent="c_frontend" vertex="1">
+          <mxGeometry x="14" y="66" width="230" height="192" as="geometry"/>
         </mxCell>
-        <mxCell id="fe_proxy" value="&lt;b&gt;Next.js API Routes &amp;amp; Rewrites&lt;/b&gt;&lt;br&gt;• Handlers: &lt;i&gt;mbbank-sync&lt;/i&gt;, &lt;i&gt;mbbank-check&lt;/i&gt;&lt;br&gt;• Rewrite &lt;i&gt;/api/:path*&lt;/i&gt; →&lt;br&gt;&amp;nbsp;&amp;nbsp;&lt;i&gt;INTERNAL_BACKEND_URL&lt;/i&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;(&lt;i&gt;http://backend:3001/api/:path*&lt;/i&gt;)" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=left;verticalAlign=middle;spacingLeft=10;" parent="c_frontend" vertex="1">
-          <mxGeometry x="14" y="240" width="224" height="124" as="geometry"/>
+        <mxCell id="fe_proxy" value="&lt;b&gt;Next.js Route Handlers &amp;amp; Rewrites&lt;/b&gt;&lt;br&gt;• Handlers: &lt;i&gt;mbbank-sync&lt;/i&gt;, &lt;i&gt;mbbank-check/[orderCode]&lt;/i&gt;&lt;br&gt;• Rewrites: &lt;i&gt;/mbbank&lt;/i&gt;, &lt;i&gt;/mbbank/admin&lt;/i&gt; → &lt;i&gt;.html&lt;/i&gt;&lt;br&gt;• Rewrite &lt;i&gt;/api/:path*&lt;/i&gt; → &lt;i&gt;INTERNAL_BACKEND_URL&lt;/i&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;(&lt;i&gt;http://backend:3001/api/:path*&lt;/i&gt;)" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=left;verticalAlign=middle;spacingLeft=10;" parent="c_frontend" vertex="1">
+          <mxGeometry x="14" y="268" width="230" height="120" as="geometry"/>
         </mxCell>
         <mxCell id="fe_env" value="&lt;b&gt;Frontend Env Config&lt;/b&gt;&lt;br&gt;PORT=3000, NODE_ENV=production&lt;br&gt;NEXT_PUBLIC_API_URL&lt;br&gt;INTERNAL_BACKEND_URL" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" parent="c_frontend" vertex="1">
-          <mxGeometry x="14" y="380" width="224" height="86" as="geometry"/>
+          <mxGeometry x="14" y="398" width="230" height="92" as="geometry"/>
         </mxCell>
         <mxCell id="c_backend" value="&lt;b&gt;Container: brewlite_backend&lt;/b&gt; «container»&lt;br&gt;node:20-alpine | Port: 3001 (0.0.0.0) | Swagger: /api/docs" style="shape=cube;boundedLbl=1;backgroundOutline=1;darkOpacity=0;darkOpacity2=0;size=10;verticalAlign=top;spacingTop=6;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=12;fontFamily=Helvetica;" parent="docker" vertex="1">
-          <mxGeometry x="372" y="62" width="466" height="484" as="geometry"/>
+          <mxGeometry x="366" y="58" width="482" height="504" as="geometry"/>
         </mxCell>
-        <mxCell id="mainjs" value="&lt;b&gt;dist/src/main.js&lt;/b&gt; (NestJS 10.3)&lt;br&gt;CMD: prisma db push → seed → node&lt;br&gt;Global /api • CORS • ValidationPipe" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" parent="c_backend" vertex="1">
-          <mxGeometry x="14" y="66" width="210" height="78" as="geometry"/>
+        <mxCell id="mainjs" value="&lt;b&gt;dist/src/main.js&lt;/b&gt; (NestJS 10.3)&lt;br&gt;CMD: prisma db push → seed → node&lt;br&gt;Global /api • CORS • ValidationPipe&lt;br&gt;AllExceptionsFilter • TransformInterceptor" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" parent="c_backend" vertex="1">
+          <mxGeometry x="14" y="66" width="218" height="90" as="geometry"/>
         </mxCell>
-        <mxCell id="prisma" value="&lt;b&gt;Prisma Client ORM 5.9&lt;/b&gt;&lt;br&gt;DB Connection Pool (PG Driver)&lt;br&gt;$transaction() + OCC Version Checks" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" parent="c_backend" vertex="1">
-          <mxGeometry x="242" y="66" width="200" height="78" as="geometry"/>
+        <mxCell id="prisma" value="&lt;b&gt;Prisma Client ORM 5.9&lt;/b&gt;&lt;br&gt;DB Connection Pool (PostgreSQL Pool)&lt;br&gt;&lt;i&gt;$transaction()&lt;/i&gt; + OCC Version Checks&lt;br&gt;&amp;amp; &lt;i&gt;FallbackStore&lt;/i&gt; (In-Memory Resiliency)" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" parent="c_backend" vertex="1">
+          <mxGeometry x="246" y="66" width="212" height="90" as="geometry"/>
         </mxCell>
-        <mxCell id="core" value="&lt;b&gt;8 NestJS Feature Modules &amp;amp; Internal Mock Gateway&lt;/b&gt;&lt;br&gt;• &lt;b&gt;AuthModule&lt;/b&gt; (JWT 15m/7d, Bcrypt) &amp;nbsp;• &lt;b&gt;ProductsModule&lt;/b&gt; (Menu &amp;amp; Recipes)&lt;br&gt;• &lt;b&gt;OrdersModule&lt;/b&gt; (State Machine) &amp;nbsp;&amp;nbsp;&amp;nbsp;• &lt;b&gt;PromotionsModule&lt;/b&gt; • &lt;b&gt;ReviewsModule&lt;/b&gt;&lt;br&gt;• &lt;b&gt;PaymentModule&lt;/b&gt; (Idempotency, OCC, &lt;i&gt;mbbank-sync&lt;/i&gt; &amp;amp; &lt;b&gt;MockGatewayService&lt;/b&gt;)&lt;br&gt;• &lt;b&gt;StaffModule&lt;/b&gt; (Kanban FIFO) &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;• &lt;b&gt;AdminModule&lt;/b&gt; (Kho, NCC, Doanh thu)" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=left;verticalAlign=middle;spacingLeft=10;" parent="c_backend" vertex="1">
-          <mxGeometry x="14" y="176" width="428" height="134" as="geometry"/>
+        <mxCell id="core" value="&lt;b&gt;8 NestJS Feature Modules &amp;amp; Internal Mock Gateway&lt;/b&gt;&lt;br&gt;• &lt;b&gt;AuthModule&lt;/b&gt; (JWT 15m/7d, Bcryptjs 10) • &lt;b&gt;ProductsModule&lt;/b&gt; (Menu, Toppings, Check Kho)&lt;br&gt;• &lt;b&gt;OrdersModule&lt;/b&gt; (State Machine) • &lt;b&gt;PromotionsModule&lt;/b&gt; • &lt;b&gt;ReviewsModule&lt;/b&gt;&lt;br&gt;• &lt;b&gt;PaymentModule&lt;/b&gt; (Idempotency-Key, OCC, &lt;i&gt;mbbank-sync/-check/-invalidate&lt;/i&gt;, &lt;b&gt;MockGatewayService&lt;/b&gt; &amp;amp; &lt;i&gt;/api/mock-gateway/charge&lt;/i&gt;)&lt;br&gt;• &lt;b&gt;StaffModule&lt;/b&gt; (Kanban FIFO, Order Recipes) • &lt;b&gt;AdminModule&lt;/b&gt; (Kho, Công thức, NCC, Báo cáo)" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=left;verticalAlign=middle;spacingLeft=10;" parent="c_backend" vertex="1">
+          <mxGeometry x="14" y="188" width="444" height="160" as="geometry"/>
         </mxCell>
-        <mxCell id="obs" value="&lt;b&gt;Health Check &amp;amp; Logging&lt;/b&gt;&lt;br&gt;GET /api/health &amp;amp; /health (200 OK)&lt;br&gt;&lt;i&gt;SELECT 1&lt;/i&gt; DB Ping + Uptime&lt;br&gt;AllExceptionsFilter (Logger &amp;amp; JSON)" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" parent="c_backend" vertex="1">
-          <mxGeometry x="14" y="330" width="210" height="88" as="geometry"/>
+        <mxCell id="obs" value="&lt;b&gt;Health Check &amp;amp; Observability&lt;/b&gt;&lt;br&gt;GET /api/health &amp;amp; /health (200 OK)&lt;br&gt;&lt;i&gt;SELECT 1&lt;/i&gt; DB Ping + Uptime + Version JSON&lt;br&gt;AllExceptionsFilter (Logger &amp;amp; Error JSON)" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" parent="c_backend" vertex="1">
+          <mxGeometry x="14" y="362" width="218" height="120" as="geometry"/>
         </mxCell>
-        <mxCell id="secrets" value="&lt;b&gt;Secrets &amp;amp; Env Config&lt;/b&gt;&lt;br&gt;PORT=3001, NODE_ENV=production&lt;br&gt;DATABASE_URL (postgres:5432)&lt;br&gt;JWT_SECRET (15m), REFRESH (7d)&lt;br&gt;FRONTEND_URL" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" parent="c_backend" vertex="1">
-          <mxGeometry x="242" y="330" width="200" height="88" as="geometry"/>
+        <mxCell id="secrets" value="&lt;b&gt;Secrets &amp;amp; Env Config&lt;/b&gt;&lt;br&gt;PORT=3001, NODE_ENV=production&lt;br&gt;DATABASE_URL (postgres:5432), FRONTEND_URL&lt;br&gt;JWT_SECRET, JWT_EXPIRES_IN (15m)&lt;br&gt;JWT_REFRESH_SECRET, JWT_REFRESH_EXPIRES_IN (7d)" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" parent="c_backend" vertex="1">
+          <mxGeometry x="246" y="362" width="212" height="120" as="geometry"/>
         </mxCell>
         <mxCell id="e_int_1" style="html=1;rounded=0;strokeColor=#000000;strokeWidth=1.5;endArrow=open;endFill=0;endSize=7;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="874" y="528" as="sourcePoint"/>
-            <mxPoint x="874" y="560" as="targetPoint"/>
+            <mxPoint x="901" y="547" as="sourcePoint"/>
+            <mxPoint x="901" y="579" as="targetPoint"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="e_int_2" style="html=1;rounded=0;strokeColor=#000000;strokeWidth=1.5;endArrow=open;endFill=0;endSize=7;startArrow=open;startFill=0;startSize=7;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="1097" y="560" as="sourcePoint"/>
-            <mxPoint x="1097" y="528" as="targetPoint"/>
+            <mxPoint x="1130" y="579" as="sourcePoint"/>
+            <mxPoint x="1130" y="547" as="targetPoint"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="c_postgres" value="&lt;b&gt;Container: brewlite_postgres&lt;/b&gt;&lt;br&gt;«container» postgres:16-alpine&lt;br&gt;Port: 5432 [Internal Only]" style="shape=cube;boundedLbl=1;backgroundOutline=1;darkOpacity=0;darkOpacity2=0;size=10;verticalAlign=top;spacingTop=6;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" parent="docker" vertex="1">
-          <mxGeometry x="932" y="62" width="240" height="484" as="geometry"/>
+        <mxCell id="c_postgres" value="&lt;b&gt;Container: brewlite_postgres&lt;/b&gt;&lt;br&gt;«container» postgres:16-alpine&lt;br&gt;Port: 5432 [Compose Map / Prod Internal Only]" style="shape=cube;boundedLbl=1;backgroundOutline=1;darkOpacity=0;darkOpacity2=0;size=10;verticalAlign=top;spacingTop=6;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;" parent="docker" vertex="1">
+          <mxGeometry x="936" y="58" width="240" height="504" as="geometry"/>
         </mxCell>
         <mxCell id="cyl" value="&lt;b&gt;brewlite_db&lt;/b&gt;&lt;br&gt;(17 Tables / Models)&lt;br&gt;&lt;i&gt;pg_isready Healthcheck&lt;/i&gt;" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=11;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" parent="c_postgres" vertex="1">
-          <mxGeometry x="22" y="94" width="186" height="110" as="geometry"/>
+          <mxGeometry x="22" y="102" width="186" height="112" as="geometry"/>
         </mxCell>
         <mxCell id="volume" value="«storageVolume»&lt;br&gt;&lt;b&gt;Persistent Storage Volume&lt;/b&gt;&lt;br&gt;&lt;br&gt;Docker Volume:&lt;br&gt;&lt;b&gt;brewlite_postgres_data&lt;/b&gt;&lt;br&gt;Mount: /var/lib/postgresql/data&lt;br&gt;Bền vững qua restart/redeploy" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" parent="c_postgres" vertex="1">
-          <mxGeometry x="14" y="268" width="202" height="138" as="geometry"/>
+          <mxGeometry x="14" y="282" width="202" height="144" as="geometry"/>
         </mxCell>
         <mxCell id="e_pg_vol" style="html=1;rounded=0;strokeColor=#000000;strokeWidth=1.5;endArrow=open;endFill=0;endSize=7;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="1430" y="588" as="sourcePoint"/>
-            <mxPoint x="1430" y="652" as="targetPoint"/>
+            <mxPoint x="1463" y="605" as="sourcePoint"/>
+            <mxPoint x="1463" y="673" as="targetPoint"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="l_pg_vol" value="WAL / Data Persist" style="text;html=1;align=left;verticalAlign=middle;fillColor=#ffffff;fontSize=10;fontFamily=Helvetica;fontColor=#000000;whiteSpace=wrap;" parent="1" vertex="1">
-          <mxGeometry x="1436" y="608" width="102" height="18" as="geometry"/>
+          <mxGeometry x="1470" y="630" width="102" height="18" as="geometry"/>
         </mxCell>
         <mxCell id="ext_pay" value="&lt;b&gt;External Payment Gateway (Production Extension)&lt;/b&gt; «externalService»&lt;br&gt;VNPay / MoMo REST API &amp;amp; Webhook (HTTPS :443)&lt;br&gt;&lt;i&gt;Lưu ý MVP: Thanh toán CARD/WALLET đang chạy MockGatewayService nội bộ trong PaymentModule&lt;/i&gt;" style="shape=cube;boundedLbl=1;backgroundOutline=1;darkOpacity=0;darkOpacity2=0;size=11;verticalAlign=top;spacingTop=6;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" parent="1" vertex="1">
-          <mxGeometry x="730" y="945" width="515" height="100" as="geometry"/>
+          <mxGeometry x="760" y="970" width="518" height="100" as="geometry"/>
         </mxCell>
         <mxCell id="e_dev_edge" style="html=1;rounded=0;strokeColor=#000000;strokeWidth=1.5;endArrow=open;endFill=0;endSize=8;startArrow=open;startFill=0;startSize=8;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="160" y="290" as="sourcePoint"/>
-            <mxPoint x="160" y="195" as="targetPoint"/>
+            <mxPoint x="166" y="295" as="sourcePoint"/>
+            <mxPoint x="166" y="200" as="targetPoint"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="l_dev_edge" value="HTTPS :443 (TLS 1.3)&lt;br&gt;Web UI, /mbbank &amp;amp; /api/*&lt;br&gt;+ UUID Idempotency-Key" style="text;html=1;align=left;verticalAlign=middle;fillColor=#ffffff;fontSize=11;fontFamily=Helvetica;fontColor=#000000;whiteSpace=wrap;" parent="1" vertex="1">
-          <mxGeometry x="168" y="214" width="178" height="48" as="geometry"/>
+          <mxGeometry x="174" y="216" width="168" height="48" as="geometry"/>
         </mxCell>
-        <mxCell id="e_edge_fe" style="html=1;rounded=0;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;endSize=8;" edge="1" parent="1">
+        <mxCell id="e_edge_fe" style="html=1;rounded=0;strokeColor=#000000;strokeWidth=1.5;endArrow=open;endFill=0;endSize=8;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="420" y="130" as="sourcePoint"/>
+            <mxPoint x="362" y="200" as="sourcePoint"/>
             <Array as="points">
-              <mxPoint x="510" y="130"/>
+              <mxPoint x="362" y="470"/>
             </Array>
-            <mxPoint x="510" y="384" as="targetPoint"/>
+            <mxPoint x="428" y="470" as="targetPoint"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="l_edge_fe" value="HTTP Proxy&lt;br&gt;→ Port 3000" style="text;html=1;align=left;verticalAlign=middle;fillColor=#ffffff;fontSize=11;fontFamily=Helvetica;fontColor=#000000;whiteSpace=wrap;" parent="1" vertex="1">
-          <mxGeometry x="518" y="206" width="86" height="36" as="geometry"/>
+          <mxGeometry x="370" y="210" width="108" height="38" as="geometry"/>
         </mxCell>
         <mxCell id="e_ci_hook" style="html=1;rounded=0;strokeColor=#000000;strokeWidth=1.5;endArrow=open;endFill=0;endSize=8;dashed=1;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="1065" y="182" as="sourcePoint"/>
-            <mxPoint x="1065" y="384" as="targetPoint"/>
+            <mxPoint x="1080" y="188" as="sourcePoint"/>
+            <mxPoint x="1080" y="265" as="targetPoint"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="l_ci_hook" value="POST DEPLOY_WEBHOOK_URL&lt;br&gt;&amp;amp; GET PROD_HEALTH_URL (/api/health)" style="text;html=1;align=left;verticalAlign=middle;fillColor=#ffffff;fontSize=11;fontFamily=Helvetica;fontColor=#000000;whiteSpace=wrap;" parent="1" vertex="1">
-          <mxGeometry x="1073" y="206" width="230" height="36" as="geometry"/>
+        <mxCell id="l_ci_hook" value="POST DEPLOY_WEBHOOK_URL (Host/PaaS)&lt;br&gt;&amp;amp; Health Check (PROD_HEALTH_URL / Compose)" style="text;html=1;align=left;verticalAlign=middle;fillColor=#ffffff;fontSize=10.5;fontFamily=Helvetica;fontColor=#000000;whiteSpace=wrap;" parent="1" vertex="1">
+          <mxGeometry x="1088" y="206" width="265" height="42" as="geometry"/>
         </mxCell>
         <mxCell id="e_reg_pull" style="html=1;rounded=0;strokeColor=#000000;strokeWidth=1.5;endArrow=open;endFill=0;endSize=8;dashed=1;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="1405" y="182" as="sourcePoint"/>
-            <mxPoint x="1405" y="322" as="targetPoint"/>
+            <mxPoint x="1432" y="188" as="sourcePoint"/>
+            <mxPoint x="1432" y="265" as="targetPoint"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="l_reg_pull" value="docker pull images&lt;br&gt;(frontend &amp;amp; backend)" style="text;html=1;align=left;verticalAlign=middle;fillColor=#ffffff;fontSize=11;fontFamily=Helvetica;fontColor=#000000;whiteSpace=wrap;" parent="1" vertex="1">
-          <mxGeometry x="1412" y="206" width="142" height="36" as="geometry"/>
+        <mxCell id="l_reg_pull" value="docker pull (Prebuilt Deploy)&lt;br&gt;(brewlite-web &amp;amp; brewlite-api)" style="text;html=1;align=left;verticalAlign=middle;fillColor=#ffffff;fontSize=10.5;fontFamily=Helvetica;fontColor=#000000;whiteSpace=wrap;" parent="1" vertex="1">
+          <mxGeometry x="1440" y="206" width="175" height="42" as="geometry"/>
         </mxCell>
         <mxCell id="e_fe_be" style="html=1;rounded=0;strokeColor=#000000;strokeWidth=1.5;endArrow=open;endFill=0;endSize=8;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="663" y="595" as="sourcePoint"/>
-            <mxPoint x="755" y="595" as="targetPoint"/>
+            <mxPoint x="696" y="620" as="sourcePoint"/>
+            <mxPoint x="778" y="620" as="targetPoint"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="l_fe_be" value="Internal HTTP&lt;br&gt;Port 3001&lt;br&gt;(/api/:path*)" style="text;html=1;align=center;verticalAlign=middle;fillColor=#ffffff;fontSize=10;fontFamily=Helvetica;fontColor=#000000;whiteSpace=wrap;" parent="1" vertex="1">
-          <mxGeometry x="666" y="540" width="86" height="46" as="geometry"/>
+          <mxGeometry x="698" y="566" width="78" height="46" as="geometry"/>
         </mxCell>
         <mxCell id="e_be_db" style="html=1;rounded=0;strokeColor=#000000;strokeWidth=1.5;endArrow=open;endFill=0;endSize=8;startArrow=open;startFill=0;startSize=8;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="1221" y="595" as="sourcePoint"/>
-            <mxPoint x="1315" y="595" as="targetPoint"/>
+            <mxPoint x="1260" y="620" as="sourcePoint"/>
+            <mxPoint x="1348" y="620" as="targetPoint"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="l_be_db" value="TCP/IP&lt;br&gt;Port 5432&lt;br&gt;(Internal Only)" style="text;html=1;align=center;verticalAlign=middle;fillColor=#ffffff;fontSize=10;fontFamily=Helvetica;fontColor=#000000;whiteSpace=wrap;" parent="1" vertex="1">
-          <mxGeometry x="1224" y="540" width="88" height="46" as="geometry"/>
+          <mxGeometry x="1262" y="566" width="84" height="46" as="geometry"/>
         </mxCell>
         <mxCell id="e_be_ext" style="html=1;rounded=0;strokeColor=#000000;strokeWidth=1.5;endArrow=open;endFill=0;endSize=8;startArrow=open;startFill=0;startSize=8;dashed=1;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="988" y="868" as="sourcePoint"/>
-            <mxPoint x="988" y="945" as="targetPoint"/>
+            <mxPoint x="1019" y="895" as="sourcePoint"/>
+            <mxPoint x="1019" y="970" as="targetPoint"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="l_be_ext" value="«future» HTTPS REST / Webhook (:443)" style="text;html=1;align=left;verticalAlign=middle;fillColor=#ffffff;fontSize=10;fontFamily=Helvetica;fontColor=#000000;whiteSpace=wrap;" parent="1" vertex="1">
-          <mxGeometry x="996" y="906" width="220" height="20" as="geometry"/>
+          <mxGeometry x="1027" y="930" width="230" height="20" as="geometry"/>
         </mxCell>
-        <mxCell id="env_local" value="«boundary» &lt;b&gt;Environment 1: Local Development&lt;/b&gt;&lt;br&gt;• DB Docker (&lt;i&gt;npm run docker:up&lt;/i&gt; → :5432) + Host Node (&lt;i&gt;npm run dev:backend :3001&lt;/i&gt;, &lt;i&gt;dev:frontend :3000&lt;/i&gt;)&lt;br&gt;• Ở localhost, &lt;i&gt;lib/api.ts&lt;/i&gt; gọi trực tiếp &lt;i&gt;http://127.0.0.1:3001/api&lt;/i&gt;; hoặc chạy trọn bộ qua &lt;i&gt;npm run docker:all&lt;/i&gt;&lt;br&gt;• Test Mobile QR qua &lt;i&gt;scripts/tunnel.js&lt;/i&gt; (&lt;i&gt;cloudflared :443 → :3000&lt;/i&gt;) hoặc &lt;i&gt;https-proxy.js&lt;/i&gt; (:3443)" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;dashed=1;" parent="1" vertex="1">
-          <mxGeometry x="20" y="1080" width="510" height="112" as="geometry"/>
+        <mxCell id="env_local" value="«boundary» &lt;b&gt;Environment 1: Local Development&lt;/b&gt;&lt;br&gt;• DB Docker (&lt;i&gt;npm run docker:up&lt;/i&gt; → :5432) + Host Node (&lt;i&gt;npm run dev:backend :3001&lt;/i&gt;, &lt;i&gt;dev:frontend :3000&lt;/i&gt;)&lt;br&gt;• Ở localhost, &lt;i&gt;lib/api.ts&lt;/i&gt; gọi trực tiếp &lt;i&gt;http://127.0.0.1:3001/api&lt;/i&gt;; hoặc chạy trọn bộ qua &lt;i&gt;npm run docker:all&lt;/i&gt; (build local)&lt;br&gt;• Test Mobile QR qua &lt;i&gt;scripts/tunnel.js&lt;/i&gt; (&lt;i&gt;cloudflared :443 → :3000&lt;/i&gt;) hoặc &lt;i&gt;https-proxy.js&lt;/i&gt; (:3443 → :3000 &amp;amp; :3001)" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="20" y="1100" width="518" height="124" as="geometry"/>
         </mxCell>
-        <mxCell id="env_ci" value="«boundary» &lt;b&gt;Environment 2: CI Quality Gate (GitHub Actions)&lt;/b&gt;&lt;br&gt;• Runner cô lập (&lt;i&gt;ubuntu-latest&lt;/i&gt;) + service &lt;i&gt;postgres:16-alpine&lt;/i&gt; tạm thời (dữ liệu seed test)&lt;br&gt;• &lt;i&gt;ci.yml&lt;/i&gt;: eslint / tsc --noEmit → prisma db push → seed → Jest Unit &amp;amp; test:e2e → nest &amp;amp; next build&lt;br&gt;• &lt;i&gt;cd.yml&lt;/i&gt;: build ảnh Docker đa tầng &lt;i&gt;node:20-alpine&lt;/i&gt;, push &lt;i&gt;ghcr.io&lt;/i&gt; &amp;amp; prisma migrate deploy" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;dashed=1;" parent="1" vertex="1">
-          <mxGeometry x="550" y="1080" width="515" height="112" as="geometry"/>
+        <mxCell id="env_ci" value="«boundary» &lt;b&gt;Environment 2: CI/CD Pipeline (GitHub Actions)&lt;/b&gt;&lt;br&gt;• Runner cô lập (&lt;i&gt;ubuntu-latest&lt;/i&gt;) + service &lt;i&gt;postgres:16-alpine&lt;/i&gt; tạm thời (dữ liệu seed test) cho &lt;i&gt;ci.yml&lt;/i&gt;&lt;br&gt;• &lt;i&gt;ci.yml&lt;/i&gt;: eslint / tsc --noEmit → &lt;b&gt;prisma migrate deploy&lt;/b&gt; → seed → Jest Unit &amp;amp; test:e2e → nest &amp;amp; next build&lt;br&gt;• &lt;i&gt;cd.yml&lt;/i&gt;: Quality Gate (lint, Unit, build) → build &amp;amp; push &lt;i&gt;ghcr.io&lt;/i&gt; (&lt;i&gt;brewlite-web&lt;/i&gt;, &lt;i&gt;brewlite-api&lt;/i&gt;) → Hook / Compose Smoke Test" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="558" y="1100" width="522" height="124" as="geometry"/>
         </mxCell>
-        <mxCell id="env_prod" value="«boundary» &lt;b&gt;Environment 3: Production (Isolated Boundaries)&lt;/b&gt;&lt;br&gt;• Chỉ mở &lt;b&gt;HTTPS :443 (TLS 1.3)&lt;/b&gt; qua Edge Reverse Proxy / Cloudflare tới &lt;i&gt;brewlite_frontend :3000&lt;/i&gt;&lt;br&gt;• Cô lập &lt;i&gt;frontend → backend :3001 ↔ postgres :5432&lt;/i&gt; trong &lt;i&gt;brewlite_network&lt;/i&gt; (không public 5432)&lt;br&gt;• Volume bền vững &lt;i&gt;brewlite_postgres_data&lt;/i&gt;, GitHub/Host Secrets, &lt;i&gt;/api/health&lt;/i&gt; &amp;amp; &lt;i&gt;AllExceptionsFilter&lt;/i&gt;" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;dashed=1;" parent="1" vertex="1">
-          <mxGeometry x="1085" y="1080" width="510" height="112" as="geometry"/>
+        <mxCell id="env_prod" value="«boundary» &lt;b&gt;Environment 3: Production (Isolated Boundaries / PaaS Option)&lt;/b&gt;&lt;br&gt;• Chỉ mở &lt;b&gt;HTTPS :443 (TLS 1.3)&lt;/b&gt; qua Edge Proxy / Cloudflare tới &lt;i&gt;brewlite_frontend :3000&lt;/i&gt; (hoặc Vercel + Render &lt;i&gt;render.yaml&lt;/i&gt;)&lt;br&gt;• Chặn công khai port 3001 &amp;amp; 5432 khi lên Prod (Firewall / Override compose); giao tiếp nội bộ qua &lt;i&gt;brewlite_network&lt;/i&gt;&lt;br&gt;• Volume bền vững &lt;i&gt;brewlite_postgres_data&lt;/i&gt;, GitHub/Host Secrets, &lt;i&gt;/api/health&lt;/i&gt; &amp;amp; &lt;i&gt;AllExceptionsFilter&lt;/i&gt;" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="1100" y="1100" width="520" height="124" as="geometry"/>
         </mxCell>
       </root>
     </mxGraphModel>

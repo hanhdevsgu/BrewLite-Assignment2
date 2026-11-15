@@ -44,7 +44,14 @@ graph LR
 | **Backend API (`brewlite_backend`, `dist/src/main.js`)** | 3001 | 3001 (Local) / Internal Only (Prod) | HTTP (`brewlite_network`) | Nhận API từ `brewlite_frontend` (hoặc `:3001` local); JWT Bearer (`15m`/`7d`), RBAC, `AllExceptionsFilter`, `MockGatewayService` nội bộ |
 | **Database (`brewlite_postgres`, PostgreSQL 16)** | 5432 | 5432 (Local) / **KHÔNG PUBLIC** (Prod) | TCP/IP | Chỉ cho phép `brewlite_backend` kết nối nội bộ qua `brewlite_network` + Volume `brewlite_postgres_data` (`/var/lib/postgresql/data`) |
 | **Health Check Endpoint** | 3001 | `/api/health` hoặc `/health` | HTTP / HTTPS | Trả về `HTTP 200 { status, timestamp, uptime, database, service, version }` (`SELECT 1`) |
-| **CI/CD & Container Registry** | — | GitHub Actions (`ci.yml`, `cd.yml`) | HTTPS | Đóng gói đa tầng `node:20-alpine` đẩy lên `ghcr.io` (`brewlite-backend`, `brewlite-frontend`), smoke test `/api/health` |
+| **CI/CD & Container Registry** | — | GitHub Actions (`ci.yml`, `cd.yml`) | HTTPS | Đóng gói đa tầng `node:20-alpine` đẩy lên `ghcr.io` (`brewlite-api`, `brewlite-web`), smoke test `/api/health` |
+
+### Địa chỉ Production Live (Vercel + Render Blueprint `render.yaml`)
+- **Frontend Production (Vercel HTTPS)**: `https://brew-lite-assignment2-flax.vercel.app` (13 Client Pages Mobile-First + `/mbbank`)
+- **Backend API Production (Render Cloud)**: `https://brewlite-api-hj1i.onrender.com`
+- **Health Check Endpoint**: `https://brewlite-api-hj1i.onrender.com/api/health` (và `/health` — JSON `database: "connected"`)
+- **Swagger OpenAPI Docs**: `https://brewlite-api-hj1i.onrender.com/api/docs`
+- **Video Demo End-to-End (`brew-lite.mp4`)**: `https://drive.google.com/file/d/1HfsDMESCerJwyApW_HAX31Ze2mwgTawy/view?usp=sharing`
 
 ---
 
@@ -108,9 +115,10 @@ npm run dev:frontend
 
 ## 5. Quy Trình Triển Khai Production (Cloudflare Tunnel / CI-CD & Cloud Host)
 
-Dự án hỗ trợ 2 phương thức công bố Production:
-1. **CI/CD Tự động qua GitHub Actions (`cd.yml`)**: Push lên `main` hoặc gắn tag `v*.*.*` sẽ chạy Quality Gate -> build & push Docker image (`brewlite-backend`, `brewlite-frontend`) lên `ghcr.io` -> gọi `DEPLOY_WEBHOOK_URL` -> chạy smoke test `PROD_HEALTH_URL` (`/api/health`).
-2. **Triển khai qua Cloudflare Tunnel (`scripts/tunnel.js`)** từ máy chủ / VPS:
+Dự án hỗ trợ các phương thức công bố Production sau:
+1. **Production PaaS (Vercel + Render via `render.yaml`)**: Frontend Next.js chạy trên Vercel (`https://brew-lite-assignment2-flax.vercel.app`), Backend NestJS Docker service (`render.yaml`, `apps/api/Dockerfile`) cùng Managed PostgreSQL (`brewlite-db`) chạy trên Render (`https://brewlite-api-hj1i.onrender.com`), tự động build & deploy khi cập nhật nhánh.
+2. **CI/CD Tự động qua GitHub Actions (`cd.yml`)**: Push lên nhánh `main` hoặc gắn tag `v*.*.*` sẽ chạy Quality Gate -> build & push Docker image (`brewlite-api`, `brewlite-web`) lên `ghcr.io` -> kiểm tra `prisma validate` / `migrate deploy` -> gọi `DEPLOY_WEBHOOK_URL` -> chạy smoke test `PROD_HEALTH_URL` (`/api/health`).
+3. **Triển khai qua Cloudflare Tunnel (`scripts/tunnel.js`)** từ máy chủ / VPS:
    ```bash
    # Biên dịch và khởi chạy Production tại thư mục gốc
    npm run build:backend

@@ -30,8 +30,8 @@ node "CI/CD Pipeline & Container Registry\n<<infrastructure>> GitHub Actions + G
     artifact "ci.yml (PR/develop): postgres:16-alpine, lint, prisma push, seed, Jest Unit & test:e2e, build\ncd.yml (main/v*.*.*): Quality Gate -> Build Images -> prisma validate/migrate deploy -> Deploy Hook -> Smoke Test\nFailure handler: docs/rollback-guide.md" as ci_wf
   }
   node "Container Registry\n<<registry>> ghcr.io" as ghcr {
-    artifact "brewlite-frontend:<SHORT_SHA | v*.*.*>" as img_fe
-    artifact "brewlite-backend:<SHORT_SHA | v*.*.*>" as img_be
+    artifact "brewlite-web:<SHORT_SHA | main | v*.*.*>" as img_fe
+    artifact "brewlite-api:<SHORT_SHA | main | v*.*.*>" as img_be
   }
 }
 
@@ -42,16 +42,16 @@ node "Thiết bị Người dùng\n<<device>> [Laptop, PC, Smartphone]" as devic
   }
 }
 
-node "Production Container Host / Cloud VPS (Ubuntu 22.04)\n<<device>> docker-compose.yml (name: brewlite)" as vps {
+node "Production Container Host / PaaS\n<<device>> docker-compose.yml (name: brewlite) | PaaS: Vercel (Web) + Render (render.yaml)" as vps {
   node "Docker Engine 24+\n<<executionEnvironment>> Mạng nội bộ: brewlite_network" as docker {
     node "Container: brewlite_frontend\n<<container>> node:20-alpine | Port: 3000" as c_frontend {
-      artifact "brewlite-frontend\nNext.js 14.2.5 (App Router) | npm start\nApp Router Pages ('use client') & Static /mbbank\nRoute Handlers: mbbank-sync, mbbank-check\nRewrite /api/:path* -> INTERNAL_BACKEND_URL\n(http://backend:3001/api/:path*)" as fe_app
+      artifact "brewlite-web\nNext.js 14.2.5 (App Router) | npm start\n13 Client Pages: /, /products/[id], /cart, /checkout,\n/orders, /orders/[id], /orders/me, /orders/history,\n/login, /register, /profile, /staff, /admin (Static /mbbank)\nRewrite /api/:path* -> INTERNAL_BACKEND_URL\n(http://backend:3001/api/:path*)" as fe_app
     }
     node "Container: brewlite_backend\n<<container>> node:20-alpine | Port: 3001 (0.0.0.0) | Swagger: /api/docs" as c_backend {
       artifact "dist/src/main.js (NestJS 10.3)\nCMD: prisma db push -> seed -> node\nGlobal /api, CORS, ValidationPipe" as mainjs
-      artifact "Prisma Client ORM 5.9\nDB Connection Pool\n$transaction() + OCC Version Checks" as prisma
-      rectangle "8 NestJS Modules & Internal Mock Gateway\n- AuthModule (JWT 15m/7d, Bcrypt 10)\n- ProductsModule, PromotionsModule, ReviewsModule\n- OrdersModule (State Machine)\n- PaymentModule (Idempotency-Key, OCC, mbbank-sync & MockGatewayService nội bộ)\n- StaffModule (Kanban FIFO), AdminModule" as core
-      artifact "Health Check & Logging\nGET /api/health & /health (200 OK, SELECT 1)\nAllExceptionsFilter (Logger & JSON)" as obs
+      artifact "Prisma Client ORM 5.9 + FallbackStore\nDB Connection Pool (In-Memory Resiliency)\n$transaction() + OCC Version Checks" as prisma
+      rectangle "8 NestJS Modules & Internal Mock Gateway\n- AuthModule (JWT 15m/7d, Bcrypt 10)\n- ProductsModule, PromotionsModule, ReviewsModule\n- OrdersModule (State Machine)\n- PaymentModule (Idempotency-Key, OCC, mbbank-sync & MockGatewayService: /api/mock-gateway/charge)\n- StaffModule (Kanban FIFO), AdminModule" as core
+      artifact "Health Check & Logging\nGET /api/health & /health (200 OK, SELECT 1 + Uptime + Version JSON)\nAllExceptionsFilter (Logger & JSON)" as obs
       artifact "Secrets & Env Config\nPORT=3001, DATABASE_URL, FRONTEND_URL\nJWT_SECRET (15m), JWT_REFRESH_SECRET (7d)" as secrets
     }
     node "Container: brewlite_postgres\n<<container>> postgres:16-alpine | Port: 5432 [Internal Only]" as c_postgres {

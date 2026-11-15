@@ -7,8 +7,14 @@
 ---
 
 ## 0. Cập nhật bản phát hành `v1.0.1` (15/11/2026)
-- Chuẩn hóa cấu trúc repository Monorepo đúng chuẩn Assignment 2: `apps/web/` (Next.js) và `apps/api/` (NestJS), loại bỏ tệp `.drawio` dư thừa ở thư mục gốc.
-- Hoàn thiện GitHub Actions CI (`.github/workflows/ci.yml`, run `43728698541` **success**) và CD (`.github/workflows/cd.yml`, đóng gói đẩy image lên `ghcr.io`, kiểm tra `prisma validate` & Docker Compose smoke test `/api/health`, run `43728703140` **success**).
+- Chuẩn hóa cấu trúc repository Monorepo đúng chuẩn Assignment 2: `apps/web/` (Next.js) và `apps/api/` (NestJS), bổ sung `render.yaml` Blueprint, loại bỏ tệp `.drawio` dư thừa ở thư mục gốc.
+- Hoàn thiện GitHub Actions CI (`.github/workflows/ci.yml`, ví dụ run `43728698541`, `43733505308` **success**) và CD (`.github/workflows/cd.yml`, đóng gói đẩy image `brewlite-web` & `brewlite-api` lên `ghcr.io`, kiểm tra `prisma validate` & Docker Compose smoke test `/api/health`, ví dụ run `43728703140`, `43733505100` **success**).
+- Triển khai và xác minh môi trường Production trực tuyến:
+  - **Repository GitHub**: `https://github.com/hanhdevsgu/BrewLite-Assignment2`
+  - **Frontend Production (Vercel)**: `https://brew-lite-assignment2-flax.vercel.app`
+  - **Backend API Production (Render)**: `https://brewlite-api-hj1i.onrender.com`
+  - **Health Check & Swagger Docs**: `https://brewlite-api-hj1i.onrender.com/api/health` | `https://brewlite-api-hj1i.onrender.com/api/docs`
+  - **Video Demo End-to-End**: `https://drive.google.com/file/d/1HfsDMESCerJwyApW_HAX31Ze2mwgTawy/view?usp=sharing`
 
 ---
 

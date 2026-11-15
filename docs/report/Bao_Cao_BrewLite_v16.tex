@@ -15,8 +15,10 @@
 \usepackage{fancyhdr}
 \usepackage{lastpage}
 \usepackage{enumitem}
+\PassOptionsToPackage{hyphens,obeyspaces,spaces}{url}
 \usepackage[hidelinks]{hyperref}
-\usepackage{xurl}
+\def\UrlBreaks{\do\/\do\-\do\_\do\.\do\:\do\=\do\?\do\&}
+\Urlmuskip=0mu plus 2mu\relax
 \urlstyle{tt}
 
 \setcounter{tocdepth}{2}
@@ -129,7 +131,76 @@ Trong những năm gần đây, thói quen tiêu dùng tại các cửa hàng đ
 
 Xuất phát từ thực trạng đó, đề tài ``Hệ thống đặt cà phê và thanh toán không dùng tiền mặt -- BrewLite (BrewLite Coffee Ordering System)'' được thực hiện nhằm xây dựng một giải pháp phần mềm hỗ trợ số hóa toàn bộ quy trình đặt món -- thanh toán -- pha chế -- nhận món tại cửa hàng cà phê. Hệ thống cho phép khách hàng đặt đồ uống trực tuyến, tùy chọn kích cỡ và thành phần đi kèm, thanh toán an toàn qua cổng thanh toán điện tử, đồng thời giúp nhân viên quầy quản lý đơn hàng, thực đơn, tồn kho và doanh thu một cách tập trung, chính xác.
 
-Báo cáo này trình bày quá trình phân tích, thiết kế, cài đặt, kiểm thử và triển khai hệ thống BrewLite theo quy trình phát triển phần mềm có hệ thống từ đặc tả đến vận hành thực tế.
+Báo cáo này trình bày toàn bộ quá trình phân tích, mô hình hóa, thiết kế kiến trúc, cài đặt theo hai Sprint, kiểm thử đa tầng và triển khai vận hành thực tế hệ thống BrewLite theo quy trình phát triển phần mềm có hệ thống.
+
+\chapter*{THÔNG TIN DỰ ÁN VÀ PHÂN CÔNG ĐÓNG GỘP}
+\addcontentsline{toc}{chapter}{Thông tin dự án và phân công đóng góp}
+
+\section*{Liên kết kho mã nguồn, môi trường Production và Video Demo}
+\addcontentsline{toc}{section}{Liên kết kho mã nguồn, môi trường Production và Video Demo}
+
+Toàn bộ mã nguồn, tài liệu kỹ thuật, dịch vụ vận hành trực tuyến trên nền tảng đám mây và video minh họa luồng nghiệp vụ end-to-end của hệ thống BrewLite được công bố tại các địa chỉ trong Bảng~0.1.
+
+\begingroup\small
+\begin{longtable}{>{\raggedright\arraybackslash}p{4.6cm}>{\raggedright\arraybackslash}p{10.4cm}}
+\caption{Liên kết hạ tầng, mã nguồn và sản phẩm bàn giao}\\
+\hline
+\rowcolor{gray!20} \textbf{Hạng mục} & \textbf{Đường dẫn / Thông tin xác minh} \\
+\hline
+\endfirsthead
+\hline
+\rowcolor{gray!20} \textbf{Hạng mục} & \textbf{Đường dẫn / Thông tin xác minh} \\
+\hline
+\endhead
+Kho lưu trữ GitHub (Monorepo) & \url{https://github.com/hanhdevsgu/BrewLite-Assignment2} \newline (Nhánh tích hợp \path{develop}, nhánh phát hành \path{main}, tag \path{v1.0.0}, \path{v1.0.1}) \\
+\hline
+Frontend Production (Vercel) & \url{https://brew-lite-assignment2-flax.vercel.app} \\
+\hline
+Backend API Production (Render) & \url{https://brewlite-api-hj1i.onrender.com} \\
+\hline
+Health Check Endpoint & \url{https://brewlite-api-hj1i.onrender.com/api/health} \newline (và \url{https://brewlite-api-hj1i.onrender.com/health} -- trả HTTP 200 JSON \texttt{database: "connected"}) \\
+\hline
+Tài liệu API (Swagger UI) & \url{https://brewlite-api-hj1i.onrender.com/api/docs} \\
+\hline
+Video Demo End-to-End & \url{https://drive.google.com/file/d/1HfsDMESCerJwyApW_HAX31Ze2mwgTawy/view?usp=sharing} \\
+\hline
+\end{longtable}
+\endgroup
+
+\section*{Bảng phân công nhiệm vụ và đóng góp thành viên}
+\addcontentsline{toc}{section}{Bảng phân công nhiệm vụ và đóng góp thành viên}
+
+Dự án được thực hiện bởi 7 thành viên thuộc Nhóm~8, phân công theo 7 nhánh tính năng độc lập tích hợp vào nhánh chính \path{develop} (chi tiết lưu tại \path{docs/TASK-ALLOCATION.md}). Tỷ lệ đóng góp và kết quả hoàn thành được tổng hợp trong Bảng~0.2.
+
+\begingroup\footnotesize
+\begin{longtable}{>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{2.0cm}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{5.0cm}>{\centering\arraybackslash}p{1.6cm}}
+\caption{Bảng phân công nhiệm vụ và tỷ lệ đóng góp thành viên}\\
+\hline
+\rowcolor{gray!20} \textbf{Thành viên (MSSV)} & \textbf{Nhánh Git} & \textbf{Phân hệ phụ trách} & \textbf{Tiêu chí đầu ra chính} & \textbf{Đóng góp} \\
+\hline
+\endfirsthead
+\hline
+\rowcolor{gray!20} \textbf{Thành viên (MSSV)} & \textbf{Nhánh Git} & \textbf{Phân hệ phụ trách} & \textbf{Tiêu chí đầu ra chính} & \textbf{Đóng góp} \\
+\hline
+\endhead
+Võ Đức Hoàng Vinh (3124410408) & \path{feat/p1-menu-page} & Khởi tạo FE \& Trang Menu & Monorepo Next.js 14, lưới món responsive, tìm kiếm debounce, loading/empty, cờ hết hàng & 14,29\% \\
+\hline
+Đặng Lương Thế Anh (3124410003) & \path{feat/p5-api-products} & Khởi tạo BE \& API Menu & Prisma schema, seed, \path{GET /api/products} tự tính \texttt{isOutOfStock} từ nguyên liệu & 14,29\% \\
+\hline
+Hồ Hoàng Anh (3124410004) & \path{feat/p2-product-details} & Chi tiết món \& Đánh giá & Quick Select Modal \& \path{/products/[id]}, Size S/M/L, đường/đá/topping, gửi đánh giá & 14,29\% \\
+\hline
+Dương Thành Phát (3124410261) & \path{feat/p3-cart-store} & Giỏ hàng \& Ưu đãi & Zustand persist \path{useCartStore}, gộp biến thể, trang \path{/cart}, voucher đa tầng, điểm tích lũy & 14,29\% \\
+\hline
+Nguyễn Hoàng Anh (3124410007) & \path{feat/p6-payment-ingredients-orders} & Đặt đơn, Auth JWT, Thanh toán \& Kho & \path{POST /api/orders}, JWT + Bcrypt, Mock Gateway, VietQR, kho & 14,29\% \\
+\hline
+Quách Thanh Phú (3124410278) & \path{feat/p4-checkout-history} & Checkout, VietQR \& Lịch sử & Giao diện đăng nhập, \path{/checkout}, VietQR Canvas, giả lập MBBank, lịch sử đơn, Docker & 14,29\% \\
+\hline
+Hoàng Trần Gia Phước (3124410289) & \path{feature/p7-backend} & State Machine, OCC \& CI/CD & Máy trạng thái đơn hàng, \texttt{Idempotency-Key}, OCC tồn kho, kiểm thử tự động \& CI/CD & 14,29\% \\
+\hline
+\multicolumn{4}{|r|}{\textbf{Tổng cộng toàn nhóm (7 thành viên -- Hoàn thành 100\%):}} & \textbf{100\%} \\
+\hline
+\end{longtable}
+\endgroup
 
 \newpage
 \tableofcontents
@@ -142,14 +213,14 @@ Báo cáo này trình bày quá trình phân tích, thiết kế, cài đặt, k
 \addcontentsline{toc}{section}{Phạm vi sản phẩm và Nền tảng công nghệ}
 
 \begin{itemize}[leftmargin=*]
-\item \textbf{Phạm vi sản phẩm \& Luồng nghiệp vụ cốt lõi:} Hệ thống hiện thực trọn vẹn luồng nghiệp vụ khép kín: \textit{Xem menu $\rightarrow$ Chọn tùy chọn $\rightarrow$ Giỏ hàng $\rightarrow$ Đặt đơn $\rightarrow$ Thanh toán $\rightarrow$ Theo dõi đơn}, cùng phân hệ quầy pha chế (Barista Kanban) và quản trị cửa hàng (Admin).
-\item \textbf{Nền tảng công nghệ chính:} Giao diện người dùng sử dụng \textbf{Next.js 14} theo định hướng Mobile-First Web App (kèm \path{manifest.webmanifest}); tầng dịch vụ sử dụng \textbf{NestJS 10}; dữ liệu lưu trữ trên \textbf{PostgreSQL 16} qua Prisma ORM và đóng gói triển khai bằng \textbf{Docker / Docker Compose}.
+\item \textbf{Phạm vi sản phẩm \& Luồng nghiệp vụ tối thiểu:} Hệ thống hiện thực trọn vẹn luồng nghiệp vụ khép kín của khách hàng: \textit{Xem menu $\rightarrow$ Chọn tùy chọn $\rightarrow$ Giỏ hàng $\rightarrow$ Đặt đơn $\rightarrow$ Thanh toán $\rightarrow$ Theo dõi đơn}, đồng thời tích hợp phân hệ quầy pha chế (Barista Kanban) và quản trị cửa hàng (Admin Dashboard).
+\item \textbf{Nền tảng công nghệ bắt buộc:} Giao diện người dùng sử dụng \textbf{Next.js 14} theo định hướng Mobile-First / Web App (kèm \path{manifest.webmanifest}); tầng dịch vụ sử dụng \textbf{NestJS 10}; dữ liệu lưu trữ trên \textbf{PostgreSQL 16} qua Prisma ORM và đóng gói triển khai bằng \textbf{Docker / Docker Compose} (vận hành thực tế trên Vercel + Render).
 \end{itemize}
 
 \section*{Quy trình phát triển từ yêu cầu đến triển khai}
 \addcontentsline{toc}{section}{Quy trình phát triển từ yêu cầu đến triển khai}
 
-Dự án được thực hiện tuần tự qua các giai đoạn từ khai thác yêu cầu, mô hình hóa UML, thiết kế kiến trúc đến phát triển tăng trưởng qua hai Sprint, tích hợp CI/CD và bàn giao theo ánh xạ trong Bảng 0.1.
+Dự án được thực hiện tuần tự theo đúng quy tắc năm giai đoạn từ khai thác yêu cầu, mô hình hóa UML, thiết kế kiến trúc đến phát triển tăng trưởng qua hai Sprint, tích hợp CI/CD và bàn giao: giai đoạn sau chỉ được nghiệm thu khi toàn bộ tạo phẩm bắt buộc của giai đoạn trước đã nằm trên kho mã nguồn kèm lịch sử thay đổi rõ ràng. Ánh xạ cấu trúc báo cáo được trình bày trong Bảng~0.3.
 
 \begin{longtable}{>{\centering\arraybackslash}p{1.8cm}>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}p{6.0cm}>{\raggedright\arraybackslash}p{3.4cm}}
 \caption{Quy trình phát triển hệ thống và ánh xạ cấu trúc báo cáo}\\
@@ -161,32 +232,32 @@ Dự án được thực hiện tuần tự qua các giai đoạn từ khai thá
 \rowcolor{gray!20} \textbf{Giai đoạn} & \textbf{Nội dung chính} & \textbf{Tạo phẩm cốt lõi} & \textbf{Vị trí trong báo cáo} \\
 \hline
 \endhead
-GĐ 1 & Khai thác \& đặc tả yêu cầu & Phân tích stakeholder, phạm vi, SRS, Use-case tổng quát \& đặc tả chi tiết & Chương 1 (Mục 1.1--1.3) \\
+GĐ 1 & Khai thác \& đặc tả yêu cầu & Phân tích bối cảnh, Stakeholders, phạm vi, SRS, Use-case tổng quát \& đặc tả trọng tâm & Chương 1 (Mục 1.1--1.5) \\
 \hline
 GĐ 2 & Mô hình hóa hệ thống & Activity Diagram, Sequence Diagram \& Class Diagram & Chương 2 (Mục 2.1--2.3) \\
 \hline
 GĐ 3 & Thiết kế kiến trúc & Kiến trúc C4/phân tầng, các quyết định kiến trúc (ADR) \& Deployment Diagram & Chương 3 (Mục 3.1--3.2) \\
 \hline
-GĐ 4 & Triển khai Sprint 1 & Kho mã nguồn Monorepo, quản lý tài liệu, MVP xem thực đơn \& CI cơ bản & Chương 4 (Mục 4.1--4.4) \\
+GĐ 4 & Triển khai Sprint 1 & Kho mã nguồn Monorepo, quản lý tài liệu, MVP xem thực đơn \& CI tự động & Chương 4 (Mục 4.1--4.4) \\
 \hline
-GĐ 5 & Triển khai Sprint 2 \& Delivery & MVP End-to-End, kiểm thử đa tầng, CD, triển khai \& tài liệu vận hành & Chương 5 (Mục 5.1--5.4) \\
+GĐ 5 & Triển khai Sprint 2 \& Delivery & MVP End-to-End, kiểm thử đa tầng, CD, triển khai Production \& bàn giao & Chương 5 (Mục 5.1--5.4) \\
 \hline
-Tổng hợp & Truy vết \& Nghiệm thu & Ma trận truy vết FR/NFR, tổng kết kết quả \& hạng mục bàn giao & Chương 6 \& Chương 7 \\
+Tổng hợp & Truy vết \& Nghiệm thu & Ma trận truy vết FR/NFR, cấu trúc Repo, danh mục bàn giao, minh chứng \& tổng kết & Chương 6, Chương 7 \& Chương 8 \\
 \hline
 \end{longtable}
 \newpage
 
 \chapter{KHAI THÁC VÀ PHÂN TÍCH YÊU CẦU}
 
-\section{Bối cảnh, các bên liên quan (Stakeholder) và phạm vi}
-
-\subsection{Bối cảnh và phạm vi dự án}
+\section{Bối cảnh và vấn đề nghiệp vụ}
 
 Hiện nay, mô hình kinh doanh cà phê tại các đô thị đang phát triển nhanh chóng cả về số lượng cửa hàng lẫn nhu cầu tiêu dùng. Tuy nhiên, quy trình phục vụ tại phần lớn các cửa hàng vừa và nhỏ vẫn được tổ chức theo phương thức truyền thống: khách hàng đến trực tiếp quầy, xếp hàng chờ gọi món, nhân viên ghi nhận yêu cầu bằng lời nói hoặc trên giấy, sau đó thực hiện pha chế và thu tiền mặt tại quầy. Vào các khung giờ cao điểm như đầu giờ sáng hoặc giờ nghỉ trưa, lượng khách tập trung đông khiến hàng chờ kéo dài, thời gian phục vụ tăng lên đáng kể và trải nghiệm của khách hàng bị ảnh hưởng nghiêm trọng. Bên cạnh đó, việc truyền đạt yêu cầu hoàn toàn bằng lời nói rất dễ phát sinh sai sót, chẳng hạn như nhầm kích cỡ (size), mức đường, mức đá hoặc thành phần đi kèm (topping), dẫn đến việc phải pha chế lại, gây lãng phí nguyên liệu và làm chậm toàn bộ hàng đợi phía sau.
 
 Một vấn đề khác không kém phần nghiêm trọng là công tác quản lý đơn hàng và tồn kho còn mang tính thủ công, thiếu đồng bộ. Đơn hàng được ghi chép rời rạc, khó tổng hợp doanh thu và khó truy vết khi xảy ra sai lệch; lượng nguyên liệu tồn kho (cà phê, sữa, đường, topping\dots{}) không được cập nhật theo thời gian thực, nên cửa hàng vẫn tiếp tục nhận đơn đối với những món đã hết nguyên liệu, hoặc ngược lại, phải hủy đơn và hoàn tiền cho khách sau khi đã thanh toán. Tình trạng ``bán âm'' tồn kho này không chỉ gây thiệt hại về kinh tế mà còn làm giảm uy tín của cửa hàng. Đồng thời, các chương trình ưu đãi và tích điểm cho khách hàng thân thiết, nếu có, cũng được thực hiện thủ công nên thiếu nhất quán, khó kiểm soát và dễ gian lận.
 
 Xuất phát từ những hạn chế nêu trên, hệ thống BrewLite được đề xuất và xây dựng nhằm số hóa toàn bộ quy trình đặt món và thanh toán tại cửa hàng cà phê. BrewLite cho phép khách hàng chủ động đặt đồ uống ngay trên thiết bị cá nhân, tùy chọn size, topping, mức đường, mức đá, sau đó thanh toán không dùng tiền mặt thông qua cổng thanh toán điện tử trước khi đến quầy nhận món. Về phía cửa hàng, hệ thống quản lý tập trung thực đơn, đơn hàng, nguyên liệu tồn kho, khuyến mãi và điểm thưởng trên một nền tảng duy nhất, với các cơ chế kỹ thuật chặt chẽ như máy trạng thái đơn hàng (PENDING $\rightarrow$ PAID $\rightarrow$ PREPARING $\rightarrow$ READY $\rightarrow$ COMPLETED), thanh toán chống trùng lặp (Idempotency) và khóa lạc quan (Optimistic Locking) chống bán âm tồn kho. Phạm vi của dự án bao gồm các nghiệp vụ đặt món, giỏ hàng, thanh toán trực tuyến, quản lý đơn hàng tại quầy, quản lý thực đơn và nguyên liệu, khuyến mãi, tích điểm và thống kê báo cáo cho một cửa hàng hoặc chuỗi cửa hàng cà phê quy mô vừa; hệ thống chưa bao gồm nghiệp vụ giao hàng tận nơi bởi đối tác vận chuyển bên thứ ba và quản lý nhân sự -- chấm công. Hệ thống được phát triển trên nền tảng web với Next.js ở phía giao diện người dùng (Frontend), NestJS ở phía xử lý nghiệp vụ (Backend) và hệ quản trị cơ sở dữ liệu PostgreSQL.
+
+\section{Phân tích các bên liên quan (Stakeholders)}
 
 \subsection{Các bên liên quan chính (Stakeholders)}
 
@@ -288,7 +359,7 @@ Giảng viên / Khách hàng nghiệm thu
 
 \subsection{Mục tiêu, kỳ vọng và lợi ích BrewLite mang lại}
 
-Việc triển khai hệ thống BrewLite đáp ứng mục tiêu, kỳ vọng cụ thể của cả 6 bên liên quan, đồng thời khắc phục trực tiếp các vấn đề đã phân tích tại mục 1.1.3. Nội dung chi tiết được trình bày trong Bảng 1.2.
+Việc triển khai hệ thống BrewLite đáp ứng mục tiêu, kỳ vọng cụ thể của cả 6 bên liên quan, đồng thời khắc phục trực tiếp các vấn đề đã phân tích tại mục 1.2.2. Nội dung chi tiết được trình bày trong Bảng 1.2.
 
 \begin{longtable}{>{\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}p{11.8cm}}
 \caption{Mục tiêu, kỳ vọng và lợi ích BrewLite mang lại cho từng bên liên quan}\\
@@ -328,7 +399,7 @@ Giảng viên / Khách hàng nghiệm thu
 \hline
 \end{longtable}
 
-\subsection{Phạm vi dự án, giả định, ràng buộc và rủi ro ban đầu}
+\section{Phạm vi dự án, giả định, ràng buộc và rủi ro ban đầu}
 
 Toàn bộ hồ sơ bối cảnh, stakeholder, phạm vi (MVP, mở rộng, ngoài phạm vi), giả định, ràng buộc và rủi ro ban đầu được lưu thành tệp bắt buộc tại \path{docs/requirements/context-and-scope.md} và tổng hợp trong Bảng 1.3.
 
@@ -371,9 +442,9 @@ Rủi ro ban đầu \& Biện pháp giảm thiểu & -- \textbf{R-01 (Xung độ
 \hline
 \end{longtable}
 
-\section{Yêu cầu hệ thống}
+\section{Yêu cầu chức năng và phi chức năng (SRS)}
 
-Trên cơ sở bối cảnh, nhu cầu và các vấn đề đã phân tích tại mục 1.1, nhóm thực hiện tiến hành xác định yêu cầu cho hệ thống BrewLite theo hai nhóm chính: yêu cầu chức năng (Functional Requirements) -- mô tả những dịch vụ mà hệ thống phải cung cấp, và yêu cầu phi chức năng (Non-functional Requirements) -- mô tả các ràng buộc về chất lượng, hiệu năng, bảo mật và khả năng triển khai mà hệ thống phải thỏa mãn trong quá trình vận hành.
+Trên cơ sở bối cảnh, các bên liên quan và phạm vi đã phân tích tại các mục 1.1--1.3, nhóm thực hiện tiến hành xác định yêu cầu cho hệ thống BrewLite theo hai nhóm chính: yêu cầu chức năng (Functional Requirements) -- mô tả những dịch vụ mà hệ thống phải cung cấp, và yêu cầu phi chức năng (Non-functional Requirements) -- mô tả các ràng buộc về chất lượng, hiệu năng, bảo mật và khả năng triển khai mà hệ thống phải thỏa mãn trong quá trình vận hành.
 
 \subsection{Yêu cầu chức năng}
 
@@ -400,6 +471,15 @@ Yêu cầu chức năng của hệ thống BrewLite được tổ chức theo c�
 \item \textbf{Theo dõi trạng thái đơn hàng:} Theo dõi tiến trình xử lý đơn theo máy trạng thái PENDING $\rightarrow$ PAID $\rightarrow$ PREPARING $\rightarrow$ READY $\rightarrow$ COMPLETED.
 \item \textbf{Xem lịch sử đơn hàng, điểm thưởng và đánh giá:} Xem lại danh sách các hóa đơn đã đặt (\texttt{GET /api/orders/me}). Mỗi đơn hàng hiển thị tổng số ly nước (ví dụ: ``10 ly đồ uống''), tóm tắt các món và tổng tiền hóa đơn, cho phép xem chi tiết từng dòng món (OrderItem) kèm tùy chọn và đơn giá. Hệ thống cộng điểm thưởng sau khi đơn thanh toán thành công (PAID, +1 điểm / 10.000đ thanh toán thực tế) và cho phép gửi/chỉnh sửa/xóa đánh giá cho món thuộc đơn đã hoàn thành (COMPLETED).
 \item \textbf{Hủy đơn hàng và cơ chế hoàn kho tự động:} Khách hàng được phép hủy đơn khi đơn còn ở trạng thái PENDING, PAYMENT\_FAILED hoặc PAID (khi Barista chưa nhận đơn pha chế PREPARING). Khi hủy đơn chưa thanh toán (PENDING hoặc PAYMENT\_FAILED), hệ thống hoàn lại điểm Loyalty đã đổi (nếu có); khi hủy đơn đã thanh toán (PAID), hệ thống tự động kích hoạt giao dịch bù (Compensating Transaction) hoàn trả đầy đủ số lượng nguyên liệu vào kho theo đúng định lượng công thức, hoàn lượt dùng voucher, hoàn điểm đã đổi và thu hồi điểm đã tích lũy (phần ví mô phỏng do UI cập nhật cục bộ); khi đơn đã chuyển sang PREPARING, chức năng hủy bị khóa (HTTP 409) để bảo toàn chi phí nguyên liệu đã chế biến.
+\end{itemize}
+
+\subsubsection*{c. Quản trị viên (Admin)}
+
+\begin{itemize}[leftmargin=*]
+\item \textbf{Quản lý sản phẩm, biến thể và công thức:} Thêm, cập nhật hoặc ẩn món đồ uống, cấu hình kích cỡ/giá bán (\texttt{S/M/L}) và định lượng nguyên liệu pha chế (\texttt{Recipe}) cho từng biến thể.
+\item \textbf{Quản lý kho nguyên liệu và nhập hàng:} Theo dõi số lượng tồn kho theo thời gian thực, nhận cảnh báo nguyên liệu sắp hết, quản lý danh sách nhà cung cấp và lập phiếu nhập kho cộng dồn tồn kho.
+\item \textbf{Quản lý khuyến mãi và kiểm duyệt đánh giá:} Tạo/sửa/ngừng kích hoạt mã khuyến mãi (giảm theo phần trăm hoặc số tiền cố định, giới hạn lượt dùng, khung giờ áp dụng) và ẩn/hiện các đánh giá của khách hàng.
+\item \textbf{Quản lý tài khoản và thống kê doanh thu:} Tạo tài khoản nhân viên pha chế, khóa/mở khóa tài khoản (\texttt{ACTIVE}/\texttt{LOCKED}) và xem báo cáo tổng quan doanh thu, số đơn theo trạng thái và nhóm sản phẩm bán chạy trên trang \path{/admin}.
 \end{itemize}
 
 \subsection{Yêu cầu phi chức năng}
@@ -482,27 +562,43 @@ NFR-06 & Giám sát (Health Check) & Must & Endpoint \texttt{GET /health} và \t
 \hline
 \end{longtable}
 
-\section{Sơ đồ Use-case}
+% ==============================================================================
+% Phần Sơ đồ Use-case & Đặc tả Use-case trọng tâm (UC-01) cho BrewLite
+% Các gói cần có trong preamble: graphicx, array, longtable, booktabs,
+% [table]{xcolor}, hyperref (hoặc url cho lệnh \path{}), enumitem (tùy chọn).
+% Lưu ý ảnh:
+%   - img/Usecase_cnpm_01.drawio.png : Sơ đồ Use-case tổng quát (3 Actor - 8 UC)
+%   - img/Usecase_cnpm_03.drawio.png : Sơ đồ Use-case trọng tâm UC-01 (3 Actor - 20 UC)
+% ==============================================================================
 
-Từ các yêu cầu chức năng đã xác định tại mục 1.2, nhóm thực hiện xây dựng sơ đồ Use-case (Use-case Diagram) nhằm mô hình hóa sự tương tác giữa các tác nhân bên ngoài với các chức năng mà hệ thống BrewLite cung cấp. Các tác nhân của hệ thống gồm Khách hàng (Customer), Nhân viên quầy (Barista), Quản trị viên (Admin), Cổng thanh toán (Payment Gateway, tác nhân hệ thống bên ngoài) và Người dùng chung (User, tác nhân trừu tượng), cùng các Use-case nội bộ do chính hệ thống thực hiện. Sơ đồ Use-case là cơ sở để xác định phạm vi hệ thống, phân định trách nhiệm của từng tác nhân và làm nền tảng cho việc đặc tả chi tiết các Use-case cũng như thiết kế hệ thống ở các chương tiếp theo.
+\section{Sơ đồ Use-case và đặc tả trọng tâm}
+
+Từ các yêu cầu chức năng đã xác định tại mục 1.4, nhóm thực hiện xây dựng sơ đồ Use-case (Use-case Diagram) nhằm mô hình hóa sự tương tác giữa các tác nhân bên ngoài với các chức năng mà hệ thống BrewLite cung cấp. Nhằm giữ mức độ khái quát rõ ràng cho toàn hệ thống trước khi đi vào phân hệ trọng tâm, sơ đồ tổng quát xác định ba tác nhân chính là \textbf{Khách hàng (Customer)}, \textbf{Nhân viên / Quản lý (Staff / Manager)} và tác nhân hệ thống ngoài \textbf{Cổng thanh toán (Payment Gateway)}. Sơ đồ Use-case là cơ sở để xác định phạm vi hệ thống, phân định trách nhiệm của từng tác nhân và làm nền tảng cho việc đặc tả chi tiết Use-case trọng tâm cũng như thiết kế kiến trúc ở các chương tiếp theo.
 
 \subsection{Sơ đồ Use-case toàn hệ thống}
 
-Sơ đồ Use-case toàn hệ thống của BrewLite được trình bày trong Hình 1.1. Trong sơ đồ, toàn bộ 32 Use-case của hệ thống được đánh mã rõ ràng từ UC-01 đến UC-32 và đặt trong ranh giới (system boundary) mang tên ``Hệ Thống BrewLite'', bao gồm cả hai Use-case xử lý giao dịch tự động là UC-15 (Khấu trừ kho Optimistic Lock) và UC-16 (Tự động tích lũy điểm Loyalty) được liên kết \guillemotleft{}include\guillemotright{} trực tiếp từ UC-13 (Thanh toán đơn hàng). Phía ngoài ranh giới là năm tác nhân: Khách hàng (Customer), Nhân viên pha chế (Barista), Quản trị viên (Admin), Cổng thanh toán (Payment Gateway, được ký hiệu \guillemotleft{}System\guillemotright{}) và Người dùng chung (User, tác nhân trừu tượng được ký hiệu \guillemotleft{}Abstract\guillemotright{}).
+Sơ đồ Use-case toàn hệ thống của BrewLite được trình bày trong Hình~\ref{fig:uc-overall}. Toàn bộ 8 nhóm chức năng (Use-case) ở mức tổng quát được đặt trong ranh giới hệ thống (system boundary) mang tên ``Hệ Thống BrewLite'', với ba tác nhân đứng bên ngoài ranh giới tương tác trực tiếp gồm: \textbf{Khách hàng (Customer)}, \textbf{Nhân viên / Quản lý (Staff / Manager)} và \textbf{\guillemotleft{}System\guillemotright{} Cổng thanh toán (Payment Gateway)}.
 
-\begin{figure}[p]
+\begin{figure}[!htbp]
 \centering
 \makebox[\textwidth][c]{%
-  \includegraphics[width=1.08\textwidth,height=0.92\textheight,keepaspectratio]{img/Usecase_cnpm_01.drawio.png}%
+  \includegraphics[width=\textwidth,height=0.82\textheight,keepaspectratio]{img/Usecase_cnpm_01.drawio.png}%
 }
 \caption{Sơ đồ Use-case toàn hệ thống BrewLite}
 \label{fig:uc-overall}
 \end{figure}
 
-Qua sơ đồ Hình 1.1 có thể thấy sự phân công chức năng giữa các tác nhân là rõ ràng và khớp với phân quyền thực tế trong mã nguồn. Khách hàng thực hiện quy trình mua hàng cá nhân hóa: đăng ký tài khoản (UC-01), quản lý giỏ hàng (UC-09), khởi tạo đơn hàng (UC-12, mở rộng bởi UC-11 Áp dụng Voucher \& Điểm thưởng), thanh toán đơn hàng (UC-13), theo dõi tiến trình đơn hàng (UC-17), hủy đơn hàng (UC-18), xem lịch sử đơn hàng (UC-19), gửi đánh giá sản phẩm đã mua (UC-20) và chỉnh sửa/xóa đánh giá (UC-21). Nhân viên pha chế tập trung vào nghiệp vụ tại quầy: tiếp nhận pha chế (UC-22), xác nhận pha chế hoàn tất (UC-23), bàn giao đồ uống cho khách (UC-24), xem bảng Kanban pha chế (UC-25, mở rộng bởi UC-26 Xem công thức pha chế). Cổng thanh toán tham gia vào Use-case Thanh toán đơn hàng (UC-13) và Đồng bộ thanh toán MBBank VietQR (UC-14). Quản trị viên thực hiện 6 nhóm chức năng quản trị (UC-27 đến UC-32): xem thống kê doanh thu \& báo cáo, quản lý kho \& nhập hàng, quản lý sản phẩm \& công thức, quản lý mã khuyến mãi, kiểm duyệt đánh giá khách hàng và quản lý nhân sự \& khách hàng. Các Use-case Đăng nhập (UC-02), Đổi mật khẩu (UC-03), Xem thông tin cá nhân (UC-04), Làm mới phiên đăng nhập (UC-05), Đăng xuất (UC-06), Xem thực đơn \& Tìm kiếm (UC-07), Xem chi tiết món, Size \& Topping (UC-08) và Tra cứu voucher khả dụng (UC-10, công khai không cần đăng nhập) thuộc về tác nhân trừu tượng Người dùng chung (User); cả Khách hàng, Nhân viên pha chế và Quản trị viên đều kế thừa các Use-case này từ User (riêng thao tác đặt hàng, áp dụng voucher và gửi đánh giá chỉ mở cho Khách hàng). Phân công tác nhân -- Use-case được tổng hợp trong Bảng 1.6.
+Qua Hình~\ref{fig:uc-overall}, sự phân công trách nhiệm và ràng buộc giữa các tác nhân được xác định như sau:
+\begin{itemize}
+    \item \textbf{Khách hàng (Customer):} Người dùng chưa đăng nhập có thể xem thực đơn, tùy chọn món và thao tác giỏ hàng; tuy nhiên bắt buộc phải đăng ký hoặc đăng nhập hợp lệ trước khi đặt đơn hàng, áp dụng ưu đãi, thanh toán không tiền mặt và theo dõi đơn hàng của mình.
+    \item \textbf{Nhân viên / Quản lý (Staff / Manager):} Phải sử dụng tài khoản nội bộ được cấp quyền; nhân viên pha chế (Barista) chỉ tiếp nhận và cập nhật trạng thái xử lý đơn hàng, còn quản trị viên/quản lý (Admin) thực hiện thêm các chức năng quản trị cửa hàng (thực đơn, kho nguyên liệu, khuyến mãi và báo cáo).
+    \item \textbf{\guillemotleft{}System\guillemotright{} Cổng thanh toán (Payment Gateway):} Tác nhân hệ thống bên ngoài, chỉ tương tác gián tiếp khi khách hàng thực hiện thanh toán không tiền mặt để tiếp nhận yêu cầu, xử lý giao dịch và phản hồi kết quả về BrewLite.
+\end{itemize}
 
-\begin{longtable}{>{\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}p{11.8cm}}
-\caption{Phân công Use-case theo tác nhân}\\
+Phân công Use-case theo từng tác nhân trên Hình~\ref{fig:uc-overall} được tổng hợp trong Bảng~\ref{tab:uc-actors}.
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{4.4cm}>{\raggedright\arraybackslash}p{10.8cm}}
+\caption{Phân công Use-case theo tác nhân trên sơ đồ tổng quát}\label{tab:uc-actors}\\
 \hline
 \rowcolor{gray!20} \textbf{Tác nhân} & \textbf{Các Use-case đảm nhiệm} \\
 \hline
@@ -511,397 +607,175 @@ Qua sơ đồ Hình 1.1 có thể thấy sự phân công chức năng giữa c�
 \rowcolor{gray!20} \textbf{Tác nhân} & \textbf{Các Use-case đảm nhiệm} \\
 \hline
 \endhead
-Khách hàng (Customer) & UC-01 Đăng ký tài khoản; UC-09 Quản lý giỏ hàng; UC-11 Áp dụng Voucher \& Điểm thưởng; UC-12 Khởi tạo đơn hàng (PENDING); UC-13 Thanh toán đơn hàng (PAID); UC-17 Theo dõi tiến trình đơn hàng; UC-18 Hủy đơn hàng tự động hoàn kho; UC-19 Xem lịch sử đơn hàng; UC-20 Gửi đánh giá sản phẩm đã mua; UC-21 Chỉnh sửa / Xóa đánh giá; kế thừa từ User: UC-02 Đăng nhập, UC-03 Đổi mật khẩu, UC-04 Xem thông tin cá nhân, UC-05 Làm mới phiên đăng nhập, UC-06 Đăng xuất, UC-07 Xem thực đơn \& Tìm kiếm, UC-08 Xem chi tiết món, Size \& Topping, UC-10 Tra cứu voucher khả dụng. \\
+Khách hàng (Customer) & Xem thực đơn \& Chi tiết sản phẩm; Quản lý giỏ hàng; Đăng ký \& Đăng nhập; Đặt đơn hàng \& Áp dụng ưu đãi; Thanh toán không tiền mặt; Theo dõi, Lịch sử \& Hủy đơn hàng. \\
 \hline
-Nhân viên pha chế (Barista) & UC-22 Tiếp nhận pha chế đơn hàng (PAID $\rightarrow$ PREPARING); UC-23 Xác nhận pha chế hoàn tất (PREPARING $\rightarrow$ READY); UC-24 Bàn giao đồ uống cho khách (READY $\rightarrow$ COMPLETED); UC-25 Xem bảng Kanban pha chế (FIFO); UC-26 Xem công thức pha chế (Recipes); kế thừa từ User: UC-02 đến UC-08, UC-10. \\
+Nhân viên / Quản lý (Staff / Manager) & Tiếp nhận \& Cập nhật trạng thái đơn; Quản lý thực đơn, Kho, Khuyến mãi \& Báo cáo. \\
 \hline
-Quản trị viên (Admin) & UC-27 Xem thống kê doanh thu \& Báo cáo; UC-28 Quản lý kho \& Nhập hàng; UC-29 Quản lý sản phẩm \& Công thức; UC-30 Quản lý mã khuyến mãi; UC-31 Kiểm duyệt đánh giá khách hàng; UC-32 Quản lý nhân sự \& Khách hàng; kế thừa từ User: UC-02 đến UC-08, UC-10. \\
-\hline
-Cổng thanh toán (Payment Gateway) & UC-13 Thanh toán đơn hàng (PAID): tiếp nhận và xử lý giao dịch thanh toán; UC-14 Đồng bộ thanh toán MBBank VietQR. \\
-\hline
-Người dùng chung (User, \guillemotleft{}Abstract\guillemotright{}) & UC-02 Đăng nhập hệ thống; UC-03 Đổi mật khẩu; UC-04 Xem thông tin cá nhân; UC-05 Làm mới phiên đăng nhập; UC-06 Đăng xuất; UC-07 Xem thực đơn \& Tìm kiếm; UC-08 Xem chi tiết món, Size \& Topping; UC-10 Tra cứu voucher khả dụng. Tác nhân trừu tượng: Khách hàng, Nhân viên pha chế và Quản trị viên kế thừa các Use-case này. \\
-\hline
-Hệ thống (nội bộ Hình 1.2) & UC-15 Khấu trừ kho Optimistic Lock (trừ nguyên liệu với cột \texttt{version} chống bán âm); UC-16 Tự động tích lũy điểm Loyalty (+1đ / 10.000đ khi PAID); cùng các bước nội bộ \guillemotleft{}include\guillemotright{}: Ghi nhận lịch sử OrderStatusHistory và Tự động hoàn kho \& Điểm thưởng. \\
+\guillemotleft{}System\guillemotright{} Cổng thanh toán (Payment Gateway) & Thanh toán không tiền mặt (xử lý giao dịch ví/thẻ, sinh mã VietQR và đồng bộ trạng thái thanh toán về hệ thống). \\
 \hline
 \end{longtable}
-
-Về quan hệ giữa các Use-case, sơ đồ sử dụng hai quan hệ chuẩn của UML. Quan hệ \guillemotleft{}extend\guillemotright{} thể hiện chức năng mở rộng có điều kiện: Áp dụng Voucher \& Điểm thưởng (UC-11) mở rộng cho Khởi tạo đơn hàng (UC-12) và Xem công thức pha chế (UC-26) mở rộng cho Xem bảng Kanban pha chế (UC-25); thao tác Khóa / Mở khóa tài khoản người dùng của Quản trị viên được gộp trực tiếp trong UC-32 (Quản lý nhân sự \& Khách hàng). Quan hệ \guillemotleft{}include\guillemotright{} thể hiện các bước bắt buộc được kích hoạt tự động: Thanh toán đơn hàng (UC-13) \guillemotleft{}include\guillemotright{} Khấu trừ kho Optimistic Lock (UC-15) và Tự động tích lũy điểm Loyalty (UC-16) ngay trên Hình 1.1; đồng thời sơ đồ Use-case trọng tâm (Hình 1.2) làm rõ thêm việc ghi nhận lịch sử OrderStatusHistory và tự động hoàn kho khi hủy đơn.
 
 \subsection{Danh sách các Use-case của hệ thống}
 
-Để thuận tiện cho việc đặc tả chi tiết, kiểm thử và truy vết yêu cầu ở các giai đoạn sau, toàn bộ 32 Use-case của hệ thống BrewLite trên Hình 1.1 được đánh mã thống nhất từ UC-01 đến UC-32 và tổng hợp trong Bảng 1.7.
+Từ 8 Use-case tổng quát trên Hình~\ref{fig:uc-overall}, danh sách tóm tắt chức năng và tác nhân tham gia của toàn hệ thống BrewLite được tổng hợp trong Bảng~\ref{tab:uc-list}.
 
-\begin{longtable}{>{\raggedright\arraybackslash}p{1.5cm}>{\raggedright\arraybackslash}p{3.8cm}>{\raggedright\arraybackslash}p{2.7cm}>{\raggedright\arraybackslash}p{6.8cm}}
-\caption{Danh sách các Use-case của hệ thống BrewLite}\\
+\begin{longtable}{>{\raggedright\arraybackslash}p{1.4cm}>{\raggedright\arraybackslash}p{4.3cm}>{\raggedright\arraybackslash}p{3.1cm}>{\raggedright\arraybackslash}p{6.2cm}}
+\caption{Danh sách các Use-case tổng quát của hệ thống BrewLite}\label{tab:uc-list}\\
 \hline
-\rowcolor{gray!20} \textbf{Mã UC} & \textbf{Tên Use-case} & \textbf{Tác nhân chính} & \textbf{Mô tả tóm tắt} \\
+\rowcolor{gray!20} \textbf{STT} & \textbf{Tên Use-case} & \textbf{Tác nhân} & \textbf{Mô tả tóm tắt} \\
 \hline
 \endfirsthead
 \hline
-\rowcolor{gray!20} \textbf{Mã UC} & \textbf{Tên Use-case} & \textbf{Tác nhân chính} & \textbf{Mô tả tóm tắt} \\
+\rowcolor{gray!20} \textbf{STT} & \textbf{Tên Use-case} & \textbf{Tác nhân} & \textbf{Mô tả tóm tắt} \\
 \hline
 \endhead
-UC-01 & Đăng ký tài khoản & Customer & Khách hàng tạo tài khoản mới bằng tên đăng nhập (username), họ tên, email và mật khẩu để đặt hàng, theo dõi đơn và tích điểm. \\
+1 & Xem thực đơn \& Chi tiết sản phẩm & Khách hàng & Duyệt danh mục đồ uống, tìm kiếm món, xem mô tả, đánh giá và tùy chọn kích cỡ (S/M/L), topping, mức đường, mức đá. \\
 \hline
-UC-02 & Đăng nhập hệ thống & User (Customer, Barista, Admin) & Xác thực tài khoản và cấp phát JWT Token kèm quyền truy cập theo vai trò (Customer, Barista hoặc Admin). \\
+2 & Quản lý giỏ hàng & Khách hàng & Thêm món kèm tùy chọn kích cỡ/topping vào giỏ, điều chỉnh số lượng hoặc xóa món trước khi đặt hàng. \\
 \hline
-UC-03 & Đổi mật khẩu & User (Customer, Barista, Admin) & Người dùng đã đăng nhập thay đổi mật khẩu của mình sau khi xác thực đúng mật khẩu hiện tại. \\
+3 & Đăng ký \& Đăng nhập & Khách hàng & Tạo tài khoản khách hàng mới, đăng nhập hệ thống để nhận JWT Token và duy trì phiên giao dịch hợp lệ. \\
 \hline
-UC-04 & Xem thông tin cá nhân & User (Customer, Barista, Admin) & Người dùng xem thông tin hồ sơ tài khoản (username, họ tên, email, vai trò; riêng Customer xem thêm điểm tích lũy). \\
+4 & Đặt đơn hàng \& Áp dụng ưu đãi & Khách hàng & Xác nhận giỏ hàng, kiểm tra/áp dụng mã giảm giá hợp lệ, sử dụng điểm thưởng Loyalty và khởi tạo đơn hàng \texttt{PENDING}. \\
 \hline
-UC-05 & Làm mới phiên đăng nhập & User (Customer, Barista, Admin) & Hệ thống tự động cấp lại Access Token bằng Refresh Token khi phiên hết hạn mà không yêu cầu đăng nhập lại. \\
+5 & Thanh toán không tiền mặt & Khách hàng, Cổng thanh toán & Thanh toán qua Ví điện tử, Thẻ mô phỏng hoặc VietQR MBBank kèm \texttt{Idempotency-Key} và khấu trừ tồn kho an toàn. \\
 \hline
-UC-06 & Đăng xuất & User (Customer, Barista, Admin) & Người dùng kết thúc phiên đăng nhập hiện tại và xóa thông tin xác thực trên trình duyệt. \\
+6 & Theo dõi, Lịch sử \& Hủy đơn hàng & Khách hàng & Xem lịch sử đơn đã đặt, theo dõi tiến trình pha chế theo thời gian thực và thao tác hủy đơn ở trạng thái được phép (ngoài phạm vi đặc tả chi tiết UC-01). \\
 \hline
-UC-07 & Xem thực đơn \& Tìm kiếm & User (Customer, Barista, Admin) & Người dùng (kể cả Customer, Barista, Admin và khách vãng lai) xem danh sách đồ uống theo danh mục, tìm kiếm theo tên, xem giá cơ bản và trạng thái còn/hết hàng. \\
+7 & Tiếp nhận \& Cập nhật trạng thái đơn & Nhân viên / Quản lý & Nhân viên pha chế xem hàng đợi FIFO, tra cứu công thức và chuyển tuần tự trạng thái đơn (\texttt{PAID} $\rightarrow$ \texttt{PREPARING} $\rightarrow$ \texttt{READY} $\rightarrow$ \texttt{COMPLETED}). \\
 \hline
-UC-08 & Xem chi tiết món, Size \& Topping & User (Customer, Barista, Admin) & Người dùng xem mô tả, đánh giá món và tùy chọn kích cỡ (S/M/L), topping, mức đường, mức đá (chỉ Customer được thêm vào giỏ và mua ngay). \\
-\hline
-UC-09 & Quản lý giỏ hàng & Customer & Khách hàng thêm món vào giỏ kèm tùy chọn, tăng/giảm số lượng, xóa món; hỗ trợ mua $N$ ly với các topping khác nhau vào cùng một giỏ hàng. \\
-\hline
-UC-10 & Tra cứu voucher khả dụng & User (Public / Customer) & Người dùng (kể cả khách vãng lai chưa đăng nhập, Customer, Barista, Admin) xem danh sách các mã giảm giá khả dụng (\texttt{GET /api/promotions/available}, không có freeship), kèm điều kiện đơn tối thiểu, mức giảm tối đa và tiến độ đạt điều kiện. \\
-\hline
-UC-11 & Áp dụng Voucher \& Điểm thưởng & Customer & Khách hàng chọn/nhập mã Voucher theo quy tắc đa tầng (tối đa 1 mã đơn hàng + 1 mã giờ vàng + điểm thưởng); hệ thống khóa chọn khi đơn về 0đ. \\
-\hline
-UC-12 & Khởi tạo đơn hàng (PENDING) & Customer & Khách hàng xác nhận giỏ hàng để tạo duy nhất một đơn hàng ở trạng thái PENDING (\texttt{POST /api/orders}) tổng hợp toàn bộ các dòng chi tiết món (OrderItems). \\
-\hline
-UC-13 & Thanh toán đơn hàng (PAID) & Customer, Gateway & Khách hàng thanh toán đơn PENDING hoặc PAYMENT\_FAILED qua cổng thanh toán với Idempotency-Key (\texttt{POST /api/payments}), chuyển đơn sang PAID và đảm bảo chỉ trừ tiền một lần. \\
-\hline
-UC-14 & Đồng bộ thanh toán MBBank VietQR & Gateway & Cổng thanh toán đồng bộ trạng thái giao dịch chuyển khoản VietQR từ MBBank về hệ thống BrewLite. \\
-\hline
-UC-15 & Khấu trừ kho Optimistic Lock & Hệ thống (nội bộ Hình 1.2) & Hệ thống tự động trừ nguyên liệu theo công thức khi thanh toán thành công (PAID), dùng Optimistic Locking (cột version) để chống bán âm khi đặt đồng thời. \\
-\hline
-UC-16 & Tự động tích lũy điểm Loyalty & Hệ thống (nội bộ Hình 1.2) & Hệ thống tự động cộng điểm thưởng (+1 điểm / 10.000đ thanh toán thực tế) cho khách hàng khi đơn chuyển sang PAID. \\
-\hline
-UC-17 & Theo dõi tiến trình đơn hàng & Customer & Khách hàng theo dõi tiến độ đơn hàng theo thời gian thực qua máy trạng thái (\texttt{GET /api/orders/:id}) từ PENDING đến COMPLETED. \\
-\hline
-UC-18 & Hủy đơn hàng tự động hoàn kho & Customer & Khách hàng hủy đơn khi ở trạng thái PENDING, PAYMENT\_FAILED hoặc PAID (chặn từ PREPARING trở đi bằng HTTP 409); hoàn điểm đã dùng, đồng thời nếu đơn đã PAID sẽ tự động hoàn kho nguyên liệu theo định lượng công thức, hoàn lượt voucher và thu hồi điểm tích lũy. \\
-\hline
-UC-19 & Xem lịch sử đơn hàng & Customer & Khách hàng xem danh sách các hóa đơn đã đặt (\texttt{GET /api/orders/me}), hiển thị tổng số ly, tóm tắt các món và xem chi tiết hóa đơn dòng món (OrderItems). \\
-\hline
-UC-20 & Gửi đánh giá sản phẩm đã mua & Customer & Khách hàng đánh giá 1--5 sao kèm nhận xét cho món thuộc đơn đã hoàn thành (COMPLETED) qua \texttt{POST /api/reviews}. \\
-\hline
-UC-21 & Chỉnh sửa / Xóa đánh giá & Customer & Khách hàng chỉnh sửa nội dung, số sao hoặc xóa đánh giá của chính mình (\texttt{PATCH / DELETE /api/reviews/:id}). \\
-\hline
-UC-22 & Tiếp nhận pha chế đơn hàng & Barista & Nhân viên pha chế tiếp nhận đơn đã thanh toán, chuyển trạng thái PAID $\rightarrow$ PREPARING (\texttt{POST /api/staff/orders/:id/accept}) kèm ghi vết OrderStatusHistory. \\
-\hline
-UC-23 & Xác nhận pha chế hoàn tất & Barista & Nhân viên pha chế xác nhận hoàn tất pha chế, chuyển trạng thái PREPARING $\rightarrow$ READY (\path{POST /api/staff/orders/:id/ready}). \\
-\hline
-UC-24 & Bàn giao đồ uống cho khách & Barista & Nhân viên pha chế xác nhận đã giao món cho khách, chuyển trạng thái READY $\rightarrow$ COMPLETED (\path{POST /api/staff/orders/:id/complete}). \\
-\hline
-UC-25 & Xem bảng Kanban pha chế (FIFO) & Barista & Nhân viên pha chế xem danh sách đơn cần xử lý sắp xếp theo thứ tự thời gian đặt (createdAt tăng dần) trên bảng Kanban (\path{GET /api/staff/orders}). \\
-\hline
-UC-26 & Xem công thức pha chế (Recipes) & Barista & Nhân viên pha chế xem định lượng nguyên liệu chi tiết cho từng ly của đơn hàng (\path{GET /api/staff/orders/:id/recipes}). \\
-\hline
-UC-27 & Xem thống kê doanh thu \& Báo cáo & Admin & Quản trị viên xem tổng quan doanh thu, biểu đồ theo thời gian, top sản phẩm bán chạy và thống kê trạng thái đơn hàng. \\
-\hline
-UC-28 & Quản lý kho \& Nhập hàng & Admin & Quản trị viên quản lý tồn kho nguyên liệu, cảnh báo sắp hết hàng, quản lý nhà cung cấp và lập phiếu nhập kho. \\
-\hline
-UC-29 & Quản lý sản phẩm \& Công thức & Admin & Quản trị viên thêm/sửa/xóa món đồ uống, biến thể kích cỡ (S/M/L) và thiết lập công thức định lượng nguyên liệu. \\
-\hline
-UC-30 & Quản lý mã khuyến mãi & Admin & Quản trị viên tạo mới, chỉnh sửa, xóa và quản lý điều kiện áp dụng các mã Voucher giảm giá. \\
-\hline
-UC-31 & Kiểm duyệt đánh giá khách hàng & Admin & Quản trị viên xem danh sách toàn bộ đánh giá và thực hiện ẩn hoặc hiện lại các đánh giá của khách hàng. \\
-\hline
-UC-32 & Quản lý nhân sự \& Khách hàng & Admin & Quản trị viên tạo/sửa/xóa tài khoản Barista, quản lý khách hàng và thực hiện khóa hoặc mở khóa tài khoản. \\
+8 & Quản lý thực đơn, Kho, Khuyến mãi \& Báo cáo & Nhân viên / Quản lý & Quản trị viên quản lý món, công thức định lượng, tồn kho nguyên liệu, chương trình khuyến mãi và thống kê doanh thu. \\
 \hline
 \end{longtable}
 
-\subsection{Sơ đồ Use-case trọng tâm và đặc tả Use-case}
+\subsection{Sơ đồ Use-case trọng tâm và đặc tả Use-case UC-01}
 
-Trên cơ sở sơ đồ Use-case tổng quát (Hình 1.1), nhóm chọn phạm vi trọng tâm có giá trị nghiệp vụ cốt lõi là \textbf{Đặt hàng \& Thanh toán đồng thời} (\texttt{UC-10..UC-16, UC-18}) để xây dựng sơ đồ Use-case phạm vi riêng (Hình 1.2) và đặc tả chi tiết. Mỗi bảng đặc tả dưới đây gồm các thành phần: mã Use-case (Use Case ID), tên Use-case, tác nhân, liên kết yêu cầu, tóm tắt, tiền điều kiện, hậu điều kiện, dòng sự kiện chính và dòng sự kiện phụ.
+Trên cơ sở sơ đồ tổng quát (Hình~\ref{fig:uc-overall}), nhóm lựa chọn phân hệ nghiệp vụ cốt lõi là \textbf{Đặt và thanh toán đơn hàng} (triển khai chi tiết cho các nhóm chức năng \textit{Đặt đơn hàng \& Áp dụng ưu đãi}, \textit{Thanh toán không tiền mặt} và luồng xử lý pha chế trong \textit{Tiếp nhận \& Cập nhật trạng thái đơn}, ký hiệu đặc tả là \textbf{UC-01 -- Đặt và thanh toán đơn hàng}) để xây dựng sơ đồ Use-case phạm vi chi tiết (Hình~\ref{fig:uc-order-payment}) và đặc tả đầy đủ phục vụ thiết kế và kiểm thử nghiệm thu ở các bước tiếp theo.
 
-\subsubsection*{a. Sơ đồ Use-case trọng tâm: Đặt hàng \& Thanh toán đồng thời}
+\subsubsection*{a. Đặc tả tổng quan UC-01 -- Đặt và thanh toán đơn hàng}
 
-Phân hệ Đặt hàng \& Thanh toán đồng thời có hai tác nhân là Khách hàng (Customer) và Cổng thanh toán (Payment Gateway). Khách hàng tra cứu voucher khả dụng (UC-10) và thực hiện Khởi tạo đơn hàng PENDING (UC-12, \path{POST /api/orders}); Use-case này được mở rộng (\guillemotleft{}extend\guillemotright{}) bởi Áp dụng Voucher \& Điểm thưởng (UC-11, \path{POST /api/promotions/validate}) và \guillemotleft{}include\guillemotright{} Ghi nhận lịch sử OrderStatusHistory. Khách hàng và Cổng thanh toán cùng thực hiện Thanh toán đơn hàng (UC-13, \path{POST /api/payments} kèm Idempotency-Key); Use-case này \guillemotleft{}include\guillemotright{} Khấu trừ kho Optimistic Lock (UC-15), Tự động tích lũy điểm Loyalty (UC-16, +1đ / 10.000đ khi PAID) và Ghi nhận lịch sử OrderStatusHistory (từ PENDING hoặc \texttt{PAYMENT\_FAILED} sang PAID). Đồng thời, Khách hàng có quyền thực hiện Hủy đơn hàng tự động hoàn kho (UC-18, \path{POST /api/orders/:id/cancel}) khi đơn còn ở trạng thái PENDING, \texttt{PAYMENT\_FAILED} hoặc PAID (hệ thống chặn hủy bằng HTTP 409 từ PREPARING trở đi để bảo vệ chi phí pha chế); Use-case hủy đơn \guillemotleft{}extend\guillemotright{} Tự động hoàn kho \& Điểm thưởng (khi có hoàn kho nếu PAID hoặc hoàn điểm đã dùng) và \guillemotleft{}include\guillemotright{} Ghi vết lịch sử hủy đơn (OrderStatusHistory). Cổng thanh toán thực hiện Đồng bộ thanh toán MBBank VietQR (UC-14).
+\noindent\textbf{Mục tiêu:} Khách chuyển giỏ đồ uống thành đơn hàng, hoàn tất thanh toán (hoặc thử lại khi lỗi) và theo dõi tiến độ; nhân viên pha chế tiếp nhận, pha chế và bàn giao đơn. Hệ thống kiểm tra tồn kho nguyên liệu khi thanh toán để tránh bán âm kho.
+
+\medskip
+\noindent\textbf{Actor chính:} Khách hàng (\texttt{CUSTOMER}).
+
+\medskip
+\noindent\textbf{Actor hỗ trợ:} Nhân viên pha chế (Barista, \texttt{STAFF}) xử lý đơn trên bảng Kanban và cập nhật trạng thái pha chế (\texttt{PAID} $\rightarrow$ \texttt{PREPARING} $\rightarrow$ \texttt{READY} $\rightarrow$ \texttt{COMPLETED}, không có quyền hủy đơn). \guillemotleft{}System\guillemotright{} Cổng thanh toán gồm \texttt{MockGatewayService} (cho \texttt{WALLET}/\texttt{CARD}) và webhook \texttt{mbbank-sync} (cho VietQR MBBank).
+
+\medskip
+\noindent\textbf{Trigger:} Khách chuyển từ giỏ hàng hoặc nút Mua ngay sang màn hình \path{/checkout}.
+
+\medskip
+\noindent\textbf{Tiền điều kiện:} Giỏ có ít nhất một món; Khách hàng có phiên đăng nhập JWT hợp lệ trước khi gọi API tạo đơn/thanh toán. Biến thể sản phẩm (\texttt{ProductVariant}), topping, công thức (\texttt{Recipe}), nguyên liệu và khuyến mãi tồn tại trên máy chủ.
+
+\medskip
+\noindent\textbf{Hậu điều kiện thành công:} Đơn lưu \texttt{Order} với một \texttt{Payment(SUCCESS)}, trừ kho bằng Khóa lạc quan OCC đúng một lần (tăng \texttt{Ingredient.version}), cập nhật voucher/điểm thưởng, vô hiệu hóa QR (nếu có), ghi đầy đủ \texttt{OrderStatusHistory}, Barista hoàn tất \texttt{COMPLETED} và xóa giỏ cục bộ.
+
+\medskip
+\noindent\textbf{Hậu điều kiện không thành công:} Giỏ sai hoặc thiếu nguyên liệu không hoàn tất giao dịch (rollback toàn bộ \texttt{\$transaction}). Lỗi cổng thanh toán (\texttt{FAIL}) chuyển đơn sang \texttt{PAYMENT\_FAILED} để thử lại, không trừ kho và không cộng điểm; đơn chưa thanh toán không được đưa vào hàng đợi Barista.
+
+\subsubsection*{b. Sơ đồ use-case của UC-01}
+
+Sơ đồ thể hiện vai trò của Khách hàng, Nhân viên pha chế (Barista) và Cổng thanh toán trong phân hệ Đặt hàng và Thanh toán (BrewLite). UC-01 tập trung vào tạo đơn, chọn phương thức thanh toán, kiểm soát trùng lặp, trừ kho OCC và xử lý pha chế.
 
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=\textwidth]{img/Usecase_cnpm_03.drawio.png}
-\caption{Sơ đồ Use-case trọng tâm: Phân hệ Đặt hàng \& Thanh toán đồng thời}
+\caption{Sơ đồ Use-case trọng tâm: Phân hệ Đặt hàng \& Thanh toán (BrewLite)}
 \label{fig:uc-order-payment}
 \end{figure}
 
-\subsubsection*{b. Đặc tả chi tiết Use-case}
+Sơ đồ được lưu riêng ở file Draw.io (\texttt{02-usecase-order-payment.drawio}) và xuất thành ảnh trước khi đưa vào báo cáo. \textbf{Ranh giới:} UC-01 gồm kiểm tra giỏ, tạo đơn \texttt{PENDING}, áp dụng voucher/điểm thưởng, chọn thanh toán (\texttt{WALLET}, \texttt{CARD}, \texttt{VietQR MBBank TTL 300s}), kiểm soát \texttt{Idempotency-Key}, trừ kho OCC, theo dõi tiến độ đơn và thao tác pha chế của Barista (\texttt{PAID} $\rightarrow$ \texttt{PREPARING} $\rightarrow$ \texttt{READY} $\rightarrow$ \texttt{COMPLETED}). \textbf{UC-01 không có chức năng hủy đơn hàng} cho Khách hàng lẫn Barista, vì nếu thiếu nguyên liệu hệ thống đã chặn trước khi hoàn tất thanh toán. Việc mở màn hình QR hay chuyển sai nội dung không tự xác nhận đã thanh toán.
 
-Hồ sơ đặc tả chi tiết đầy đủ cho luồng đặt hàng và thanh toán được lưu tại \path{docs/requirements/use-case-checkout.md}. Dưới đây là đặc tả chi tiết của các Use-case trọng tâm theo mã thống nhất trong Bảng 1.7: \textbf{Khởi tạo đơn hàng -- Đặt hàng} (UC-12, mở rộng bởi UC-11), \textbf{Thanh toán đơn hàng Idempotent} (UC-13), \textbf{Hủy đơn hàng tự động hoàn kho} (UC-18), cùng các Use-case hậu kiểm và quầy pha chế (UC-20, UC-25, UC-26, UC-22/23/24). Mỗi bảng mô tả đầy đủ tác nhân, sự kiện kích hoạt (trigger), liên kết mã yêu cầu, tiền điều kiện, hậu điều kiện, luồng chính, luồng thay thế và luồng ngoại lệ.
+\subsubsection*{c. Luồng chính -- thanh toán thành công}
 
-\subsubsection*{Khởi tạo đơn hàng (Đặt hàng PENDING)}
+\begin{enumerate}
+    \item Khách xem lại giỏ hàng tại \path{/checkout}, chọn phương thức thanh toán (\texttt{CARD} hoặc \texttt{WALLET}) rồi bấm xác nhận thanh toán.
+    \item Nếu đã đăng nhập hợp lệ, giao diện gọi \path{POST /api/orders}. Máy chủ đọc lại \texttt{ProductVariant}, cộng phụ thu topping, kiểm tra voucher/điểm thưởng (1 điểm = 100 VNĐ) và tạo \texttt{Order} trạng thái \texttt{PENDING} kèm \texttt{OrderStatusHistory} trong \texttt{\$transaction}.
+    \item Ứng dụng sinh \texttt{Idempotency-Key} (UUIDv4) và gửi \path{POST /api/payments} kèm \texttt{orderId} và \texttt{method}. API kiểm tra khóa trùng, quyền sở hữu và Order State Machine (\texttt{PENDING} $\rightarrow$ \texttt{PAID}).
+    \item Trong một \texttt{\$transaction}, hệ thống trừ tồn kho theo công thức bằng Khóa lạc quan OCC (\texttt{Ingredient.version}, thử lại tối đa 3 lần) và gọi \texttt{MockGatewayService} xác nhận trừ tiền thành công.
+    \item Máy chủ lưu \texttt{Payment(SUCCESS)}, chuyển đơn sang \texttt{PAID}, tăng \texttt{usedCount} voucher, cộng \texttt{floor(totalAfterDiscount / 10000)} điểm thưởng và ghi \texttt{OrderStatusHistory}. Giao diện xóa giỏ cục bộ và mở \path{/orders/:id}.
+    \item Nhân viên pha chế (Barista) xem hàng đợi FIFO tại \path{GET /api/staff/orders} và công thức tại \path{GET /api/staff/orders/:id/recipes}, sau đó chuyển lần lượt \path{/accept} $\rightarrow$ \path{/ready} $\rightarrow$ \path{/complete} (\texttt{PAID} $\rightarrow$ \texttt{PREPARING} $\rightarrow$ \texttt{READY} $\rightarrow$ \texttt{COMPLETED}); khách theo dõi qua \path{GET /api/orders/:id}.
+\end{enumerate}
 
-\begin{longtable}{>{\raggedright\arraybackslash}p{3.8cm}>{\raggedright\arraybackslash}p{11.4cm}}
-\hline
-\cellcolor{blue!10}\textbf{Use Case ID} & UC-12 (mở rộng \guillemotleft{}extend\guillemotright{} bởi UC-11) \\
-\hline
-\cellcolor{blue!10}\textbf{Tên Use Case} & Khởi tạo đơn hàng (PENDING) \\
-\hline
-\cellcolor{blue!10}\textbf{Tác nhân} & Khách hàng (Customer) \\
-\hline
-\cellcolor{blue!10}\textbf{Sự kiện kích hoạt (Trigger)} & Khách hàng kiểm tra giỏ hàng hoặc chọn ``Mua ngay'' và bấm ``Xác nhận đặt hàng / Thanh toán'' trên màn hình \path{/checkout}. \\
-\hline
-\cellcolor{blue!10}\textbf{Liên kết yêu cầu} & FR-03 (Giỏ hàng), FR-04 (JWT/RBAC), FR-05 (Voucher \& Điểm thưởng), FR-06 (Tạo đơn \texttt{PENDING}), NFR-04 (Toàn vẹn ACID) \\
-\hline
-\cellcolor{blue!10}\textbf{Tóm tắt} & Cho phép Khách hàng đã đăng nhập xác nhận danh sách món để khởi tạo duy nhất một đơn hàng ở trạng thái \texttt{PENDING} (\path{POST /api/orders}) chứa toàn bộ các dòng \texttt{OrderItem}, áp dụng mã giảm giá đa tầng và điểm Loyalty (1 điểm = 100đ), đồng thời ghi nhận lịch sử đầu tiên vào \texttt{OrderStatusHistory}. \\
-\hline
-\cellcolor{blue!10}\textbf{Tiền điều kiện} & -- Khách hàng đã đăng nhập hợp lệ với vai trò \texttt{CUSTOMER} (UC-02). \newline
--- Giỏ hàng có ít nhất 1 món hợp lệ (số lượng $\ge 1$); biến thể \texttt{ProductVariant} tồn tại trong hệ thống. \\
-\hline
-\cellcolor{blue!10}\textbf{Hậu điều kiện} & -- Đơn hàng mới được lưu với mã UUID duy nhất ở trạng thái \texttt{PENDING}. \newline
--- Số điểm Loyalty sử dụng (nếu có) được khấu trừ trong cùng transaction và lưu thẻ \path{[REDEEMED_POINTS:N]} trong \texttt{OrderStatusHistory} để phục vụ hoàn điểm khi hủy. \\
-\hline
-\cellcolor{blue!10}\textbf{Luồng chính (Main Flow)} & 1. Khách hàng chọn phương thức thanh toán (Ví, Thẻ/VietQR hoặc 0đ) tại \path{/checkout} và bấm xác nhận. \newline
-2. Frontend gửi \path{POST /api/orders} kèm JWT Bearer Token và payload \texttt{CreateOrderDto} (\texttt{items}, \texttt{promotionCode}, \texttt{loyaltyPointsToUse}). \newline
-3. Backend xác thực JWT (\texttt{JwtAuthGuard}), quyền \texttt{CUSTOMER} (\texttt{RolesGuard}) và kiểm tra dữ liệu qua \texttt{ValidationPipe}. \newline
-4. Hệ thống truy vấn đơn giá gốc \texttt{ProductVariant}, cộng phụ phí topping chuẩn hóa từ \texttt{toppings.constant.ts}, kiểm tra voucher (nếu có) và đối chiếu số dư điểm Loyalty. \newline
-5. Trong \texttt{prisma.\$transaction}, hệ thống trừ điểm Loyalty đã đổi, tạo \texttt{Order(PENDING)} kèm các \texttt{OrderItem} và ghi nhận \texttt{OrderStatusHistory}, trả về \texttt{HTTP 201 Created} kèm mã đơn để chuyển sang UC-13. \\
-\hline
-\cellcolor{blue!10}\textbf{Luồng thay thế (Alternative Flow)} & -- \textbf{A1 (Mở rộng UC-11):} Khách hàng chọn tối đa 1 mã giảm giá đơn hàng + 1 mã giờ vàng (\texttt{HAPPYHOUR}) + điểm thưởng; hệ thống kiểm tra qua \path{POST /api/promotions/validate} và khóa chọn thêm nếu đơn về 0đ. \newline
--- \textbf{A2 (Thử lại đơn đang chờ):} Khi thanh toán lỗi (\texttt{PAYMENT\_FAILED}), UI giữ nguyên \texttt{pendingOrderId} (\path{/checkout?orderId=...}) và bỏ qua \path{POST /api/orders} để tránh tạo đơn trùng. \\
-\hline
-\cellcolor{blue!10}\textbf{Luồng ngoại lệ (Exception Flow)} & -- \textbf{E1 (Giỏ hàng rỗng / biến thể không tồn tại / voucher sai):} Backend từ chối với \texttt{HTTP 400 Bad Request}. \newline
--- \textbf{E2 (Chưa đăng nhập / JWT hết hạn):} Trả \texttt{HTTP 401 Unauthorized}; UI làm mới token hoặc chuyển về \path{/login}. \newline
--- \textbf{E3 (Sai vai trò STAFF/ADMIN):} \texttt{RolesGuard} chặn với \texttt{HTTP 403 Forbidden}. \\
-\hline
+\subsubsection*{d. Luồng thay thế}
+
+\noindent\textbf{A1 -- Chưa đăng nhập (bước 1--2)} \\
+Giao diện yêu cầu đăng nhập/đăng ký (\path{/api/auth/login}, \path{/api/auth/register}); API từ chối request thiếu JWT (\texttt{HTTP 401}). Sau khi đăng nhập, khách tiếp tục với giỏ hiện tại.
+
+\medskip
+\noindent\textbf{A2 -- Áp dụng voucher hoặc điểm thưởng (bước 2)} \\
+Khi chọn/nhập mã ưu đãi trên giao diện, \path{POST /api/promotions/validate} kiểm tra tính hợp lệ của voucher; máy chủ cũng giới hạn điểm sử dụng theo số dư khả dụng và tự tính lại tổng tiền (giá hiển thị phía client chỉ để tham khảo).
+
+\medskip
+\noindent\textbf{A3 -- Thanh toán Ví điện tử \texttt{WALLET} (bước 1 \& 3)} \\
+Khách liên kết ví demo (MoMo, ZaloPay, ShopeePay với OTP \texttt{888999}) và gửi \texttt{method=WALLET}. Khi API trả \texttt{HTTP 201}, số dư ví demo trên trình duyệt được khấu trừ tương ứng.
+
+\medskip
+\noindent\textbf{A4 -- Thanh toán VietQR MBBank (bước 1 \& 3--5)} \\
+Trang Checkout sinh mã QR EMVCo kèm nội dung \texttt{"BREWLITE <orderCode>"} và đếm ngược \texttt{TTL 300s}. Webhook \path{POST /api/payments/mbbank-sync} cập nhật biến động giao dịch khớp đúng nội dung và số tiền; polling \path{GET /api/payments/mbbank-check/:orderCode} (trong cửa sổ \texttt{600s}) sẽ tự động gọi \path{POST /api/payments} rồi gọi \texttt{mbbank-invalidate} để vô hiệu hóa QR ngay khi thanh toán xong.
+
+\medskip
+\noindent\textbf{A5 -- Gửi lặp cùng \texttt{Idempotency-Key} (bước 3)} \\
+Gửi lại \path{POST /api/payments} với cùng \texttt{Idempotency-Key}, \texttt{orderId} và \texttt{method} trả lại kết quả đã lưu (\texttt{HTTP 200}, \texttt{replayed: true}), không trừ kho hay cộng điểm lần hai.
+
+\medskip
+\noindent\textbf{A6 -- Thử thanh toán lại khi \texttt{PAYMENT\_FAILED} (sau bước 4)} \\
+Với đơn \texttt{PAYMENT\_FAILED}, khách mở \path{/checkout?orderId=<id>} và thực hiện thanh toán lại bằng \texttt{Idempotency-Key} mới.
+
+\subsubsection*{e. Luồng ngoại lệ}
+
+\noindent\textbf{E1 -- Giỏ hàng hoặc biến thể không hợp lệ} \\
+Giỏ rỗng hoặc \texttt{variantId} không tồn tại làm \path{POST /api/orders} trả \texttt{HTTP 400} và không tạo đơn.
+
+\medskip
+\noindent\textbf{E2 -- Thiếu hoặc vi phạm \texttt{Idempotency-Key}} \\
+Thiếu header \texttt{Idempotency-Key} trả \texttt{HTTP 400}; dùng lại khóa cho đơn khác hoặc đổi \texttt{method} bị từ chối với \texttt{HTTP 422}.
+
+\medskip
+\noindent\textbf{E3 -- Sai quyền, không thấy đơn hoặc sai trạng thái} \\
+Thiếu JWT (\texttt{401}), \texttt{CUSTOMER} trả hộ đơn người khác (\texttt{400}), không tìm thấy đơn (\texttt{404}) hoặc đơn đã \texttt{PAID} (\texttt{409}) đều bị chặn trước khi ghi \texttt{Payment}.
+
+\medskip
+\noindent\textbf{E4 -- Thiếu tồn kho hoặc tranh chấp OCC vượt 3 lần} \\
+Khi \texttt{stockQuantity} $<$ lượng cần hoặc xung đột \texttt{version} quá 3 lần thử lại, \texttt{\$transaction} rollback toàn bộ và ném \texttt{HTTP 409 Conflict}.
+
+\medskip
+\noindent\textbf{E5 -- Cổng thanh toán từ chối hoặc Timeout} \\
+Lỗi \texttt{FAIL} từ \texttt{MockGatewayService} rollback trừ kho, chuyển đơn sang \texttt{PAYMENT\_FAILED} và ghi \texttt{OrderStatusHistory} để khách thử lại; trường hợp mô phỏng \texttt{TIMEOUT} ném \texttt{RequestTimeoutException} (chi tiết xem mục Giới hạn nghiệm thu).
+
+\medskip
+\noindent\textbf{E6 -- VietQR hết hạn 300s hoặc sai nội dung chuyển khoản} \\
+Khi bộ đếm \texttt{TTL 300s} về \texttt{0}, giao diện đặt cờ \texttt{isQrExpired = true} để chặn quét/đối soát trên màn hình hết hạn (lệnh \texttt{mbbank-invalidate} hiện gọi ở nhánh thanh toán thành công). Chuyển sai nội dung \texttt{"BREWLITE <orderCode>"} hoặc lệch số tiền làm \texttt{mbbank-check} trả \texttt{\{ paid: false \}}.
+
+\medskip
+\noindent\textbf{E7 -- Barista nhảy cóc trạng thái hoặc sai phân quyền} \\
+Gọi \path{/staff/*} bằng tài khoản \texttt{CUSTOMER} bị chặn \texttt{HTTP 403}; chuyển sai luật \texttt{VALID\_TRANSITIONS} bị chặn \texttt{HTTP 409} kèm log cảnh báo.
+
+\subsubsection*{f. Liên kết yêu cầu và tiêu chí chấp nhận}
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}p{9.8cm}>{\raggedright\arraybackslash}p{3.0cm}}
+\caption{Liên kết yêu cầu và tiêu chí chấp nhận của UC-01}\label{tab:uc01-ac}\\
+\toprule
+\textbf{Mã} & \textbf{Điều kiện và kết quả cần kiểm tra} & \textbf{Yêu cầu nguồn} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Mã} & \textbf{Điều kiện và kết quả cần kiểm tra} & \textbf{Yêu cầu nguồn} \\
+\midrule
+\endhead
+UC01-AC01 & Giỏ hợp lệ tạo một đơn \texttt{PENDING} (\texttt{HTTP 201}), tính đúng giá theo size/topping/voucher, trừ đúng điểm đã dùng và ghi \texttt{OrderStatusHistory}. & FR-03, FR-05, FR-06, NFR-04 \\
+UC01-AC02 & Chưa đăng nhập (\texttt{HTTP 401}), giỏ rỗng hoặc \texttt{variantId} không tồn tại (\texttt{HTTP 400}): báo lỗi, không lưu đơn. & FR-04, FR-06, NFR-02 \\
+UC01-AC03 & Sửa giá hoặc mức giảm ở client không làm thay đổi \texttt{totalAfterDiscount} do máy chủ tự tính lại và ghi trên đơn. & FR-05, FR-06, NFR-02 \\
+UC01-AC04 & Thanh toán \texttt{WALLET}/\texttt{CARD} thành công (\texttt{HTTP 201}): một \texttt{Payment(SUCCESS)}, đơn \texttt{PAID}, trừ kho + tăng \texttt{version}, tăng \texttt{usedCount} và cộng điểm. & FR-07, FR-08, FR-09, NFR-04 \\
+UC01-AC05 & VietQR (\texttt{TTL 300s}) chỉ xác nhận khi webhook \texttt{mbbank-sync} khớp \texttt{"BREWLITE <orderCode>"} và đúng số tiền, sau đó vô hiệu hóa QR bằng \texttt{mbbank-invalidate}. & FR-07 \\
+UC01-AC06 & Gửi lại cùng \texttt{Idempotency-Key} trả kết quả cũ (\texttt{HTTP 200}), không trừ kho/cộng điểm hai lần; dùng cho đơn khác hoặc đổi \texttt{method} bị chặn \texttt{HTTP 422}. & FR-07, NFR-04 \\
+UC01-AC07 & Nhiều giao dịch tranh mua hoặc thiếu nguyên liệu: chặn bằng \texttt{HTTP 409} (sau tối đa 3 lần retry OCC), rollback đầy đủ và \texttt{stockQuantity} $\ge 0$. & FR-09, NFR-04 \\
+UC01-AC08 & Lỗi cổng \texttt{FAIL} rollback kho, chuyển \texttt{PAYMENT\_FAILED} và cho phép thử lại bằng \texttt{Idempotency-Key} mới. & FR-07, FR-08, NFR-04 \\
+UC01-AC09 & Khách chỉ xem/trả đơn của mình; Barista chuyển tuần tự \texttt{PAID} $\rightarrow$ \texttt{PREPARING} $\rightarrow$ \texttt{READY} $\rightarrow$ \texttt{COMPLETED} (nhảy cóc chặn \texttt{409}, sai role chặn \texttt{403}); phân hệ không hỗ trợ hủy đơn. & FR-04, FR-08, FR-10, NFR-01, NFR-02 \\
+\bottomrule
 \end{longtable}
 
-\subsubsection*{Thanh toán đơn hàng chống trùng lặp (Idempotent Payment)}
-
-\begin{longtable}{>{\raggedright\arraybackslash}p{3.8cm}>{\raggedright\arraybackslash}p{11.4cm}}
-\hline
-\cellcolor{blue!10}\textbf{Use Case ID} & UC-13 \\
-\hline
-\cellcolor{blue!10}\textbf{Tên Use Case} & Thanh toán đơn hàng (PAID) -- Idempotent Payment \\
-\hline
-\cellcolor{blue!10}\textbf{Tác nhân} & Khách hàng (Customer) \& Cổng thanh toán (Payment Gateway) \\
-\hline
-\cellcolor{blue!10}\textbf{Sự kiện kích hoạt (Trigger)} & Khách hàng chọn phương thức thanh toán (Ví, Thẻ/VietQR hoặc đơn 0đ) và nhấn nút ``Xác nhận thanh toán'' hoặc quét mã VietQR MBBank thành công trên màn hình \path{/checkout}. \\
-\hline
-\cellcolor{blue!10}\textbf{Liên kết yêu cầu} & FR-07 (Thanh toán Idempotent), FR-09 (Kiểm soát tồn kho OCC), NFR-01 (Hiệu năng), NFR-04 (Toàn vẹn ACID) \\
-\hline
-\cellcolor{blue!10}\textbf{Tóm tắt} & Cho phép khách hàng thanh toán đơn hàng ở trạng thái PENDING hoặc PAYMENT\_FAILED qua cổng thanh toán (Ví/Thẻ/VietQR MBBank). Mỗi yêu cầu thanh toán mang một Idempotency-Key duy nhất, bảo đảm hệ thống chỉ trừ tiền và chuyển đơn sang PAID một lần duy nhất dù khách gửi lại yêu cầu hoặc bấm đúp. \\
-\hline
-\cellcolor{blue!10}\textbf{Tiền điều kiện} & -- Khách hàng đã đăng nhập (UC-02). \newline
--- Đơn hàng thuộc về khách hàng và đang ở trạng thái PENDING hoặc PAYMENT\_FAILED. \newline
--- Đơn hàng đã được tính tổng cuối cùng sau khi áp dụng Voucher và điểm thưởng (UC-11). \newline
--- Cổng thanh toán sẵn sàng xử lý giao dịch. \\
-\hline
-\cellcolor{blue!10}\textbf{Hậu điều kiện} & -- Giao dịch thanh toán được ghi nhận duy nhất cho đơn hàng. \newline
--- Đơn hàng chuyển sang PAID và được ghi vết vào lịch sử OrderStatusHistory. \newline
--- Tồn kho nguyên liệu được khấu trừ an toàn (UC-15) và điểm thưởng được tự động cộng (+1đ / 10.000đ) cho khách hàng (UC-16). \newline
--- Khách hàng nhận được xác nhận thanh toán thành công. \\
-\hline
-\cellcolor{blue!10}\textbf{Luồng chính (Main Flow)} & 1. Khách hàng xác nhận thanh toán cho đơn hàng PENDING hoặc PAYMENT\_FAILED (Ví, Thẻ/VietQR hoặc đơn 0đ tự động chọn \texttt{WALLET}). \newline
-2. Giao diện (UI) tự động tạo Idempotency-Key (UUIDv4, tự động reset khi đổi phương thức thanh toán) gắn vào Header và gửi yêu cầu đến backend (\texttt{POST /api/payments}; riêng Thẻ CARD hỗ trợ polling đồng bộ VietQR qua \texttt{GET /api/payments/mbbank-check/:orderCode} mỗi 600ms). \newline
-3. NestJS API kiểm tra JWT, quyền CUSTOMER, header \texttt{Idempotency-Key} và \texttt{ProcessPaymentDto} rồi chuyển tiếp sang Payment Service. \newline
-4. Payment Service tra cứu giao dịch theo \texttt{idempotencyKey}: nếu key mới thì kiểm tra chủ đơn (403), chặn đơn đã PAID (409) và kiểm tra máy trạng thái (\texttt{assertTransition}: chỉ cho phép PENDING hoặc PAYMENT\_FAILED sang PAID). \newline
-5. Hệ thống mở một ACID Transaction (\texttt{prisma.\$transaction}): thực hiện khấu trừ tồn kho nguyên liệu bằng Optimistic Locking (UC-15, thử lại tối đa 3 lần khi xung đột \texttt{version}) trước, sau đó gọi cổng thanh toán mô phỏng (\texttt{mockGateway.processCharge}); khi cổng chấp thuận, ghi nhận Payment(SUCCESS), chuyển Order sang PAID, tăng \texttt{promotion.usedCount}, cộng điểm Loyalty (UC-16) và ghi vết OrderStatusHistory. \newline
-6. Hệ thống trả về HTTP 201 Created; UI phát âm báo TingTing, hủy QR (\path{POST /api/payments/mbbank-invalidate/:orderCode}) và chuyển tới trang đơn hàng \path{/orders/:id} (sau 2,6 giây). \\
-\hline
-\cellcolor{blue!10}\textbf{Luồng thay thế (Alternative Flow)} & -- \textbf{A1 (Idempotency Replay -- bấm đúp hoặc mạng retry):} Phát hiện \texttt{idempotencyKey} đã tồn tại, đúng chủ đơn và khớp \texttt{orderId}/\texttt{method}; hệ thống bỏ qua trừ tiền/kho và trả về kết quả gốc (\texttt{HTTP 200 OK}, \texttt{cached: true}, \texttt{replayed: true}). \newline
--- \textbf{A2 (Thanh toán đơn 0đ hoặc đổi phương thức trước khi trả):} Đơn sau giảm còn 0đ thanh toán qua \texttt{WALLET}; khi khách đổi giữa \texttt{WALLET} và \texttt{CARD}, UI tự sinh lại \texttt{Idempotency-Key} mới. \\
-\hline
-\cellcolor{blue!10}\textbf{Luồng ngoại lệ (Exception Flow)} & -- \textbf{E1 (Thanh toán bị từ chối / Timeout):} Rollback toàn bộ phần trừ kho, lưu trạng thái \texttt{PAYMENT\_FAILED} kèm lịch sử và trả \texttt{HTTP 400} hoặc \texttt{HTTP 408} để khách thử lại hoặc hủy đơn. \newline
--- \textbf{E2 (Hết nguyên liệu / Xung đột OCC):} Hết lượt retry \texttt{version} hoặc thiếu định lượng kho, rollback transaction và trả về \texttt{HTTP 409 Conflict}. \newline
--- \textbf{E3 (Trùng khóa nhưng khác payload / Khác chủ đơn):} Khác \texttt{orderId} hoặc \texttt{method} trả \texttt{HTTP 422}; khác chủ sở hữu trả \texttt{HTTP 403 Forbidden}. \\
-\hline
-\end{longtable}
-
-\subsubsection*{Hủy đơn hàng và tự động hoàn kho}
-
-\begin{longtable}{>{\raggedright\arraybackslash}p{3.8cm}>{\raggedright\arraybackslash}p{11.4cm}}
-\hline
-\cellcolor{blue!10}\textbf{Use Case ID} & UC-18 \\
-\hline
-\cellcolor{blue!10}\textbf{Tên Use Case} & Hủy đơn hàng tự động hoàn kho \\
-\hline
-\cellcolor{blue!10}\textbf{Tác nhân} & Khách hàng (Customer) \\
-\hline
-\cellcolor{blue!10}\textbf{Sự kiện kích hoạt (Trigger)} & Khách hàng nhấn nút ``Hủy đơn hàng'' trên trang \path{/checkout} (đơn \texttt{PENDING}/\texttt{PAYMENT\_FAILED}) hoặc trên trang theo dõi đơn \path{/orders/:id} (trước khi Barista nhận pha). \\
-\hline
-\cellcolor{blue!10}\textbf{Liên kết yêu cầu} & FR-11 (Hủy đơn hoàn kho), FR-08 (Order State Machine), NFR-04 (Toàn vẹn ACID) \\
-\hline
-\cellcolor{blue!10}\textbf{Tóm tắt} & Cho phép chủ đơn hàng hủy đơn qua \path{POST /api/orders/:id/cancel} theo đúng máy trạng thái, tự động hoàn trả điểm Loyalty đã đổi và (nếu đơn đã \texttt{PAID}) kích hoạt giao dịch bù hoàn kho nguyên liệu, hoàn lượt voucher và thu hồi điểm đã tích lũy. \\
-\hline
-\cellcolor{blue!10}\textbf{Tiền điều kiện} & -- Khách hàng đã đăng nhập với vai trò \texttt{CUSTOMER} và là chủ sở hữu đơn hàng. \newline
--- Đơn hàng đang ở trạng thái cho phép hủy (\texttt{PENDING}, \texttt{PAYMENT\_FAILED} hoặc \texttt{PAID}). \\
-\hline
-\cellcolor{blue!10}\textbf{Hậu điều kiện} & -- Đơn hàng chuyển sang \texttt{CANCELLED} kèm bản ghi \texttt{OrderStatusHistory}. \newline
--- Nếu hủy đơn \texttt{PAID}: nguyên liệu được cộng hoàn kho, lượt dùng voucher được giảm 1, điểm tích lũy được thu hồi và điểm đã đổi (đọc từ \texttt{[REDEEMED\_POINTS:N]}) được hoàn lại. \\
-\hline
-\cellcolor{blue!10}\textbf{Luồng chính (Main Flow)} & 1. Khách hàng chọn ``Hủy đơn hàng'' và xác nhận trên hộp thoại. \newline
-2. Backend kiểm tra quyền \texttt{CUSTOMER} và quyền sở hữu đơn hàng (\texttt{customerId}). \newline
-3. Hệ thống kiểm tra \texttt{assertTransition(order.status, 'CANCELLED')}. \newline
-4. Trong \texttt{prisma.\$transaction}, hệ thống hoàn điểm đã đổi, thực hiện hoàn kho/voucher/điểm tích lũy (nếu từ \texttt{PAID}), cập nhật trạng thái \texttt{CANCELLED} và ghi \texttt{OrderStatusHistory}. \newline
-5. Trả về \texttt{HTTP 200 OK} và cập nhật giao diện khách hàng. \\
-\hline
-\cellcolor{blue!10}\textbf{Luồng thay thế \& Ngoại lệ} & -- \textbf{A1 (Hủy đơn chưa thanh toán):} Với đơn \texttt{PENDING}/\texttt{PAYMENT\_FAILED}, hệ thống chỉ chuyển \texttt{CANCELLED} và hoàn điểm Loyalty đã đổi (không cộng hoàn kho vì kho chưa bị trừ). \newline
--- \textbf{E1 (Đơn đã vào pha chế \texttt{PREPARING} trở đi):} Máy trạng thái từ chối với \texttt{HTTP 409 Conflict} và ghi cảnh báo vào \texttt{OrderStatusHistory}. \newline
--- \textbf{E2 (Không phải chủ đơn / Sai vai trò):} Từ chối với \texttt{HTTP 403 Forbidden}. \\
-\hline
-\end{longtable}
-
-\subsubsection*{Đánh giá chất lượng đồ uống đã mua}
-
-\begin{longtable}{>{\raggedright\arraybackslash}p{3.8cm}>{\raggedright\arraybackslash}p{11.4cm}}
-\hline
-\cellcolor{blue!10}\textbf{Use Case ID} & UC-20 \\
-\hline
-\cellcolor{blue!10}\textbf{Tên Use Case} & Gửi đánh giá sản phẩm đã mua \\
-\hline
-\cellcolor{blue!10}\textbf{Tác nhân} & Khách hàng (Customer) \\
-\hline
-\cellcolor{blue!10}\textbf{Sự kiện kích hoạt (Trigger)} & Khách hàng nhấn chọn gửi đánh giá cho món đã hoàn thành trên trang \path{/orders/me} hoặc trang chi tiết sản phẩm \path{/products/:id}. \\
-\hline
-\cellcolor{blue!10}\textbf{Liên kết yêu cầu} & FR-12 (Đánh giá đồ uống đã mua) \\
-\hline
-\cellcolor{blue!10}\textbf{Tóm tắt} & Cho phép khách hàng đánh giá chất lượng đồ uống đã mua bằng mức 1--5 sao kèm nhận xét (\path{POST /api/reviews}). Điều kiện bắt buộc: chỉ món thuộc đơn hàng mà khách hàng đã mua (đơn đã ở trạng thái COMPLETED) mới được đánh giá; điều kiện này được hệ thống kiểm tra tự động thông qua Use-case Kiểm tra điều kiện đã mua món (KiemTraDaMua). \\
-\hline
-\cellcolor{blue!10}\textbf{Tiền điều kiện} & -- Khách hàng đã đăng nhập (UC-02) và là chủ sở hữu của đơn hàng. \newline
--- Đơn hàng chứa món cần đánh giá đã ở trạng thái COMPLETED (khách hàng đã mua và đã nhận đồ uống). \newline
--- Món cần đánh giá thuộc đơn hàng đó. \\
-\hline
-\cellcolor{blue!10}\textbf{Hậu điều kiện} & -- Đánh giá được lưu và gắn với món, đơn hàng và khách hàng; điểm trung bình của món được cập nhật. \newline
--- Khách hàng có thể xem, sửa hoặc xóa đánh giá của mình. \\
-\hline
-\cellcolor{blue!10}\textbf{Dòng sự kiện chính} & 1. Khách hàng mở trang chi tiết sản phẩm (UC-08) hoặc lịch sử đơn đã mua (UC-19) và chọn món cần đánh giá. \newline
-2. Hệ thống kiểm tra điều kiện đã mua món (KiemTraDaMua) và hiển thị biểu mẫu đánh giá. \newline
-3. Khách hàng chọn mức 1--5 sao, nhập nhận xét và nhấn ``Gửi đánh giá''. \newline
-4. Hệ thống kiểm tra tính hợp lệ (mức sao trong khoảng 1--5, nội dung nhận xét không rỗng) và lưu đánh giá. \newline
-5. Hệ thống hiển thị xác nhận; đánh giá được gắn cùng món để các khách hàng khác tham khảo. \\
-\hline
-\cellcolor{blue!10}\textbf{Dòng sự kiện phụ} & -- Món chưa được mua (đơn chưa COMPLETED hoặc món không thuộc đơn hàng của khách): hệ thống từ chối đánh giá và thông báo rõ điều kiện đã mua. \newline
--- Khách hàng đã đánh giá món này rồi: hệ thống báo lỗi xung đột (HTTP 409) và hướng dẫn dùng chức năng chỉnh sửa hoặc xóa đánh giá đã có (UC-21, \path{PATCH / DELETE /api/reviews/:id}). \newline
--- Mức sao ngoài khoảng 1--5: hệ thống báo lỗi và không lưu đánh giá. \newline
--- Phiên đăng nhập hết hạn: hệ thống chuyển về màn hình Đăng nhập. \\
-\hline
-\end{longtable}
-
-\subsubsection*{Xem bảng Kanban đơn hàng}
-
-\begin{longtable}{>{\raggedright\arraybackslash}p{3.8cm}>{\raggedright\arraybackslash}p{11.4cm}}
-\hline
-\cellcolor{blue!10}\textbf{Use Case ID} & UC-25 \\
-\hline
-\cellcolor{blue!10}\textbf{Tên Use Case} & Xem bảng Kanban pha chế (FIFO) \\
-\hline
-\cellcolor{blue!10}\textbf{Tác nhân} & Nhân viên pha chế (Barista) \\
-\hline
-\cellcolor{blue!10}\textbf{Sự kiện kích hoạt (Trigger)} & Nhân viên pha chế truy cập màn hình quầy pha chế \path{/staff} hoặc chu kỳ làm mới định kỳ kích hoạt. \\
-\hline
-\cellcolor{blue!10}\textbf{Liên kết yêu cầu} & FR-08 (Máy trạng thái đơn hàng) \\
-\hline
-\cellcolor{blue!10}\textbf{Tóm tắt} & Cho phép Nhân viên pha chế xem bảng Kanban các đơn hàng ở 3 cột trạng thái (PAID, PREPARING, READY), sắp xếp theo thứ tự FIFO (\texttt{createdAt} tăng dần) qua API \path{GET /api/staff/orders}, kèm mã đơn, số lượng món và thời gian đặt. Đây là điểm bắt đầu cho các thao tác tiếp nhận đơn, xem công thức pha chế và cập nhật trạng thái. \\
-\hline
-\cellcolor{blue!10}\textbf{Tiền điều kiện} & -- Nhân viên pha chế đã đăng nhập (UC-02) với quyền truy cập màn hình quầy pha chế (STAFF). \newline
--- Hệ thống đang hoạt động và có kết nối đến cơ sở dữ liệu. \\
-\hline
-\cellcolor{blue!10}\textbf{Hậu điều kiện} & -- Bảng Kanban được hiển thị đúng thứ tự FIFO và tự động làm mới định kỳ khi có đơn mới; dữ liệu đơn hàng không bị thay đổi. \\
-\hline
-\cellcolor{blue!10}\textbf{Dòng sự kiện chính} & 1. Nhân viên pha chế đăng nhập và truy cập màn hình Kanban (\texttt{/staff}). \newline
-2. Hệ thống tải và hiển thị danh sách đơn hàng theo 3 cột PAID, PREPARING, READY đúng thứ tự FIFO. \newline
-3. Nhân viên pha chế theo dõi bảng Kanban. \newline
-4. Từ bảng Kanban, Nhân viên pha chế chọn đơn để xem chi tiết thẻ đơn (UC-25), xem công thức pha chế (UC-26) hoặc cập nhật trạng thái đơn (UC-22 / UC-23 / UC-24). \\
-\hline
-\cellcolor{blue!10}\textbf{Dòng sự kiện phụ} & -- Không có đơn hàng nào đang chờ: cột tương ứng hiển thị trạng thái trống kèm thông báo. \newline
--- Mất kết nối mạng: hệ thống ghi nhận lỗi tải dữ liệu và thử tải lại ở chu kỳ làm mới kế tiếp. \\
-\hline
-\end{longtable}
-
-\subsubsection*{Xem chi tiết đơn hàng (tại quầy pha chế)}
-
-\begin{longtable}{>{\raggedright\arraybackslash}p{3.8cm}>{\raggedright\arraybackslash}p{11.4cm}}
-\hline
-\cellcolor{blue!10}\textbf{Use Case ID} & UC-25 (Luồng chi tiết đơn) \\
-\hline
-\cellcolor{blue!10}\textbf{Tên Use Case} & Xem chi tiết thẻ đơn hàng (thuộc UC-25) \\
-\hline
-\cellcolor{blue!10}\textbf{Tác nhân} & Nhân viên pha chế (Barista) \\
-\hline
-\cellcolor{blue!10}\textbf{Sự kiện kích hoạt (Trigger)} & Nhân viên pha chế quan sát hoặc chọn một thẻ đơn trên bảng Kanban để đối chiếu món trước khi pha chế. \\
-\hline
-\cellcolor{blue!10}\textbf{Liên kết yêu cầu} & FR-08 (Máy trạng thái đơn hàng) \\
-\hline
-\cellcolor{blue!10}\textbf{Tóm tắt} & Cho phép Nhân viên pha chế xem chi tiết các món trên thẻ đơn trong bảng Kanban, gồm danh sách món, số lượng, size, topping, mã đơn, thời gian đặt và trạng thái hiện tại, phục vụ việc pha chế chính xác. Từ thẻ đơn trên bảng Kanban, Nhân viên pha chế có thể mở tiếp công thức pha chế (UC-26). \\
-\hline
-\cellcolor{blue!10}\textbf{Tiền điều kiện} & -- Nhân viên pha chế đã đăng nhập (UC-02). \newline
--- Đơn hàng tồn tại trong bảng Kanban. \\
-\hline
-\cellcolor{blue!10}\textbf{Hậu điều kiện} & -- Chi tiết đơn hàng được hiển thị đầy đủ; dữ liệu đơn hàng không bị thay đổi. \\
-\hline
-\cellcolor{blue!10}\textbf{Dòng sự kiện chính} & 1. Từ màn hình bảng Kanban (UC-25), Nhân viên pha chế quan sát thẻ đơn hàng cần xử lý. \newline
-2. Hệ thống hiển thị chi tiết món, size, topping và số lượng. \newline
-3. Nhân viên pha chế đối chiếu chi tiết món trước khi tiến hành pha chế. \newline
-4. Khi cần, Nhân viên pha chế mở công thức pha chế chi tiết của đơn (UC-26). \\
-\hline
-\cellcolor{blue!10}\textbf{Dòng sự kiện phụ} & -- Đơn hàng vừa được Nhân viên khác cập nhật trạng thái: hệ thống làm mới dữ liệu và hiển thị trạng thái mới nhất. \newline
--- Đơn hàng không còn tồn tại: thẻ đơn biến mất khỏi bảng Kanban sau khi làm mới. \\
-\hline
-\end{longtable}
-
-\subsubsection*{Xem công thức pha chế (Recipes)}
-
-\begin{longtable}{>{\raggedright\arraybackslash}p{3.8cm}>{\raggedright\arraybackslash}p{11.4cm}}
-\hline
-\cellcolor{blue!10}\textbf{Use Case ID} & UC-26 \\
-\hline
-\cellcolor{blue!10}\textbf{Tên Use Case} & Xem công thức pha chế (Recipes) \\
-\hline
-\cellcolor{blue!10}\textbf{Tác nhân} & Nhân viên pha chế (Barista) \\
-\hline
-\cellcolor{blue!10}\textbf{Sự kiện kích hoạt (Trigger)} & Nhân viên pha chế bấm nút ``Xem công thức'' trên thẻ đơn hàng thuộc bảng Kanban. \\
-\hline
-\cellcolor{blue!10}\textbf{Liên kết yêu cầu} & FR-08 (Máy trạng thái đơn hàng), FR-09 (Định lượng nguyên liệu) \\
-\hline
-\cellcolor{blue!10}\textbf{Tóm tắt} & Cho phép Nhân viên pha chế xem công thức pha chế chi tiết từng ly của một đơn hàng (\path{GET /api/staff/orders/:id/recipes}), gồm tên nguyên liệu, định lượng và đơn vị tính, để pha chế đúng công thức chuẩn. \\
-\hline
-\cellcolor{blue!10}\textbf{Tiền điều kiện} & -- Nhân viên pha chế đã đăng nhập (UC-02) với quyền STAFF. \newline
--- Đơn hàng tồn tại và đang hiển thị trên quầy pha chế. \\
-\hline
-\cellcolor{blue!10}\textbf{Hậu điều kiện} & -- Công thức pha chế của từng ly trong đơn được hiển thị đầy đủ; dữ liệu đơn hàng và công thức không bị thay đổi. \\
-\hline
-\cellcolor{blue!10}\textbf{Dòng sự kiện chính} & 1. Nhân viên pha chế đăng nhập và mở bảng Kanban (UC-25). \newline
-2. Nhân viên pha chế chọn đơn hàng cần pha chế. \newline
-3. Nhân viên pha chế chọn ``Xem công thức''. \newline
-4. Hệ thống gọi API và hiển thị định lượng nguyên liệu cùng đơn vị tính cho từng món trong đơn. \newline
-5. Nhân viên pha chế pha chế theo công thức, sau đó cập nhật trạng thái đơn (UC-22 / UC-23 / UC-24). \\
-\hline
-\cellcolor{blue!10}\textbf{Dòng sự kiện phụ} & -- Đơn hàng không tồn tại: hệ thống trả lỗi 404 và thông báo trên giao diện. \newline
--- Món chưa được thiết lập công thức trong hệ thống: hệ thống thông báo chưa có định lượng để báo quản lý bổ sung. \newline
--- Phiên đăng nhập hết hạn: hệ thống chuyển về màn hình Đăng nhập. \\
-\hline
-\end{longtable}
-
-\subsubsection*{Cập nhật trạng thái pha chế}
-
-\begin{longtable}{>{\raggedright\arraybackslash}p{3.8cm}>{\raggedright\arraybackslash}p{11.4cm}}
-\hline
-\cellcolor{blue!10}\textbf{Use Case ID} & UC-22 / UC-23 / UC-24 \\
-\hline
-\cellcolor{blue!10}\textbf{Tên Use Case} & Cập nhật trạng thái pha chế \\
-\hline
-\cellcolor{blue!10}\textbf{Tác nhân} & Nhân viên pha chế (Barista) \\
-\hline
-\cellcolor{blue!10}\textbf{Sự kiện kích hoạt (Trigger)} & Nhân viên pha chế bấm thao tác chuyển trạng thái (``Nhận pha đơn này'', ``Pha xong'' hoặc ``Giao khách'') trên thẻ đơn tại bảng Kanban \path{/staff}. \\
-\hline
-\cellcolor{blue!10}\textbf{Liên kết yêu cầu} & FR-08 (Máy trạng thái đơn hàng) \\
-\hline
-\cellcolor{blue!10}\textbf{Tóm tắt} & Cho phép Nhân viên pha chế cập nhật trạng thái đơn hàng theo đúng máy trạng thái của hệ thống: Tiếp nhận đơn (UC-22, PAID $\rightarrow$ PREPARING, \path{POST /api/staff/orders/:id/accept}), Pha chế hoàn tất (UC-23, PREPARING $\rightarrow$ READY, \path{POST /api/staff/orders/:id/ready}) và Bàn giao cho khách (UC-24, READY $\rightarrow$ COMPLETED, \path{POST /api/staff/orders/:id/complete}). Mỗi lần chuyển đổi trạng thái đều được ghi vết vào lịch sử OrderStatusHistory. \\
-\hline
-\cellcolor{blue!10}\textbf{Tiền điều kiện} & -- Nhân viên pha chế đã đăng nhập (UC-02) với quyền STAFF. \newline
--- Đơn hàng đang ở trạng thái hợp lệ để chuyển sang trạng thái tiếp theo. \\
-\hline
-\cellcolor{blue!10}\textbf{Hậu điều kiện} & -- Trạng thái mới được lưu kèm thời điểm chuyển đổi, được ghi vết vào OrderStatusHistory và đồng bộ đến màn hình theo dõi của khách hàng (UC-17); đơn hàng đạt COMPLETED được ghi nhận hoàn thành. \\
-\hline
-\cellcolor{blue!10}\textbf{Dòng sự kiện chính} & 1. Nhân viên pha chế mở bảng Kanban (UC-25) hoặc thẻ chi tiết đơn hàng (UC-25). \newline
-2. Nhân viên pha chế nhấn thao tác tương ứng với tiến độ pha chế: ``Nhận pha đơn này'', ``Pha xong'' hoặc ``Giao khách''. \newline
-3. Hệ thống kiểm tra tính hợp lệ của chuyển đổi theo máy trạng thái (\texttt{assertTransition}, không nhảy cóc, không quay ngược). \newline
-4. Hệ thống cập nhật trạng thái, ghi vết OrderStatusHistory và cập nhật lại bảng Kanban. \\
-\hline
-\cellcolor{blue!10}\textbf{Dòng sự kiện phụ} & -- Chuyển đổi trạng thái không hợp lệ: hệ thống từ chối (HTTP 409) và hiển thị thông báo lỗi. \newline
--- Trạng thái đơn vừa bị thay đổi bởi nhân viên khác: hệ thống báo xung đột trạng thái và làm mới bảng Kanban. \\
-\hline
-\end{longtable}
-
-Các đặc tả trên đây tập trung vào các Use-case cốt lõi của luồng đặt hàng -- thanh toán -- pha chế và đánh giá. Đặc tả của các Use-case còn lại trong Bảng 1.7 (UC-01 đến UC-12, UC-14 đến UC-19, UC-21, UC-27 đến UC-32) tuân theo cùng cấu trúc bảng đặc tả chuẩn trên.
+\noindent\textbf{Giới hạn cần nghiệm thu riêng:} Khi đối chiếu với mã nguồn hiện tại của BrewLite, có bốn điểm cần lưu ý khi viết kiểm thử: (1) Liên kết/số dư ví điện tử và bộ đếm \texttt{TTL 300s} của VietQR quản lý ở trình duyệt, còn \texttt{mbbank-invalidate} hiện chỉ gọi khi thanh toán thành công (khi hết \texttt{300s}, UI tự đặt \texttt{isQrExpired = true}); cache đối soát \texttt{mbPayments} lưu trên RAM trong cửa sổ \texttt{600s}; (2) Trong \texttt{PaymentService.processPayment}, ngoại lệ \texttt{RequestTimeoutException} của nhánh mô phỏng \texttt{TIMEOUT} chưa được ném lại trước khối \texttt{catch} nên đi qua nhánh \texttt{fallbackStore} thay vì cập nhật \texttt{PAYMENT\_FAILED} trực tiếp trong DB; (3) Khi gọi thẳng \path{POST /api/orders} với \texttt{promotionCode} không hợp lệ, \texttt{OrdersService} bỏ qua lỗi (\texttt{discountAmount = 0}) thay vì trả \texttt{HTTP 400} như \path{POST /api/promotions/validate}; (4) Mã nguồn vẫn giữ route hủy đơn cũ cho khách (\path{POST /api/orders/:id/cancel}, \texttt{FR-11}), nhưng theo phạm vi UC-01 thao tác hủy đơn bị loại trừ hoàn toàn cho Khách hàng và Barista. Hồ sơ đặc tả bổ sung cho các use-case khác (\texttt{UC-18}, \texttt{UC-20}, \texttt{UC-22..UC-26}) tiếp tục được lưu trữ đồng bộ tại \path{docs/requirements/use-case-checkout.md}.
 
 \chapter{MÔ HÌNH HOÁ HỆ THỐNG}
 
@@ -1046,11 +920,11 @@ Các lớp được phân nhóm theo nghiệp vụ như trong Bảng 2.5. Hệ t
 \rowcolor{gray!20} \textbf{Nhóm} & \textbf{Các lớp} \\
 \hline
 \endhead
-Người dùng và phân quyền & -- \textit{TaiKhoan} (tài khoản dùng chung; thuộc tính: \texttt{maTaiKhoan}, \texttt{tenDangNhap}, \texttt{matKhauMaHoa}, \texttt{vaiTro: VaiTro}, \texttt{trangThai: TrangThaiTaiKhoan}, \texttt{ngayTao}, \texttt{ngayCapNhat}; phương thức: \texttt{DangNhap()}, \texttt{DoiMatKhau()}, \texttt{KiemTraTrangThai()}, \texttt{LamMoiToken()}, \texttt{XemThongTinTaiKhoan()}). \newline
--- \textit{KhachHang} (thuộc tính: \texttt{maKhachHang}, \texttt{hoTen}, \texttt{email}, \texttt{diemTichLuy: int}, \texttt{maTaiKhoan}, \texttt{ngayTao}, \texttt{ngayCapNhat}; phương thức: \texttt{DangKy()}, \texttt{XemDanhSachSanPham()}, \texttt{XemChiTietSanPham()}, \texttt{TaoDonHang()}, \texttt{ThanhToan()}, \texttt{XemLichSuDonHang()}, \texttt{HuyDon()}, \texttt{CongDiemTichLuy()}, \texttt{HoanDiemTichLuy()}, \texttt{GuiDanhGia()}; phần giỏ hàng quản lý ở client qua \texttt{useCartStore}). \newline
+Người dùng và phân quyền & -- \textit{TaiKhoan} (lớp cha trong phân cấp kế thừa \texttt{\{complete, disjoint\}} lưu thông tin định danh và hồ sơ dùng chung; thuộc tính: \texttt{maTaiKhoan}, \texttt{tenDangNhap}, \texttt{matKhauMaHoa}, \texttt{hoTen}, \texttt{email}, \texttt{vaiTro: VaiTro}, \texttt{trangThai: TrangThaiTaiKhoan}, \texttt{ngayTao}, \texttt{ngayCapNhat}; phương thức: \texttt{DangNhap()}, \texttt{DoiMatKhau()}, \texttt{KiemTraTrangThai()}, \texttt{LamMoiToken()}, \texttt{XemThongTinTaiKhoan()}). \newline
+-- \textit{KhachHang} (kế thừa \texttt{\{complete, disjoint\}} từ \textit{TaiKhoan}; thuộc tính riêng: \texttt{maKhachHang}, \texttt{diemTichLuy: int}; phương thức: \texttt{DangKy()}, \texttt{XemDanhSachSanPham()}, \texttt{XemChiTietSanPham()}, \texttt{TaoDonHang()}, \texttt{ThanhToan()}, \texttt{XemLichSuDonHang()}, \texttt{HuyDon()}, \texttt{CongDiemTichLuy()}, \texttt{HoanDiemTichLuy()}, \texttt{GuiDanhGia()}; ở mức CSDL Prisma ORM ánh xạ về bảng tài khoản qua khóa ngoại \texttt{maTaiKhoan}, còn giỏ hàng quản lý ở client qua \texttt{useCartStore}). \newline
 -- \textit{GiaoDichDiemThuong} (\guillemotleft{}Domain / Non-persistent\guillemotright{}, mô hình hóa biến động điểm tích lũy ở tầng miền logic và đồng bộ không tách bảng DB; thuộc tính: \texttt{maGiaoDichDiem}, \texttt{maKhachHang}, \texttt{maDonHang}, \texttt{soDiem: int}, \texttt{loaiGiaoDich}, \texttt{ghiChu: String?}, \texttt{ngayTao}; phương thức: \texttt{TinhDiemTichLuy()}, \texttt{GhiNhanCongDiem()}, \texttt{GhiNhanHoanDiem()}, \texttt{XemLichSuDiem()}; trạng thái lưu bền vững qua \texttt{KhachHang.diemTichLuy} và nhật ký chuyển trạng thái \texttt{LichSuTrangThaiDonHang.ghiChu}). \newline
--- \textit{NhanVien} (nghiệp vụ quầy pha chế; thuộc tính: \texttt{maNhanVien}, \texttt{hoTen}, \texttt{email}, \texttt{maTaiKhoan}, \texttt{ngayTao}, \texttt{ngayCapNhat}; phương thức: \texttt{XemDanhSachDonHang()}, \texttt{NhanDonHang()}, \texttt{DanhDauSanSang()}, \texttt{HoanTatDonHang()}, \texttt{XemCongThucDonHang()}). \newline
--- \textit{Admin} (quản trị hệ thống; thuộc tính: \texttt{maAdmin}, \texttt{hoTen}, \texttt{email}, \texttt{maTaiKhoan}, \texttt{ngayTao}, \texttt{ngayCapNhat}; phương thức: \texttt{QuanLyTaiKhoan()}, \texttt{QuanLyNhanVien()}, \texttt{QuanLySanPham()}, \texttt{QuanLyBienThe()}, \texttt{QuanLyCongThuc()}, \texttt{QuanLyKhuyenMai()}, \texttt{QuanLyNguyenLieu()}, \texttt{QuanLyNhaCungCap()}, \texttt{QuanLyPhieuNhap()}, \texttt{KiemDuyetDanhGia()}, \texttt{XemThongKe()}, \texttt{XemDoanhThu()}). \\
+-- \textit{NhanVien} (kế thừa \texttt{\{complete, disjoint\}} từ \textit{TaiKhoan}, đảm nhiệm nghiệp vụ quầy pha chế; thuộc tính riêng: \texttt{maNhanVien}; phương thức: \texttt{XemDanhSachDonHang()}, \texttt{NhanDonHang()}, \texttt{DanhDauSanSang()}, \texttt{HoanTatDonHang()}, \texttt{XemCongThucDonHang()}; ánh xạ CSDL qua \texttt{maTaiKhoan}). \newline
+-- \textit{Admin} (kế thừa \texttt{\{complete, disjoint\}} từ \textit{TaiKhoan}, đảm nhiệm quản trị hệ thống; thuộc tính riêng: \texttt{maAdmin}; phương thức: \texttt{QuanLyTaiKhoan()}, \texttt{QuanLyNhanVien()}, \texttt{QuanLySanPham()}, \texttt{QuanLyBienThe()}, \texttt{QuanLyCongThuc()}, \texttt{QuanLyKhuyenMai()}, \texttt{QuanLyNguyenLieu()}, \texttt{QuanLyNhaCungCap()}, \texttt{QuanLyPhieuNhap()}, \texttt{KiemDuyetDanhGia()}, \texttt{XemThongKe()}, \texttt{XemDoanhThu()}; ánh xạ CSDL qua \texttt{maTaiKhoan}). \\
 \hline
 Bán hàng & -- \textit{SanPham} (thuộc tính: \texttt{maSanPham}, \texttt{tenSanPham}, \texttt{duongDanAnh}, \texttt{moTa: String?}, \texttt{danhMuc}, \texttt{dangHoatDong: boolean}, \texttt{ngayTao}, \texttt{ngayCapNhat}; phương thức: \texttt{XemThongTin()}, \texttt{TimKiemSanPham()}, \texttt{LocTheoDanhMuc()}, \texttt{ThemSanPham()}, \texttt{CapNhatThongTin()}, \texttt{AnSanPham()}). \newline
 -- \textit{ChiTietSanPham} (biến thể kích cỡ/giá; thuộc tính: \texttt{maChiTietSanPham}, \texttt{maSanPham}, \texttt{size}, \texttt{gia: Decimal}, \texttt{topping: String?}, \texttt{ngayTao}, \texttt{ngayCapNhat}; phương thức: \texttt{XemChiTiet()}, \texttt{ThemBienThe()}, \texttt{CapNhatBienThe()}, \texttt{XoaBienThe()}). \newline
@@ -1071,10 +945,19 @@ Kho và nguyên liệu & -- \textit{NguyenLieu} (thuộc tính: \texttt{maNguyen
 \hline
 \end{longtable}
 
-Các quan hệ chính (multiplicity ghi trên sơ đồ): \textit{KhachHang}, \textit{NhanVien} và \textit{Admin} mỗi hồ sơ liên kết tới đúng một \textit{TaiKhoan} (\texttt{1..1}), ngược lại một \textit{TaiKhoan} gắn với tối đa một hồ sơ vai trò tương ứng (\texttt{0..1}); một \textit{KhachHang} có nhiều \textit{DonHang} (\texttt{0..*}); một \textit{DonHang} gồm ít nhất một \textit{ChiTietDonHang} (\texttt{1..*}) và lưu vết ít nhất một bản ghi \textit{LichSuTrangThaiDonHang} (\texttt{1..*}); mỗi \textit{ChiTietDonHang} (\texttt{0..*}) tham chiếu đúng một \textit{ChiTietSanPham} (\texttt{1..1}), và mỗi \textit{SanPham} có \texttt{0..*} \textit{ChiTietSanPham}; một \textit{DonHang} áp dụng tối đa một \textit{KhuyenMai} (\texttt{0..1}), do tối đa một \textit{NhanVien} phụ trách (\texttt{0..1}) và phát sinh \texttt{0..*} \textit{GiaoDichThanhToan}; lớp mô hình miền \textit{GiaoDichDiemThuong} (\texttt{0..*}) gắn với đúng một \textit{KhachHang} (\texttt{1..1}) và phát sinh từ đúng một \textit{DonHang} (\texttt{1..1}) nhằm biểu diễn lịch sử biến động điểm ở tầng logic; mỗi \textit{CongThuc} gắn đúng một \textit{ChiTietSanPham} (\texttt{1..1}) với một \textit{NguyenLieu} (\texttt{1..1}), ứng với quan hệ \texttt{0..*} về phía \textit{CongThuc}; một \textit{NhaCungCap} có \texttt{0..*} \textit{PhieuNhap}, mỗi \textit{PhieuNhap} gồm \texttt{1..*} \textit{ChiTietPhieuNhap} tham chiếu \texttt{1..1} \textit{NguyenLieu} (một \textit{NguyenLieu} có \texttt{0..*} \textit{ChiTietPhieuNhap}); mỗi \textit{DanhGia} (\texttt{0..*}) thuộc về đúng một \textit{KhachHang}, một \textit{SanPham} và một \textit{DonHang} (\texttt{1..1}). Ngoài 21 liên kết association trên, sơ đồ có thêm 8 đường phụ thuộc nét đứt (\guillemotleft{}enumeration\guillemotright{}) nối tới 7 enumeration tương ứng. Đối chiếu với Task 2.3 được tóm tắt trong Bảng 2.6.
+\begin{sloppypar}
+Tổng hợp 29 cạnh quan hệ và bội số (multiplicity) trên sơ đồ lớp \path{class-diagram.drawio} gồm bốn nhóm chính sau:
+\begin{itemize}[leftmargin=*,nosep]
+  \item \textbf{3 quan hệ kế thừa (\texttt{\{complete, disjoint\}} Generalization):} \textit{KhachHang}, \textit{NhanVien} và \textit{Admin} kế thừa các thuộc tính hồ sơ và xác thực dùng chung (\texttt{hoTen}, \texttt{email}, \texttt{tenDangNhap}, \texttt{matKhauMaHoa}, \texttt{vaiTro}, \texttt{trangThai}) từ lớp cha \textit{TaiKhoan}; khi ánh xạ sang CSDL PostgreSQL/Prisma ORM, từng vai trò liên kết 1--1 qua khóa ngoại \texttt{maTaiKhoan}.
+  \item \textbf{5 quan hệ hợp thành (Composition, đầu toàn thể \texttt{1..1}):} \textit{DonHang} (\texttt{1..1}) hợp thành \textit{ChiTietDonHang} (\texttt{1..*}) và \textit{LichSuTrangThaiDonHang} (\texttt{1..*}); \textit{SanPham} (\texttt{1..1}) hợp thành \textit{ChiTietSanPham} (\texttt{0..*}); \textit{ChiTietSanPham} (\texttt{1..1}) hợp thành \textit{CongThuc} (\texttt{0..*}); và \textit{PhieuNhap} (\texttt{1..1}) hợp thành \textit{ChiTietPhieuNhap} (\texttt{1..*}).
+  \item \textbf{13 liên kết kết hợp (Association):} một \textit{KhachHang} có \texttt{0..*} \textit{DonHang}; một \textit{NhanVien} (\texttt{0..1}) phụ trách \texttt{0..*} \textit{DonHang}; một \textit{KhuyenMai} (\texttt{0..1}) áp dụng cho \texttt{0..*} \textit{DonHang}; một \textit{ChiTietSanPham} (\texttt{1..1}) gắn với \texttt{0..*} \textit{ChiTietDonHang}; một \textit{DonHang} (\texttt{1..1}) phát sinh \texttt{0..*} \textit{GiaoDichThanhToan}; một \textit{NguyenLieu} (\texttt{1..1}) tham gia \texttt{0..*} \textit{CongThuc} và \texttt{0..*} \textit{ChiTietPhieuNhap}; một \textit{NhaCungCap} (\texttt{1..1}) có \texttt{0..*} \textit{PhieuNhap}; mỗi \textit{DanhGia} (\texttt{0..*}) thuộc đúng một \textit{KhachHang}, một \textit{SanPham} và một \textit{DonHang} (\texttt{1..1}); và lớp miền \textit{GiaoDichDiemThuong} (\texttt{0..*}) liên kết \texttt{1..1} tới \textit{KhachHang} và \textit{DonHang}.
+  \item \textbf{8 quan hệ phụ thuộc/kiểu hóa tới 7 enumeration:} \textit{TaiKhoan} $\rightarrow$ \textit{VaiTro} \& \textit{TrangThaiTaiKhoan}; \textit{DonHang} $\rightarrow$ \textit{TrangThaiDonHang}; \textit{LichSuTrangThaiDonHang} $\rightarrow$ \textit{TrangThaiDonHang} (\texttt{trangThaiCu / trangThaiMoi}); \textit{GiaoDichThanhToan} $\rightarrow$ \textit{TrangThaiThanhToan} \& \textit{PhuongThucThanhToan}; \textit{KhuyenMai} $\rightarrow$ \textit{LoaiKhuyenMai}; và \textit{DanhGia} $\rightarrow$ \textit{TrangThaiDanhGia}.
+\end{itemize}
+\end{sloppypar}
+Đối chiếu các thực thể yêu cầu với sơ đồ lớp được tóm tắt trong Bảng~2.6; tệp nguồn và ảnh kết xuất được lưu đồng bộ tại \path{docs/diagrams/class-diagram.drawio}, \path{docs/diagrams/class-diagram.puml}, \path{docs/diagrams/class-diagram.svg} và \path{docs/report/img/class-diagram.png}.
 
 \begin{longtable}{>{\raggedright\arraybackslash}p{4.5cm}>{\raggedright\arraybackslash}p{10.7cm}}
-\caption{Đối chiếu yêu cầu Task 2.3 với sơ đồ lớp}\\
+\caption{Đối chiếu các thực thể yêu cầu với sơ đồ lớp hệ thống}\\
 \hline
 \rowcolor{gray!20} \textbf{Yêu cầu} & \textbf{Lớp tương ứng} \\
 \hline
@@ -1204,7 +1087,9 @@ Kiến trúc trên được thiết kế nhằm đáp ứng các tiêu chí phi 
 
 \section{Sơ đồ triển khai hệ thống}
 
-Sơ đồ triển khai (Deployment Diagram) mô tả hạ tầng thực tế mà nhóm sử dụng: đóng gói 3 container qua \path{docker-compose.yml} trên Docker Host / VPS, công bố HTTPS TLS 1.3 qua Cloudflare Tunnel (\path{scripts/tunnel.js}) / Reverse Proxy, tự động kiểm tra và phát hành container image qua GitHub Actions + \path{ghcr.io}, đồng thời phân tách rõ ranh giới ba môi trường Local, CI và Production (Hình 3.1; tệp nguồn và kết xuất lưu tại \path{docs/diagrams/deployment-diagram.drawio}, \path{.puml}, \path{.svg} và tài liệu \path{docs/deployment.md}).
+\begin{sloppypar}
+Sơ đồ triển khai (Deployment Diagram) mô tả kiến trúc hạ tầng thực tế mà nhóm vận hành: hỗ trợ đóng gói đồng bộ 3 container qua \path{docker-compose.yml} trên mạng cô lập \textit{brewlite\_network} (công bố HTTPS TLS 1.3 qua Cloudflare Tunnel \path{scripts/tunnel.js}) và tùy chọn triển khai PaaS trực tuyến trên \textbf{Vercel (Frontend)} + \textbf{Render Cloud (Backend Docker + Managed PostgreSQL qua \path{render.yaml})}, đồng bộ phát hành container image \texttt{brewlite-web} / \texttt{brewlite-api} qua GitHub Actions + \path{ghcr.io}, đồng thời phân tách rõ ranh giới ba môi trường Local, CI và Production (Hình~3.1; tệp nguồn và kết xuất lưu tại \path{docs/diagrams/deployment-diagram.drawio}, \path{.puml}, \path{.svg} và tài liệu \path{docs/deployment.md}).
+\end{sloppypar}
 
 \begin{figure}[!htbp]
 \centering
@@ -1212,7 +1097,7 @@ Sơ đồ triển khai (Deployment Diagram) mô tả hạ tầng thực tế mà
 \caption{Sơ đồ triển khai hệ thống BrewLite}
 \end{figure}
 
-Các thành phần triển khai chính, kết nối mạng, lưu trữ và ranh giới môi trường được mô tả chi tiết trong Bảng 3.3.
+Các thành phần triển khai chính, kết nối mạng, lưu trữ và ranh giới môi trường được mô tả chi tiết trong Bảng~3.3.
 
 \begin{longtable}{>{\raggedright\arraybackslash}p{4.0cm}>{\raggedright\arraybackslash}p{11.2cm}}
 \caption{Các thành phần triển khai hệ thống}\\
@@ -1226,25 +1111,25 @@ Các thành phần triển khai chính, kết nối mạng, lưu trữ và ranh 
 \endhead
 Thiết bị người dùng (\guillemotleft{}device\guillemotright{}) & Laptop/PC/Smartphone chạy trình duyệt Web Mobile-First; \textit{BrewLite Web UI Client} (React 18.3, TailwindCSS 3.4, Zustand persist, \texttt{lib/api.ts} tự động làm mới JWT, \texttt{manifest.webmanifest}) sinh UUID \texttt{Idempotency-Key} và \textit{MBBank VietQR Client} (\texttt{/mbbank}) gửi yêu cầu qua HTTPS (cổng 443). \\
 \hline
-Edge CDN \& HTTPS Reverse Proxy & Cloudflare Tunnel (\texttt{scripts/tunnel.js}) hoặc Reverse Proxy tiếp nhận kết nối HTTPS TLS 1.3 trên cổng 443 và chuyển tiếp lưu lượng Web/\texttt{/api/*} sang container \textit{brewlite\_frontend} (cổng 3000), không phơi bày cổng CSDL 5432 hay cổng backend nội bộ ra Internet. \\
+Edge CDN \& HTTPS Reverse Proxy & Cloudflare Tunnel (\texttt{scripts/tunnel.js}) hoặc Edge CDN trên Vercel/Render tiếp nhận kết nối HTTPS TLS 1.3 trên cổng 443 và chuyển tiếp lưu lượng Web/\texttt{/api/*}, không phơi bày cổng CSDL 5432 hay cổng backend nội bộ ra Internet. \\
 \hline
-Production Host \& Container Frontend & Cloud VPS / Docker Host chạy Docker Engine 24+ (\texttt{docker-compose.yml}, mạng \textit{brewlite\_network}); container \textit{brewlite\_frontend} (\texttt{node:20-alpine}, cổng 3000) chạy Next.js 14.2.5 App Router, phục vụ các trang App Router (\texttt{'use client'}), tệp tĩnh \texttt{/mbbank}, các Route Handler (\texttt{mbbank-sync}, \texttt{mbbank-check}) và rewrite \texttt{/api/:path*} nội bộ sang \texttt{http://backend:3001/api/:path*} qua \texttt{INTERNAL\_BACKEND\_URL}. \\
+Production Host \& Frontend (\textit{brewlite-web} / Vercel) & Cloud VPS chạy \texttt{docker-compose.yml} (name: \texttt{brewlite}, mạng \textit{brewlite\_network}, container \textit{brewlite\_frontend} \texttt{node:20-alpine} cổng 3000) hoặc PaaS Vercel (\url{https://brew-lite-assignment2-flax.vercel.app}); phục vụ Next.js 14.2.5 App Router gồm \textbf{13 Client Pages} (\path{/}, \path{/products/[id]}, \path{/cart}, \path{/checkout}, \path{/orders}, \path{/orders/[id]}, \path{/orders/me}, \path{/orders/history}, \path{/login}, \path{/register}, \path{/profile}, \path{/staff}, \path{/admin}), chuyển hướng \path{/products} $\rightarrow$ \path{/}, trang tĩnh \path{/mbbank}, \path{/mbbank/admin}, các Route Handler (\texttt{mbbank-sync}, \texttt{mbbank-check}) và rewrite \texttt{/api/:path*} qua \texttt{INTERNAL\_BACKEND\_URL}. \\
 \hline
-Container Backend API (\textit{brewlite\_backend}) & Container \texttt{node:20-alpine} cổng 3001 (khởi động \texttt{prisma db push} $\rightarrow$ \texttt{seed} $\rightarrow$ \texttt{node dist/src/main.js}) gồm NestJS 10.3, Prisma ORM 5.9, Swagger \texttt{/api/docs}, \texttt{MockGatewayService} nội bộ trong \texttt{PaymentModule} và đủ 8 module nghiệp vụ (\texttt{Auth}, \texttt{Products}, \texttt{Orders} State Machine, \texttt{Payment} Idempotency \& OCC, \texttt{Promotions}, \texttt{Staff}, \texttt{Reviews}, \texttt{Admin}). \\
+Backend API (\textit{brewlite-api} / Render) & Container \textit{brewlite\_backend} (\texttt{node:20-alpine} cổng 3001) hoặc Render Docker Service cấu hình qua \texttt{render.yaml} (\url{https://brewlite-api-hj1i.onrender.com}), khởi chạy từ \path{prisma migrate deploy} / \path{seed} $\rightarrow$ \path{node dist/src/main.js}; gồm NestJS 10.3, Prisma ORM 5.9 kết hợp \texttt{FallbackStore} (In-Memory Resiliency), Swagger \path{/api/docs}, endpoint mô phỏng \path{POST /api/mock-gateway/charge} nội bộ trong \texttt{PaymentModule} và đủ 8 module nghiệp vụ (\texttt{Auth}, \texttt{Products}, \texttt{Orders}, \texttt{Payment}, \texttt{Promotions}, \texttt{Staff}, \texttt{Reviews}, \texttt{Admin}). \\
 \hline
-Biến môi trường, Health Check \& Logs & Quản lý bí mật qua \texttt{.env} / GitHub Secrets (\texttt{DATABASE\_URL}, \texttt{JWT\_SECRET} với \texttt{JWT\_EXPIRES\_IN=15m}, \texttt{JWT\_REFRESH\_SECRET} với \texttt{JWT\_REFRESH\_EXPIRES\_IN=7d}, \texttt{FRONTEND\_URL}, \texttt{INTERNAL\_BACKEND\_URL}); cung cấp \texttt{GET /api/health} \& \texttt{/health} (\texttt{SELECT 1}) và \texttt{AllExceptionsFilter} ghi log lỗi kèm JSON chuẩn hóa. \\
+Biến môi trường, Health Check \& Logs & Quản lý bí mật qua \path{.env} / GitHub Secrets / PaaS Environment (\texttt{DATABASE\_URL}, \texttt{JWT\_SECRET} với \texttt{JWT\_EXPIRES\_IN=15m}, \texttt{JWT\_REFRESH\_SECRET} với \texttt{JWT\_REFRESH\_EXPIRES\_IN=7d}, \texttt{FRONTEND\_URL}, \texttt{INTERNAL\_BACKEND\_URL}); cung cấp \path{GET /api/health} \& \path{/health} (trả HTTP 200 JSON gồm \texttt{SELECT 1} DB Ping, \texttt{uptime}, \texttt{version}) và \texttt{AllExceptionsFilter} ghi log lỗi chuẩn hóa. \\
 \hline
-Container Database \& Persistent Storage & Container \textit{brewlite\_postgres} (\texttt{postgres:16-alpine}, cổng 5432 nội bộ trong \textit{brewlite\_network}, không public ở production) lưu \textit{brewlite\_db} (17 bảng) gắn Docker Volume bền vững \texttt{brewlite\_postgres\_data} (\texttt{/var/lib/postgresql/data}) và healthcheck \texttt{pg\_isready}. \\
+Database \& Persistent Storage (\textit{brewlite-db}) & Container \textit{brewlite\_postgres} (\texttt{postgres:16-alpine}, cổng 5432 nội bộ trong \textit{brewlite\_network}, gắn Docker Volume \texttt{brewlite\_postgres\_data} tại \texttt{/var/lib/postgresql/data}) hoặc Managed PostgreSQL \texttt{brewlite-db} trên Render lưu 17 bảng dữ liệu và không mở công khai ra Internet. \\
 \hline
-CI/CD \& Container Registry & GitHub Actions (\texttt{ci.yml} chạy lint, \texttt{prisma db push}, seed, Jest Unit \& \texttt{test:e2e}, build với service \texttt{postgres:16-alpine}; \texttt{cd.yml} chạy Quality Gate, đẩy 2 image \textit{brewlite-frontend} \& \textit{brewlite-backend} lên \texttt{ghcr.io}, kiểm tra \texttt{prisma validate} / \texttt{migrate deploy}, kích hoạt \texttt{DEPLOY\_WEBHOOK\_URL} và smoke test \texttt{PROD\_HEALTH\_URL}). \\
+CI/CD \& Container Registry & GitHub Actions (\texttt{ci.yml} chạy lint, \texttt{prisma migrate deploy} / \texttt{db push}, seed, Jest Unit \& \texttt{test:e2e}, build với service \texttt{postgres:16-alpine}; \texttt{cd.yml} chạy Quality Gate, đẩy 2 image \textit{brewlite-web} \& \textit{brewlite-api} với tag \texttt{<SHORT\_SHA | main | v*.*.*>} lên \texttt{ghcr.io}, kiểm tra \texttt{prisma validate} / \texttt{migrate deploy}, kích hoạt \texttt{DEPLOY\_WEBHOOK\_URL} và smoke test \texttt{PROD\_HEALTH\_URL}). \\
 \hline
-Cổng thanh toán mở rộng (Extension) & Ở bản MVP hiện tại, giao dịch CARD/WALLET chạy \texttt{MockGatewayService} nội bộ trong \texttt{PaymentModule} còn VietQR dùng trình mô phỏng \texttt{/mbbank}; kiến trúc sẵn sàng kết nối cổng VNPay/MoMo qua HTTPS REST/Webhook khi lên môi trường thương mại. \\
+Cổng thanh toán mở rộng (Extension) & Ở bản MVP hiện tại, giao dịch CARD/WALLET gọi \texttt{MockGatewayService} (\path{/api/mock-gateway/charge}) nội bộ trong \texttt{PaymentModule} còn VietQR dùng trình mô phỏng \texttt{/mbbank}; kiến trúc sẵn sàng kết nối cổng VNPay/MoMo qua HTTPS REST/Webhook khi mở rộng thương mại. \\
 \hline
-Ranh giới môi trường (Local / CI / Prod) & Tách biệt 3 vùng: \textbf{Local} (Docker DB :5432 + Host Node :3000/:3001 hoặc \texttt{npm run docker:all} + \texttt{scripts/tunnel.js}); \textbf{CI} (GitHub Actions + \texttt{postgres:16-alpine} cô lập); \textbf{Production} (chỉ mở HTTPS :443 qua Edge/Proxy tới \textit{brewlite\_network}, CSDL private kèm volume \texttt{brewlite\_postgres\_data} và Secrets quản lý tập trung). \\
+Ranh giới môi trường (Local / CI / Prod) & Tách biệt 3 vùng: \textbf{Local} (Docker DB :5432 + Host Node :3000/:3001 hoặc \texttt{npm run docker:all} + \texttt{scripts/tunnel.js}); \textbf{CI} (GitHub Actions + \texttt{postgres:16-alpine} cô lập); \textbf{Production} (HTTPS :443 qua Vercel/Render hoặc Cloudflare Tunnel tới \textit{brewlite\_network}, CSDL private kèm lưu trữ bền vững và Secrets quản lý tập trung). \\
 \hline
 \end{longtable}
 
-Bảng 3.4 truy vết từng thành phần/container trên sơ đồ triển khai đến mô tả kiến trúc và tệp mã nguồn thực tế trong hệ thống.
+Bảng~3.4 truy vết từng thành phần/container trên sơ đồ triển khai đến mô tả kiến trúc và tệp mã nguồn thực tế trong hệ thống.
 
 \begin{longtable}{>{\raggedright\arraybackslash}p{4.0cm}>{\raggedright\arraybackslash}p{4.8cm}>{\raggedright\arraybackslash}p{6.2cm}}
 \caption{Truy vết thành phần Deployment Diagram đến kiến trúc và mã nguồn}\\
@@ -1256,13 +1141,13 @@ Bảng 3.4 truy vết từng thành phần/container trên sơ đồ triển kha
 \rowcolor{gray!20} \textbf{Node / Container} & \textbf{Thành phần kiến trúc} & \textbf{Tệp mã nguồn / Cấu hình thực tế} \\
 \hline
 \endhead
-Cloudflare Edge / Proxy & Edge HTTPS (:443 TLS 1.3) & \path{scripts/tunnel.js}, \path{apps/web/next.config.js} \\
+Cloudflare Edge / Vercel Edge & Edge HTTPS (:443 TLS 1.3) & \path{scripts/tunnel.js}, \path{apps/web/next.config.js} \\
 \hline
-\textit{brewlite\_frontend} & Tầng trình diễn Next.js (:3000) & \path{apps/web/Dockerfile}, \path{docker-compose.yml}, \path{apps/web/src/app/} \\
+\textit{brewlite\_frontend} / \textit{brewlite-web} & Tầng trình diễn Next.js (:3000) & \path{apps/web/Dockerfile}, \path{docker-compose.yml}, \path{apps/web/src/app/} \\
 \hline
-\textit{brewlite\_backend} & Tầng ứng dụng NestJS (:3001) & \path{apps/api/Dockerfile}, \path{docker-compose.yml}, \path{apps/api/src/main.ts} \\
+\textit{brewlite\_backend} / \textit{brewlite-api} & Tầng ứng dụng NestJS (:3001) & \path{apps/api/Dockerfile}, \path{render.yaml}, \path{apps/api/src/main.ts}, \path{apps/api/src/prisma/fallback-store.ts} \\
 \hline
-\textit{brewlite\_postgres} & Tầng dữ liệu PostgreSQL (:5432) & \path{docker-compose.yml} (volume \texttt{brewlite\_postgres\_data}), \path{apps/api/prisma/schema.prisma} \\
+\textit{brewlite\_postgres} / \textit{brewlite-db} & Tầng dữ liệu PostgreSQL (:5432) & \path{docker-compose.yml} (\texttt{brewlite\_postgres\_data}), \path{render.yaml}, \path{apps/api/prisma/schema.prisma} \\
 \hline
 GitHub Actions \& \texttt{ghcr.io} & Hạ tầng CI/CD \& Container Registry & \path{.github/workflows/ci.yml}, \path{.github/workflows/cd.yml} \\
 \hline
@@ -1277,7 +1162,31 @@ Sprint 1 thực hiện mục tiêu tạo nền tảng kỹ thuật chuẩn hóa 
 \section{Thiết lập Repository và Product Backlog}
 
 \subsection{Cấu trúc kho mã nguồn Monorepo}
-Kho mã nguồn được lưu trữ công khai trên GitHub tại \url{https://github.com/hanhdevsgu/BrewLite-Assignment2}, tổ chức theo kiến trúc Monorepo và phân tách rõ ràng theo từng nhóm thành phần như trong Bảng 4.1.
+Kho mã nguồn được lưu trữ công khai cho giảng viên truy cập tại \url{https://github.com/hanhdevsgu/BrewLite-Assignment2}, tổ chức theo kiến trúc Monorepo khớp chuẩn cấu trúc đề bài (\path{apps/web/}, \path{apps/api/}, \path{docs/}, \path{tests/}, \path{.github/workflows/}) như sơ đồ cây dưới đây và chi tiết trong Bảng~4.1:
+
+\noindent\begin{minipage}{\linewidth}
+\begingroup\singlespacing\footnotesize
+\begin{verbatim}
+BrewLite-Assignment2/
+|-- apps/
+|   |-- web/              # Next.js 14 Mobile-First / PWA Web App
+|   `-- api/              # NestJS 10 REST API, Prisma ORM & Jest
+|-- docs/
+|   |-- requirements/     # context-and-scope, srs, use-case
+|   |-- diagrams/         # Activity, Sequence, Class, Deployment
+|   |-- architecture/     # architecture.md & 5 ban ghi ADR
+|   |-- sprints/          # Bien ban Sprint Retrospective
+|   |-- traceability-matrix.md # Ma tran truy vet FR/NFR
+|   `-- deployment.md     # Trien khai, rollback & release notes
+|-- tests/                # Kiem thu End-to-End Full-Stack
+|-- .github/workflows/    # Pipeline CI/CD (ci.yml, cd.yml)
+|-- docker-compose.yml    # 3 container: postgres, api, web
+|-- render.yaml           # Render Blueprint (Backend & DB)
+|-- .env.example          # Mau bien moi truong (khong secret)
+`-- README.md             # Huong dan cai dat, test & van hanh
+\end{verbatim}
+\endgroup
+\end{minipage}\par\vspace{6pt}
 
 \begingroup\footnotesize
 \begin{longtable}{>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}p{10.6cm}}
@@ -1290,7 +1199,7 @@ Kho mã nguồn được lưu trữ công khai trên GitHub tại \url{https://g
 \rowcolor{gray!20} \textbf{Thư mục / Tệp gốc} & \textbf{Vai trò và nội dung chính} \\
 \hline
 \endhead
-\path{apps/web/} & Ứng dụng web Next.js 14 App Router (TypeScript, Tailwind CSS, Zustand, Mobile-First) cùng tài nguyên PWA (\path{public/manifest.webmanifest}, \path{icon.svg}) và giả lập \path{public/mbbank/}. \\
+\path{apps/web/} & Ứng dụng web Next.js 14 App Router (TypeScript, Tailwind CSS, Zustand, Mobile-First) cùng tài nguyên Web App Manifest (\path{public/manifest.webmanifest}, \path{icon.svg}) và giả lập \path{public/mbbank/}. \\
 \hline
 \path{apps/api/} & Dịch vụ REST API NestJS 10 (TypeScript, Prisma ORM, PostgreSQL 16), chứa \path{prisma/schema.prisma}, \path{prisma/migrations/}, \path{prisma/seed.ts}, unit tests (\path{src/**/*.spec.ts}) và HTTP integration tests (\path{test/app.e2e-spec.ts}). \\
 \hline
@@ -1300,7 +1209,7 @@ Kho mã nguồn được lưu trữ công khai trên GitHub tại \url{https://g
 \hline
 \path{.github/workflows/} & Cấu hình pipeline tự động hóa CI (\path{ci.yml}) và CD (\path{cd.yml}). \\
 \hline
-\path{.env.example}, \path{docker-compose.yml}, \path{README.md} & Mẫu biến môi trường không chứa secret, \path{.gitignore} (loại trừ \path{.env}, \path{apps/web/.env.local}, \path{apps/api/.env}, \path{node_modules/}, \path{dist/}, \path{.next/}), đóng gói 3 container và hướng dẫn vận hành. \\
+\path{.env.example}, \path{docker-compose.yml}, \path{render.yaml}, \path{README.md} & Mẫu biến môi trường không chứa secret, \path{.gitignore} (loại trừ \path{.env}, \path{apps/web/.env.local}, \path{apps/api/.env}, \path{node_modules/}, \path{dist/}, \path{.next/}), đóng gói 3 container, cấu hình Render Blueprint và hướng dẫn vận hành. \\
 \hline
 \end{longtable}
 \endgroup
@@ -1348,7 +1257,7 @@ Mọi cập nhật đối với yêu cầu, sơ đồ UML hoặc thiết kế ki
 \begin{itemize}[leftmargin=*]
 \item Nhóm commit đồng bộ đặc tả yêu cầu: \path{ffc8e08}, \path{2360867} và \path{2502a8a} cập nhật tiêu đề chuẩn \path{Idempotency-Key}, bổ sung mức ưu tiên \texttt{Won't} trong \path{srs.md} và loại bỏ đường dẫn cục bộ khỏi tài liệu repo.
 \item Nhóm commit đồng bộ mô hình UML với mã nguồn: \path{47c0552}, \path{76871be}, \path{3c6bbcd} và \path{064305a} hiệu chỉnh sơ đồ Use-Case, Activity, Sequence, Class và Deployment theo đúng phân quyền RBAC (\path{CUSTOMER}/\path{STAFF}/\path{ADMIN}), quy trình hủy đơn hoàn điểm và giao dịch thanh toán thực tế.
-\item Nhóm commit chuẩn hóa cấu trúc Monorepo và CI/CD: \path{8356783} và \path{3e9207c} tổ chức lại thư mục chuẩn \path{apps/web/} và \path{apps/api/}, loại bỏ các tệp \path{.drawio} dư thừa ở thư mục gốc và hoàn thiện quyền đẩy Docker image lên \path{ghcr.io}.
+\item Nhóm commit chuẩn hóa cấu trúc Monorepo, CI/CD và triển khai Production: \path{8356783} và \path{3e9207c} tổ chức lại thư mục chuẩn \path{apps/web/} và \path{apps/api/}, loại bỏ các tệp \path{.drawio} dư thừa ở thư mục gốc và hoàn thiện quyền đẩy Docker image lên \path{ghcr.io}; các commit \path{ac27ba7}, \path{1dd902a}, \path{a6624e5} và \path{244d39d} bổ sung \path{render.yaml}, URL Production Vercel/Render, và đồng bộ toàn bộ hồ sơ, sơ đồ lớp cùng tài liệu nghiệm thu.
 \end{itemize}
 
 \section{Hiện thực MVP Sprint 1 -- Luồng xem thực đơn}
@@ -1362,11 +1271,41 @@ Mọi cập nhật đối với yêu cầu, sơ đồ UML hoặc thiết kế ki
 
 \section{Pipeline Continuous Integration (CI)}
 
-Nhóm cấu hình workflow \path{.github/workflows/ci.yml} tự động kích hoạt khi mở Pull Request hoặc push lên nhánh \texttt{develop}/\texttt{main}, gồm các bước tuần tự:
+Nhóm cấu hình workflow \path{.github/workflows/ci.yml} tự động kích hoạt khi mở Pull Request hoặc push lên nhánh \texttt{develop}/\texttt{main}, bảo đảm quy tắc chặn merge khi bất kỳ bước kiểm tra nào thất bại, gồm các bước tuần tự:
 \begin{center}
 \textbf{Checkout} $\rightarrow$ \textbf{Install Dependencies} $\rightarrow$ \textbf{Lint} $\rightarrow$ \textbf{Prisma Push \& Seed} $\rightarrow$ \textbf{Unit Test \& HTTP Integration Test} $\rightarrow$ \textbf{Build}
 \end{center}
-Commit \path{081d319} thiết lập cổng kiểm tra lint nghiêm ngặt trong CI để chặn mã lỗi trước khi hợp nhất; lịch sử git ghi nhận chuỗi hợp nhất từ các nhánh thành viên (\path{e1dd048}, \path{bbe47b6}, \path{7c4d459}, \path{df1fe84}, \path{5d7d7fa}/\path{5991ae3}/\path{0ca1984} và \path{ba0bfa0}/\path{a3a1472}/\path{73c9cec}/\path{4dd8ea5}) vào nhánh \path{develop}. Pipeline CI trên GitHub Actions đạt trạng thái \textbf{Pass (success)} ở tất cả các bước trên nhánh \path{develop} (ví dụ: run \path{43728139168} tại commit \path{8356783} và run \path{43728698541} tại commit \path{3e9207c}).
+Commit \path{081d319} thiết lập cổng kiểm tra lint nghiêm ngặt trong CI để chặn mã lỗi trước khi hợp nhất; lịch sử git ghi nhận chuỗi hợp nhất các Pull Request từ 7 nhánh thành viên (\path{7c4d459}, \path{df1fe84}, \path{5d7d7fa}/\path{5991ae3}/\path{0ca1984} và \path{ba0bfa0}/\path{a3a1472}/\path{73c9cec}/\path{4dd8ea5}) vào nhánh \path{develop}. Minh chứng thực thi thực tế trên GitHub Actions (\url{https://github.com/hanhdevsgu/BrewLite-Assignment2/actions}) được tổng hợp trong Bảng~4.3:
+\begin{itemize}[leftmargin=*]
+\item \textbf{Pipeline CI vượt qua hoàn toàn (Passed Gate):} Toàn bộ các lần chạy \path{ci.yml} trên nhánh \path{develop} (tiêu biểu như run \path{43728139168} tại \path{8356783}, \path{43728698541} tại \path{3e9207c}, \path{43731421286} tại \path{a6624e5} và \path{43733505308} tại \path{244d39d}) đều đạt \textbf{Pass (success)}.
+\item \textbf{Minh chứng cổng kiểm tra phát hiện lỗi (Failed Gate):} Trên luồng tự động kiểm chuẩn \path{cd.yml}, pipeline đã phát hiện và chặn tự động các lần chạy lỗi trước bước phát hành (run \path{43585868394} trên tag \path{v1.0.0} và run \path{43728146170} / \path{43728149303} tại \path{8356783} lỗi kiểm tra \path{prisma validate} do thiếu giá trị fallback \texttt{DATABASE\_URL}); sau khi khắc phục tại commit \path{3e9207c}, toàn trình CI/CD phục hồi trạng thái \textbf{Pass (success)} (run \path{43728703140}, \path{43731426544}, \path{43733505100}).
+\end{itemize}
+
+\begingroup\footnotesize
+\begin{longtable}{>{\centering\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}p{2.7cm}>{\centering\arraybackslash}p{2.1cm}>{\raggedright\arraybackslash}p{7.7cm}}
+\caption{Minh chứng các lần chạy GitHub Actions CI/CD tiêu biểu (Pass \& Failed Gate)}\\
+\hline
+\rowcolor{gray!20} \textbf{Run ID} & \textbf{Workflow / Nhánh} & \textbf{Kết quả} & \textbf{Commit \& Ý nghĩa kiểm chứng} \\
+\hline
+\endfirsthead
+\hline
+\rowcolor{gray!20} \textbf{Run ID} & \textbf{Workflow / Nhánh} & \textbf{Kết quả} & \textbf{Commit \& Ý nghĩa kiểm chứng} \\
+\hline
+\endhead
+43585868394 & CD (\path{v1.0.0}) & Fail & Phát hiện lỗi bước Build/Push Docker Image trước khi cấp quyền \path{packages: write} cho \path{ghcr.io}. \\
+\hline
+43728146170 & CD (\path{main}) & Fail & Commit \path{8356783}: cổng \path{prisma validate} chặn triển khai khi biến \texttt{DATABASE\_URL} secret chưa có fallback. \\
+\hline
+43728698541 & CI (\path{develop}) & Pass & Commit \path{3e9207c}: vượt qua toàn bộ Lint, Prisma Push/Seed, 119 Unit Tests, 9 IT Tests và Build. \\
+\hline
+43728703140 & CD (\path{main}) & Pass & Khắc phục thành công cổng \path{prisma validate}, push 2 image \path{brewlite-web} \& \path{brewlite-api} và Smoke Test. \\
+\hline
+43733505308 & CI (\path{develop}) & Pass & Commit \path{244d39d}: toàn bộ Quality Gate, Jest/Supertest và Build Next.js/NestJS thành công 100\%. \\
+\hline
+43733505100 & CD (\path{main}) & Pass & Commit \path{244d39d}: hoàn tất quy trình CD đóng gói image và kiểm chứng phát hành ổn định. \\
+\hline
+\end{longtable}
+\endgroup
 
 \chapter{HOÀN THIỆN SẢN PHẨM, KIỂM THỬ VÀ TRIỂN KHAI}
 
@@ -1397,26 +1336,37 @@ Sprint 2 hoàn thành toàn bộ luồng nghiệp vụ từ chọn món đến t
 
 \section{Quy trình Continuous Delivery / Deployment (CD)}
 
-Pipeline Continuous Delivery được cấu hình tại \path{.github/workflows/cd.yml} (kích hoạt khi push lên \path{main}, gắn tag \path{v*} hoặc chạy thủ công) nhằm tự động hóa quy trình từ kiểm tra chất lượng đến cập nhật phiên bản chạy thực tế:
+Pipeline Continuous Delivery được cấu hình tại \path{.github/workflows/cd.yml} (kích hoạt khi push lên \path{main}, gắn tag \path{v*} hoặc chạy thủ công), kết hợp triển khai tự động PaaS qua \textbf{Vercel (Frontend)} và \textbf{Render Blueprint (\path{render.yaml} -- Backend Docker + Managed PostgreSQL)} nhằm tự động hóa quy trình từ kiểm tra chất lượng đến cập nhật phiên bản chạy thực tế:
 \begin{enumerate}[leftmargin=*]
 \item \textbf{Quality Gate \& Build Verification}: Tái chạy kiểm tra lint, \path{prisma db push} \& seed trên \path{postgres:16-alpine}, Jest Unit Tests, Supertest HTTP Integration Tests và build cả Backend lẫn Frontend trước khi đóng gói.
-\item \textbf{Đóng gói \& Đẩy Container Image}: Build Docker image cho \path{apps/api/} và \path{apps/web/}, gắn tag theo Commit SHA, tên nhánh/tag phát hành và \texttt{latest}, sau đó đẩy lên GitHub Container Registry (\texttt{ghcr.io}).
+\item \textbf{Đóng gói \& Đẩy Container Image}: Build Docker image cho \path{apps/api/} (\path{brewlite-api}) và \path{apps/web/} (\path{brewlite-web}), gắn tag theo Commit SHA, tên nhánh/tag phát hành (\texttt{main}, \texttt{v*.*.*}) và \texttt{latest}, sau đó đẩy lên GitHub Container Registry (\texttt{ghcr.io}).
 \item \textbf{Quản lý Migration an toàn}: Chạy \path{npx prisma validate} và tự động thực thi \path{npx prisma migrate deploy} khi biến môi trường \texttt{DATABASE\_URL} được cung cấp trong GitHub Secrets (fallback URL cục bộ khi chưa cấu hình secret để kiểm chứng schema).
-\item \textbf{Kích hoạt Triển khai, Smoke Test \& Rollback tự động}: Gửi webhook đến \texttt{DEPLOY\_WEBHOOK\_URL} (nếu có) hoặc khởi chạy kiểm thử toàn bộ stack qua \path{docker compose up -d --build}, xác minh \path{GET /api/health} trả về \texttt{"database":"connected"} cùng HTTP \texttt{200} từ Frontend (\texttt{:3000}), và kích hoạt cảnh báo Rollback khi thất bại. Pipeline CD đã ghi nhận lỗi thực tế ở các lần chạy trước (như run \path{43585868394} tại \path{v1.0.0} và \path{43728146170} tại \path{8356783} khi thiếu fallback \texttt{DATABASE\_URL}) trước khi được khắc phục ở commit \path{3e9207c} và chạy \textbf{Pass (success)} toàn trình tại run \path{43728703140}.
+\item \textbf{Kích hoạt Triển khai, Smoke Test \& Rollback tự động}: Gửi webhook đến \texttt{DEPLOY\_WEBHOOK\_URL} (nếu có) hoặc khởi chạy kiểm thử toàn bộ stack qua \path{docker compose up -d --build}, xác minh \path{GET /api/health} trả về \texttt{"database":"connected"} cùng HTTP \texttt{200} từ Frontend (\texttt{:3000}), và kích hoạt cảnh báo Rollback khi thất bại. Pipeline CD đã ghi nhận lỗi thực tế ở các lần chạy trước (như run \path{43585868394} tại \path{v1.0.0} và \path{43728146170} tại \path{8356783} khi thiếu fallback \texttt{DATABASE\_URL}) trước khi được khắc phục ở commit \path{3e9207c} và chạy \textbf{Pass (success)} toàn trình tại các run \path{43728703140}, \path{43731426544} và \path{43733505100}.
 \end{enumerate}
 
 \section{Triển khai và Bàn giao hệ thống}
 
 \begin{itemize}[leftmargin=*]
-\item \textbf{Kiểm tra giao diện, API \& Health Check sau đóng gói}: Địa chỉ kiểm chứng cục bộ/Docker Compose mặc định gồm \path{http://localhost:3000} (Frontend), \path{http://localhost:3000/mbbank} (giả lập thanh toán VietQR), \path{http://localhost:3001/api/docs} (Swagger OpenAPI), \path{http://localhost:3001/health} và \path{http://localhost:3001/api/health} (Health Check); khi công bố công khai sử dụng Cloudflare Tunnel (\path{scripts/tunnel.js}) ánh xạ lưu lượng HTTPS Edge \texttt{:443} vào dịch vụ nội bộ.
-\item \textbf{An toàn cơ sở dữ liệu \& Secret}: Ở cấu hình phát triển local (\path{docker-compose.yml}), cổng \texttt{5432} được mở về máy cục bộ phục vụ \path{prisma migrate} và Prisma Studio; khi triển khai production như thiết kế trên Deployment Diagram, container PostgreSQL (\textit{brewlite\_postgres}) chỉ lắng nghe trong mạng Docker nội bộ \textit{brewlite\_network} và không phơi bày cổng \texttt{5432} ra mạng công cộng. Mọi bí mật cấu hình (\texttt{DATABASE\_URL}, \texttt{JWT\_SECRET}, webhook token) được quản lý qua \path{.env} (nằm trong \path{.gitignore}, đã kiểm tra không có file \path{.env} nào bị theo dõi bởi Git) và GitHub Secrets.
-\item \textbf{Release Notes, README \& Rollback Guide}: Phiên bản phát hành \path{v1.0.0} / \path{v1.0.1} (đã gắn Git tag \path{v1.0.0}, \path{v1.0.1}) tổng hợp tại \path{docs/RELEASE_NOTES.md}; hướng dẫn Cài đặt -- Build -- Deploy Production -- Rollback đầy đủ được cập nhật trong \path{README.md} (Mục \texttt{5.1}--\texttt{5.11}), \path{docs/deployment.md} và \path{docs/rollback-guide.md}.
-\item \textbf{Sprint Review \& Retrospective}: Biên bản đánh giá kết quả đạt được (Sprint Review), các điểm làm tốt và kế hoạch cải tiến sau hai Sprint (Sprint Retrospective) được lưu tại \path{docs/sprints/sprint-retrospective.md}.
+\item \textbf{Địa chỉ Production trực tuyến (HTTPS), API \& Health Check:} Hệ thống đã được triển khai vận hành thực tế và kiểm chứng phản hồi \texttt{HTTP 200 OK}:
+  \begin{itemize}[nosep]
+  \item Frontend Production (Vercel): \url{https://brew-lite-assignment2-flax.vercel.app}
+  \item Backend API Production (Render Cloud): \url{https://brewlite-api-hj1i.onrender.com}
+  \item Health Check Endpoints: \url{https://brewlite-api-hj1i.onrender.com/api/health} và \url{https://brewlite-api-hj1i.onrender.com/health} (trả về JSON \texttt{"status":"ok","database":"connected"})
+  \item Tài liệu OpenAPI / Swagger UI: \url{https://brewlite-api-hj1i.onrender.com/api/docs}
+  \item Triển khai cục bộ / Docker Compose: \path{http://localhost:3000} (Frontend), \path{http://localhost:3000/mbbank} (giả lập VietQR), \path{http://localhost:3001/api/docs} và \path{http://localhost:3001/api/health}; hỗ trợ công bố HTTPS qua Cloudflare Tunnel (\path{scripts/tunnel.js}).
+  \end{itemize}
+\item \textbf{Video Demo End-to-End:} Video minh họa đầy đủ luồng nghiệp vụ thực tế từ xem menu, giỏ hàng, thanh toán, xử lý quầy pha chế đến quản trị được công bố tại \url{https://drive.google.com/file/d/1HfsDMESCerJwyApW_HAX31Ze2mwgTawy/view?usp=sharing}.
+\item \textbf{Khả năng cài đặt và tái lập độc lập:} Một thành viên hoặc giảng viên ngoài nhóm có thể clone trực tiếp từ \url{https://github.com/hanhdevsgu/BrewLite-Assignment2}, sao chép \path{.env.example} và chạy toàn bộ hệ thống bằng \path{npm run setup} hoặc \path{docker compose up -d --build} theo đúng hướng dẫn tại \path{README.md}.
+\item \textbf{An toàn cơ sở dữ liệu \& Secret:} Cơ sở dữ liệu PostgreSQL trên môi trường production (Managed DB \textit{brewlite-db} trên Render hoặc container \textit{brewlite\_postgres} trong mạng nội bộ \textit{brewlite\_network}) được cô lập hoàn toàn và không mở công khai ra Internet. Mọi bí mật cấu hình (\texttt{DATABASE\_URL}, \texttt{JWT\_SECRET}, \texttt{JWT\_REFRESH\_SECRET}, webhook token) được quản lý qua \path{.env} (bị loại trừ bởi \path{.gitignore}, chỉ giữ tệp mẫu \path{.env.example}) và GitHub Secrets / PaaS Environment, bảo đảm không lộ secret trong lịch sử Git hay log CI.
+\item \textbf{Release Notes, README \& Rollback Guide:} Phiên bản phát hành \path{v1.0.0} / \path{v1.0.1} (đã gắn Git tag \path{v1.0.0}, \path{v1.0.1}) tổng hợp tại \path{docs/RELEASE_NOTES.md}; hướng dẫn Cài đặt -- Test -- Build -- Deploy Production -- Rollback đầy đủ được cập nhật trong \path{README.md} (Mục \texttt{5.1}--\texttt{5.11}), \path{docs/deployment.md} và \path{docs/rollback-guide.md}.
+\item \textbf{Sprint Review \& Retrospective:} Biên bản đánh giá kết quả đạt được (Sprint Review), các điểm làm tốt và kế hoạch cải tiến sau hai Sprint (Sprint Retrospective) được lưu tại \path{docs/sprints/sprint-retrospective.md}.
 \end{itemize}
 
 \chapter{MA TRẬN TRUY VẾT YÊU CẦU (TRACEABILITY MATRIX)}
 
-Bảng 6.1 và Bảng 6.2 thiết lập ma trận liên kết truy vết hai chiều từ mã yêu cầu (FR/NFR) sang Use-case, sơ đồ thiết kế, mã nguồn hiện thực thực tế trong repository và thành phần kiểm thử tương ứng.
+Bảng~6.1 và Bảng~6.2 thiết lập ma trận liên kết truy vết hai chiều từ mã yêu cầu (FR/NFR) sang Use-case, sơ đồ thiết kế, mã nguồn hiện thực thực tế trong repository và thành phần kiểm thử tương ứng (đồng bộ với tệp \path{docs/traceability-matrix.md}).
+
+\section{Ma trận truy vết yêu cầu chức năng (FR)}
 
 \begingroup\footnotesize
 \begin{longtable}{>{\centering\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{2.9cm}>{\raggedright\arraybackslash}p{2.9cm}>{\raggedright\arraybackslash}p{4.1cm}>{\raggedright\arraybackslash}p{3.4cm}}
@@ -1435,7 +1385,7 @@ FR-02 & UC-08 Chi tiết món, Size \& Topping & Class Diagram (\path{ChiTietSan
 \hline
 FR-03 & UC-09 Quản lý giỏ hàng & Activity Diagram, Class Diagram (\path{ChiTietDonHang}) & \path{apps/web/src/store/useCartStore.ts}, \path{apps/web/src/app/cart/page.tsx} & \path{tests/e2e/order-checkout.e2e-spec.ts} \\
 \hline
-FR-04 & UC-01..06 Tài khoản \& JWT & Sequence Diagram (JWT check), Class (\path{TaiKhoan}) & \path{POST /api/auth/*}, \path{GET /api/auth/me}, \path{auth.controller.ts} & Jest: \path{auth.service.spec.ts}, Supertest \path{IT-02}, \path{IT-03} \\
+FR-04 & UC-01..06 Tài khoản \& JWT & Sequence Diagram (JWT check), Class (\path{TaiKhoan} kế thừa \texttt{\{complete, disjoint\}} tới \path{KhachHang}/\path{NhanVien}/\path{Admin}) & \path{POST /api/auth/*}, \path{GET /api/auth/me}, \path{auth.controller.ts} & Jest: \path{auth.service.spec.ts}, Supertest \path{IT-02}, \path{IT-03} \\
 \hline
 FR-05 & UC-10, UC-11 Voucher \& Điểm thưởng & Class Diagram (\path{KhuyenMai}, \path{GiaoDichDiemThuong}, \path{KhachHang.diemTichLuy}, \path{DonHang.TinhDiemTichLuy()}) & \path{GET /api/promotions/available}, \path{POST /api/promotions/validate}, \path{promotions.service.ts} & Jest: \path{promotions.service.spec.ts}, Supertest \path{IT-04} \\
 \hline
@@ -1460,6 +1410,9 @@ FR-14 & Ngoài phạm vi (Won't) & \path{context-and-scope.md} (Ngoài phạm vi
 \end{longtable}
 \endgroup
 
+\section{Ma trận truy vết yêu cầu phi chức năng (NFR)}
+
+Bảng 6.2 ánh xạ các yêu cầu phi chức năng (NFR) về hiệu năng, tính sẵn sàng, độ tin cậy giao dịch, bảo mật và khả năng mở rộng vào quyết định kiến trúc, cơ chế cài đặt thực tế, kịch bản kiểm thử và tệp \path{docs/traceability-matrix.md}.
 
 \begin{longtable}{>{\centering\arraybackslash}p{1.4cm}>{\raggedright\arraybackslash}p{3.1cm}>{\raggedright\arraybackslash}p{5.2cm}>{\raggedright\arraybackslash}p{5.1cm}}
 \caption{Ma trận truy vết yêu cầu phi chức năng (NFR Traceability Matrix)}\\
@@ -1479,11 +1432,117 @@ NFR-03 & Khả dụng (Mobile-First) & Next.js 14 App Router, Tailwind CSS, thi�
 \hline
 NFR-04 & Toàn vẹn ACID & \texttt{prisma.\$transaction} kết hợp khóa lạc quan cột \path{version} & Jest: \path{payment.service.spec.ts}, \path{test-race-condition.js} \\
 \hline
-NFR-05 & Triển khai \& CI/CD & \path{docker-compose.yml}, \path{.github/workflows/ci.yml}, \path{cd.yml} & Cấu hình đồng bộ 3 dịch vụ, \path{rollback-guide.md} \\
+NFR-05 & Triển khai \& CI/CD & \path{docker-compose.yml}, \path{render.yaml}, \path{.github/workflows/ci.yml}, \path{cd.yml} & Cấu hình đồng bộ 3 dịch vụ, CD Pass run \path{43733505100}, \path{rollback-guide.md} \\
 \hline
-NFR-06 & Giám sát & Endpoint \path{GET /health} và \path{GET /api/health} trong \path{app.controller.ts} & Trả về HTTP 200 kèm trạng thái kết nối DB và uptime \\
+NFR-06 & Giám sát & Endpoint \path{GET /health} và \path{GET /api/health} trong \path{app.controller.ts} & Kiểm chứng trực tiếp Render \path{/api/health} trả HTTP 200 (\path{"database":"connected"}) \\
 \hline
 \end{longtable}
+
+\chapter{CẤU TRÚC REPOSITORY, DANH MỤC BÀN GIAO VÀ MINH CHỨNG}
+
+\section{Cấu trúc thư mục Repository chuẩn hóa trên GitHub}
+
+Toàn bộ mã nguồn, tài liệu phân tích -- thiết kế, kịch bản kiểm thử và cấu hình CI/CD được lưu trữ thống nhất tại kho Monorepo công khai trên GitHub: \url{https://github.com/hanhdevsgu/BrewLite-Assignment2} (nhánh \path{main} và \path{develop}). Ở giai đoạn khởi tạo ban đầu, kho mã nguồn từng sử dụng cặp thư mục \path{backend/}, \path{frontend/} cùng các tệp sơ đồ đặt rời ở thư mục gốc; sau đó nhóm đã chuẩn hóa toàn bộ theo đúng kiến trúc ADR-001 và quy chuẩn cấu trúc của Assignment~2 về cặp \path{apps/api/}, \path{apps/web/}, \path{docs/}, \path{tests/} và \path{.github/workflows/}:
+
+\noindent\begin{minipage}{\linewidth}
+\begingroup\singlespacing\footnotesize
+\begin{verbatim}
+BrewLite-Assignment2/
+|-- apps/
+|   |-- web/               # Next.js 14 PWA (src, public, Dockerfile)
+|   `-- api/               # NestJS 10 + Prisma (src, prisma, test)
+|-- docs/
+|   |-- requirements/      # context-and-scope, srs, use-case
+|   |-- diagrams/          # Activity, Sequence, Class, Deployment, UC
+|   |-- architecture/      # architecture.md & adr/001..005-*.md
+|   |-- sprints/           # sprint-retrospective.md
+|   |-- report/            # Bao_Cao_BrewLite_v16.tex & img/
+|   |-- traceability-matrix.md # Ma tran truy vet hai chieu FR/NFR
+|   |-- deployment.md      # Trien khai Docker, Render & Vercel
+|   |-- rollback-guide.md  # Quy trinh khoi phuc phien ban
+|   |-- RELEASE_NOTES.md   # Nhat ky phat hanh v1.0.0, v1.0.1
+|   `-- BrewLite_Full_API_Collection.postman_collection.json
+|-- tests/
+|   `-- e2e/order-checkout.e2e-spec.ts  # Full-Stack E2E tests
+|-- scripts/               # setup, tunnel, render-diagrams, OCC test
+|-- .github/workflows/     # Pipeline CI (ci.yml) va CD (cd.yml)
+|-- docker-compose.yml     # 3 container: postgres, api, web
+|-- render.yaml            # Render Blueprint (API Docker & PG)
+|-- .env.example           # Mau bien moi truong (khong secret)
+|-- package.json           # Scripts dieu phoi workspace
+|-- CHANGELOG.md           # Lich su thay doi Keep a Changelog
+`-- README.md              # Huong dan cai dat, test & van hanh
+\end{verbatim}
+\endgroup
+\end{minipage}\par\vspace{6pt}
+
+\section{Danh mục kiểm tra bàn giao và Minh chứng thực tế}
+
+Bảng~7.1 tổng hợp đầy đủ 9 hạng mục thuộc danh mục kiểm tra nghiệm thu và bàn giao đồ án kèm đường dẫn xác minh cụ thể trên kho mã nguồn GitHub, hệ thống Production trực tuyến và tài liệu kèm theo.
+
+\begingroup\footnotesize
+\begin{longtable}{>{\raggedright\arraybackslash}p{4.6cm}>{\centering\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}p{7.9cm}}
+\caption{Danh mục kiểm tra nghiệm thu và bàn giao đồ án (Checklist)}\\
+\hline
+\rowcolor{gray!20} \textbf{Hạng mục bàn giao} & \textbf{Trạng thái} & \textbf{Vị trí / Bằng chứng xác minh} \\
+\hline
+\endfirsthead
+\hline
+\rowcolor{gray!20} \textbf{Hạng mục bàn giao} & \textbf{Trạng thái} & \textbf{Vị trí / Bằng chứng xác minh} \\
+\hline
+\endhead
+Link repository \& quyền truy cập giảng viên & Hoàn thành & \url{https://github.com/hanhdevsgu/BrewLite-Assignment2} (truy cập công khai trên nhánh \path{main} và \path{develop}; cấu trúc chuẩn \path{apps/web}, \path{apps/api}, \path{docs}, \path{tests}, \path{.github/workflows}) \\
+\hline
+SRS, đặc tả use-case \& ma trận truy vết & Hoàn thành & \path{docs/requirements/context-and-scope.md}, \path{srs.md}, \path{use-case-checkout.md}, \path{docs/traceability-matrix.md}; Chương 1 \& Chương 6 \\
+\hline
+Activity, sequence, class \& deployment diagram & Hoàn thành & Nguồn \path{.drawio}/\path{.puml}/\path{.svg} trong \path{docs/diagrams/} \& ảnh \path{docs/report/img/}; Chương 2 \& Chương 3 \\
+\hline
+Source code frontend, backend \& migration & Hoàn thành & \path{apps/web/} (Next.js 14), \path{apps/api/} (NestJS 10), \path{apps/api/prisma/schema.prisma} (17 models, 7 enums), \path{migrations/} \& \path{seed.ts} \\
+\hline
+Unit, integration \& end-to-end test & Hoàn thành & 12/12 suites Jest (119/119 unit tests pass), 9/9 Supertest (\path{test:e2e}, chạy qua \path{FallbackStore}/mock \path{PrismaService}), \path{tests/e2e/order-checkout.e2e-spec.ts} \& \path{scripts/test-race-condition.js} \\
+\hline
+Pipeline CI/CD chạy thành công & Hoàn thành & \path{.github/workflows/ci.yml} (Pass: runs \path{43728698541}, \path{43731421286}, \path{43733505308}; gate chặn lỗi trước đó: \path{43585868394}, \path{43728146170}) \& \path{cd.yml} (Pass: runs \path{43728703140}, \path{43731426544}, \path{43733505100}) \\
+\hline
+URL production, API \& health check & Hoàn thành & Frontend: \url{https://brew-lite-assignment2-flax.vercel.app}; API: \url{https://brewlite-api-hj1i.onrender.com}; Swagger: \url{https://brewlite-api-hj1i.onrender.com/api/docs}; Health: \url{https://brewlite-api-hj1i.onrender.com/api/health} \& \url{/health}; kèm Docker Compose (\path{:3000}, \path{:3001}) \& Cloudflare Tunnel \\
+\hline
+Release notes, README \& hướng dẫn rollback & Hoàn thành & \path{docs/RELEASE_NOTES.md} (\path{v1.0.0}, \path{v1.0.1}), \path{README.md}, \path{CHANGELOG.md}, \path{docs/deployment.md} \& \path{docs/rollback-guide.md} \\
+\hline
+Video/demo \& Sprint Retrospective & Hoàn thành & Video demo (\path{brew-lite.mp4}): \url{https://drive.google.com/file/d/1HfsDMESCerJwyApW_HAX31Ze2mwgTawy/view?usp=sharing}; Sprint Retrospective: \path{docs/sprints/sprint-retrospective.md} \\
+\hline
+\end{longtable}
+\endgroup
+
+\begin{sloppypar}
+Các minh chứng vận hành thực tế đã được đối chiếu và xác nhận trực tiếp như sau:
+\begin{enumerate}[leftmargin=*]
+\item \textbf{Minh chứng URL Production, API \& Health Check (\texttt{HTTP 200 OK}):} Kiểm tra trực tiếp các endpoint triển khai trên Vercel và Render Cloud ngày 15/11/2026 đều trả về mã \texttt{200 OK}; hai endpoint \path{/api/health} và \path{/health} xác nhận kết nối PostgreSQL Production (\texttt{"database": "connected"}):
+
+\noindent\begin{minipage}{\linewidth}
+\begingroup\singlespacing\footnotesize
+\begin{verbatim}
+GET https://brew-lite-assignment2-flax.vercel.app     -> 200 (45281 B)
+GET https://brewlite-api-hj1i.onrender.com/api/docs   -> 200 (Swagger)
+GET https://brewlite-api-hj1i.onrender.com/api/health -> 200 OK
+{"success":true,"statusCode":200,"data":{"status":"ok",
+ "timestamp":"2026-11-15T16:36:48.125Z","uptime":1518,
+ "database":"connected","service":"BrewLite Backend API",
+ "version":"1.0.0"}}
+\end{verbatim}
+\endgroup
+\end{minipage}\par\vspace{6pt}
+
+\item \textbf{Minh chứng Pipeline CI/CD trên GitHub Actions (\texttt{ci.yml} \& \texttt{cd.yml}):} Trên commit nền tảng \path{244d39d} và chuỗi phát hành trước đó, cả nhánh \path{develop} (CI) và nhánh \path{main} (CD -- đóng gói image \path{brewlite-api}, \path{brewlite-web} lên \path{ghcr.io} và chạy Compose Smoke Test) đều hoàn thành với kết luận \texttt{success}:
+  \begin{itemize}[nosep]
+  \item CI Pass (\path{develop}): \url{https://github.com/hanhdevsgu/BrewLite-Assignment2/actions/runs/43733505308} (commit \path{244d39d}), run \path{43731421286} (\path{a6624e5}), run \path{43728698541} (\path{3e9207c}).
+  \item CD Pass (\path{main}): \url{https://github.com/hanhdevsgu/BrewLite-Assignment2/actions/runs/43733505100} (commit \path{244d39d}), run \path{43731426544} (\path{a6624e5}), run \path{43728703140} (\path{3e9207c}).
+  \item Quality Gate chặn lỗi trước khi khắc phục ở commit \path{3e9207c}: CD run \path{43585868394} (\path{v1.0.0}) và \path{43728146170} (\path{8356783}) dừng kịp thời khi thiếu \texttt{DATABASE\_URL} cho bước kiểm tra migration.
+  \end{itemize}
+
+\item \textbf{Minh chứng Kiểm thử tự động (Lint, Unit Test \& Integration Test):} Thực thi kiểm chuẩn trên mã nguồn hiện tại ghi nhận \path{npm --prefix apps/api run lint} (\path{tsc --noEmit}) pass; \path{npm --prefix apps/web run lint} (\path{eslint src}) đạt \texttt{0 errors} (6 warnings); \path{npm --prefix apps/api test -- --runInBand} đạt \textbf{12/12 test suites, 119/119 tests passed}; và \path{npm --prefix apps/api run test:e2e} đạt \textbf{9/9 Supertest integration tests passed} (\path{IT-01..IT-09}, dùng \path{FallbackStore}/mock \path{PrismaService} khi không bật PostgreSQL cục bộ, song song với chạy PostgreSQL~16 trong GitHub Actions CI, kịch bản \path{tests/e2e/order-checkout.e2e-spec.ts} và kiểm thử race condition \path{scripts/test-race-condition.js}).
+
+\item \textbf{Minh chứng Video Demo, Release Notes, Rollback \& Sprint Retrospective:} Video demo toàn bộ luồng End-to-End (\path{brew-lite.mp4}) lưu tại \url{https://drive.google.com/file/d/1HfsDMESCerJwyApW_HAX31Ze2mwgTawy/view?usp=sharing}; nhật ký phát hành gắn tag \path{v1.0.0}, \path{v1.0.1} lưu tại \path{docs/RELEASE_NOTES.md}; hướng dẫn rollback lưu tại \path{docs/rollback-guide.md} và \path{docs/deployment.md}; biên bản đánh giá Sprint lưu tại \path{docs/sprints/sprint-retrospective.md}.
+\end{enumerate}
+\end{sloppypar}
 
 \chapter{KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN}
 
@@ -1491,8 +1550,8 @@ NFR-06 & Giám sát & Endpoint \path{GET /health} và \path{GET /api/health} tro
 Đồ án BrewLite đã hoàn thiện đồng bộ xuyên suốt quy trình kỹ nghệ phần mềm từ khai thác yêu cầu, mô hình hóa UML, thiết kế kiến trúc đến hiện thực, kiểm thử và đóng gói triển khai:
 \begin{enumerate}[leftmargin=*]
 \item Hoàn thiện hồ sơ phân tích yêu cầu (SRS, Use-case), ba nhóm sơ đồ mô hình hóa (Activity, Sequence, Class) và thiết kế kiến trúc kèm 5 bản ghi ADR và Deployment Diagram.
-\item Hiện thực đầy đủ luồng nghiệp vụ end-to-end trên bộ công nghệ bắt buộc Next.js, NestJS, PostgreSQL và Docker: từ duyệt thực đơn, chọn size/topping, giỏ hàng, đặt đơn, thanh toán chống trùng lặp (Idempotency-Key), trừ kho khóa lạc quan (OCC) đến bảng Kanban pha chế của Barista và trang quản trị Admin.
-\item Thiết lập kiểm thử tự động (119/119 unit tests Jest trên 12 test suites và 9/9 Supertest HTTP integration tests pass hoàn toàn), kịch bản race condition, kiểm thử E2E và workflow CI/CD kèm tài liệu truy vết và rollback.
+\item Hiện thực đầy đủ luồng nghiệp vụ end-to-end trên bộ công nghệ bắt buộc Next.js, NestJS, PostgreSQL và Docker: từ duyệt thực đơn, chọn size/topping, giỏ hàng, đặt đơn, thanh toán chống trùng lặp (Idempotency-Key), trừ kho khóa lạc quan (OCC) đến bảng Kanban pha chế của Barista và trang quản trị Admin, đồng thời triển khai vận hành thực tế trên Vercel và Render Cloud.
+\item Thiết lập kiểm thử tự động (119/119 unit tests Jest trên 12 test suites, 9/9 Supertest HTTP integration tests trên \path{FallbackStore}/mock DB cùng kiểm thử PostgreSQL trên CI), kịch bản race condition, kiểm thử E2E và workflow CI/CD kèm tài liệu truy vết, rollback và minh chứng nghiệm thu đầy đủ.
 \end{enumerate}
 
 \section{Hướng phát triển trong tương lai}
@@ -1502,38 +1561,4 @@ NFR-06 & Giám sát & Endpoint \path{GET /health} và \path{GET /api/health} tro
 \item Bổ sung unit test cho các component frontend (React Testing Library) và chạy kịch bản E2E full-stack trực tiếp trên môi trường staging trong CI/CD.
 \end{itemize}
 
-\section{Đối chiếu cấu trúc Repository và Hạng mục bàn giao}
-
-Bảng 7.1 tổng hợp trạng thái hoàn thiện các hạng mục bàn giao cốt lõi của hệ thống BrewLite.
-
-\begin{longtable}{>{\raggedright\arraybackslash}p{5.5cm}>{\centering\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}p{6.9cm}}
-\caption{Tổng hợp các hạng mục bàn giao và mức độ hoàn thành của đồ án}\\
-\hline
-\rowcolor{gray!20} \textbf{Hạng mục bàn giao} & \textbf{Trạng thái} & \textbf{Vị trí / Ghi chú xác minh} \\
-\hline
-\endfirsthead
-\hline
-\rowcolor{gray!20} \textbf{Hạng mục bàn giao} & \textbf{Trạng thái} & \textbf{Vị trí / Ghi chú xác minh} \\
-\hline
-\endhead
-Link repository \& quyền truy cập giảng viên & Hoàn thành (trên GitHub) & \url{https://github.com/hanhdevsgu/BrewLite-Assignment2} (cấu trúc chuẩn \path{apps/web}, \path{apps/api}, \path{docs}, \path{tests}, \path{.github/workflows}) \\
-\hline
-SRS, đặc tả use-case \& ma trận truy vết & Đầy đủ & \path{docs/requirements/*}, \path{docs/traceability-matrix.md}, Chương 1 \& Chương 6 \\
-\hline
-Activity, sequence, class \& deployment diagram & Đầy đủ & Nguồn \path{.drawio}/\path{.puml} \& ảnh xuất trong \path{docs/diagrams/} và \path{docs/report/img/} \\
-\hline
-Source code frontend, backend \& migration & Đầy đủ & \path{apps/web/}, \path{apps/api/}, \path{apps/api/prisma/schema.prisma}, \path{migrations/} \& \path{seed.ts} \\
-\hline
-Unit, integration \& end-to-end test & Đầy đủ & 12/12 suites Jest (119 unit tests), 9/9 Supertest (\path{test:e2e}), E2E \& \path{test-race-condition.js} \\
-\hline
-Pipeline CI/CD tự động hóa & Đã chạy thành công & \path{.github/workflows/ci.yml} (Pass: run \path{43728698541}) \& \path{cd.yml} (Build/push \path{ghcr.io} + Compose Smoke Test Pass: run \path{43728703140}) \\
-\hline
-Cổng dịch vụ, API \& health check & Sẵn sàng vận hành & \path{GET /health}, \path{GET /api/health} kiểm tra PostgreSQL trên Docker Compose (\path{:3000}, \path{:3001}) \& Cloudflare Tunnel HTTPS \\
-\hline
-Release notes, README \& rollback guide & Đầy đủ & \path{docs/RELEASE_NOTES.md}, \path{README.md}, \path{docs/deployment.md}, \path{docs/rollback-guide.md} \\
-\hline
-Biên bản tổng kết Sprint Retrospective & Đã hoàn thiện & \path{docs/sprints/sprint-retrospective.md} \\
-\hline
-\end{longtable}
-
-\end{document} 
+\end{document}

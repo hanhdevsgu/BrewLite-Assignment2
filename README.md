@@ -9,6 +9,7 @@
 > **Frontend Production (Vercel)**: [https://brew-lite-assignment2-flax.vercel.app](https://brew-lite-assignment2-flax.vercel.app)  
 > **Backend API Production (Render)**: [https://brewlite-api-hj1i.onrender.com](https://brewlite-api-hj1i.onrender.com)  
 > **Health Check & Swagger UI**: [https://brewlite-api-hj1i.onrender.com/api/health](https://brewlite-api-hj1i.onrender.com/api/health) | [https://brewlite-api-hj1i.onrender.com/api/docs](https://brewlite-api-hj1i.onrender.com/api/docs)  
+> **Video Demo End-to-End**: [Xem Video Demo trên Google Drive](https://drive.google.com/file/d/1HfsDMESCerJwyApW_HAX31Ze2mwgTawy/view?usp=sharing)  
 > **Nhánh tích hợp chính**: `develop` | **Nhánh chức năng**: 7 Feature Branches (`feat/p1` đến `feature/p7`)  
 
 ---
@@ -378,14 +379,16 @@ BrewLite-Assignment2/
 │   ├── diagrams/               # Task 2: Activity, Sequence, Class, Deployment (.drawio, .puml, .svg) & usecases/
 │   ├── architecture/           # Task 3: architecture.md & adr/ (001..005)
 │   ├── sprints/                # sprint-retrospective.md
+│   ├── report/                 # Bao_Cao_BrewLite_v16.tex & hình ảnh báo cáo
 │   ├── traceability-matrix.md  # Mục 8: Ma trận truy vết FR/NFR
 │   ├── deployment.md           # Hướng dẫn triển khai thực tế
 │   ├── rollback-guide.md       # Hướng dẫn hoàn nguyên phiên bản
-│   └── RELEASE_NOTES.md        # Ghi chú phát hành v1.0.0
+│   └── RELEASE_NOTES.md        # Ghi chú phát hành v1.0.0 & v1.0.1
 ├── tests/                      # Full-stack E2E tests (e2e/order-checkout.e2e-spec.ts)
-├── scripts/                    # Công cụ đồng bộ ảnh/diagram & test-race-condition.js
+├── scripts/                    # Công cụ đồng bộ diagram & test-race-condition.js
 ├── .github/workflows/          # ci.yml (Continuous Integration) & cd.yml (Continuous Delivery)
 ├── docker-compose.yml          # Điều phối 3 container: postgres, backend, frontend
+├── render.yaml                 # Render Blueprint triển khai Backend Docker & Managed PostgreSQL
 ├── .env.example                # Mẫu biến môi trường (không chứa secret thật)
 └── README.md                   # Hướng dẫn cài đặt, test, build, deploy & rollback
 ```
@@ -412,8 +415,8 @@ Toàn bộ các tạo phẩm theo đúng quy định tại đề tài **Assignme
 - [x] **SRS, đặc tả use-case và ma trận truy vết**: Đầy đủ tại `docs/requirements/` và `docs/traceability-matrix.md`
 - [x] **Activity, sequence, class và deployment diagram**: Đầy đủ tệp nguồn `.puml`, `.drawio` và ảnh kết xuất `.svg`/`.png` tại `docs/diagrams/` và `docs/report/img/`
 - [x] **Source code frontend, backend và migration**: `apps/web/`, `apps/api/`, `apps/api/prisma/migrations/`
-- [x] **Unit, integration và end-to-end test**: 12/12 suites (119/119 Jest Unit Tests) + 9/9 Supertest HTTP Integration (`apps/api/test/app.e2e-spec.ts`) + 49 Postman API Requests + `tests/e2e/order-checkout.e2e-spec.ts` (8 full-stack E2E cases)
-- [x] **Pipeline CI/CD chạy thành công**: `.github/workflows/ci.yml` và `.github/workflows/cd.yml`
+- [x] **Unit, integration và end-to-end test**: 12/12 suites (119/119 Jest Unit Tests pass) + 9/9 Supertest HTTP Integration (`apps/api/test/app.e2e-spec.ts` qua `FallbackStore`/mock `PrismaService`) + 49 Postman API Requests + `tests/e2e/order-checkout.e2e-spec.ts` (8 full-stack E2E cases) + `scripts/test-race-condition.js`
+- [x] **Pipeline CI/CD chạy thành công**: `.github/workflows/ci.yml` (`develop`, Pass: run `43733505308`, `43728698541`) và `.github/workflows/cd.yml` (`main`, Pass: run `43733505100`, `43728703140`; minh chứng Failed Gate trước khi fix ở `3e9207c`: `43585868394`, `43728146170`)
 - [x] **URL production, API và health check**: Frontend Vercel (`https://brew-lite-assignment2-flax.vercel.app`), Backend Render (`https://brewlite-api-hj1i.onrender.com`), Health Check (`https://brewlite-api-hj1i.onrender.com/api/health` trả về HTTP 200 `{ status: 'ok', database: 'connected' }`), Swagger (`https://brewlite-api-hj1i.onrender.com/api/docs`)
 - [x] **Release notes, README và hướng dẫn rollback**: `docs/RELEASE_NOTES.md`, `README.md`, `docs/rollback-guide.md`
-- [x] **Video/demo và Sprint Retrospective**: `docs/sprints/sprint-retrospective.md` và `docs/BrewLite_Full_API_Collection.postman_collection.json`
+- [x] **Video/demo và Sprint Retrospective**: [Video Demo End-to-End (Google Drive)](https://drive.google.com/file/d/1HfsDMESCerJwyApW_HAX31Ze2mwgTawy/view?usp=sharing), `docs/sprints/sprint-retrospective.md` và `docs/BrewLite_Full_API_Collection.postman_collection.json`
