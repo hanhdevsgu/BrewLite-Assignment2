@@ -7,7 +7,6 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { fallbackStore } from '../../prisma/fallback-store';
 import { OrderStatus, ReviewStatus } from '@prisma/client';
 import { IsString, IsNotEmpty, IsInt, Min, Max, IsOptional } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -66,11 +65,9 @@ export class ReviewsService {
 
     const effectiveProductId = dto.productId.trim();
 
-    // 1. Khi có kết nối PostgreSQL: Thực thi nghiêm ngặt nghiệp vụ KiemTraDaMua
-    if (this.prisma.isConnected) {
-      let finalCustId = '';
-      try {
-        const directCustomer = await this.prisma.customer.findUnique({ where: { id: actorId } });
+    let finalCustId = '';
+    try {
+      const directCustomer = await this.prisma.customer.findUnique({ where: { id: actorId } });
         if (directCustomer) {
           finalCustId = directCustomer.id;
         } else {
@@ -193,34 +190,7 @@ export class ReviewsService {
           }),
         );
         throw new BadRequestException('Không thể lưu đánh giá vào hệ thống');
-      }
     }
-
-    // 2. Chế độ Offline Fallback: Vẫn yêu cầu đơn COMPLETED chứa món từ fallbackStore
-    const offlineOrders = fallbackStore.getMyOrders(actorId);
-    const verifiedOfflineOrder = offlineOrders.find(
-      (o) =>
-        o.status === OrderStatus.COMPLETED &&
-        o.items.some((i) => i.variant?.product?.id === effectiveProductId),
-    );
-    if (!verifiedOfflineOrder) {
-      throw new ForbiddenException(
-        'Bạn chỉ có thể đánh giá sau khi đã mua và nhận hoàn tất (COMPLETED) món đồ uống này!',
-      );
-    }
-
-    return {
-      id: `rev-${Date.now()}`,
-      productId: effectiveProductId,
-      customerId: actorId,
-      orderId: verifiedOfflineOrder.id,
-      stars: dto.stars,
-      content: dto.content || 'Đồ uống rất ngon!',
-      status: ReviewStatus.VISIBLE,
-      customer: { fullName: 'Khách Hàng Thân Thiết' },
-      product: { name: 'Món nước BrewLite' },
-      createdAt: new Date(),
-    };
   }
 
   async updateReview(reviewId: string, actorId: string, stars?: number, content?: string) {
