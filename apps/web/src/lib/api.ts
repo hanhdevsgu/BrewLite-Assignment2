@@ -10,10 +10,11 @@ export function getApiBaseUrl(): string {
     if (host === 'localhost' || host === '127.0.0.1') {
       return 'http://127.0.0.1:3001/api';
     }
-    if (host) {
-      const port = process.env.NEXT_PUBLIC_API_PORT || '3001';
-      return `${window.location.protocol}//${host}:${port}/api`;
+    // Production (Vercel / custom domain): ưu tiên NEXT_PUBLIC_API_URL nếu khác localhost, ngược lại dùng Next.js rewrite /api
+    if (process.env.NEXT_PUBLIC_API_URL && !process.env.NEXT_PUBLIC_API_URL.includes('localhost') && !process.env.NEXT_PUBLIC_API_URL.includes('127.0.0.1')) {
+      return process.env.NEXT_PUBLIC_API_URL;
     }
+    return '/api';
   }
   return API_URL;
 }
