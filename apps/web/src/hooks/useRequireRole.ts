@@ -61,10 +61,10 @@ export function useRequireRole(allowedRoles: Role[]) {
       return;
     }
 
-    // 3. Kiểm tra thời hạn JWT: chỉ ép đăng xuất nếu KHÔNG có refresh token dự phòng
+    // 3. Kiểm tra tính hợp lệ và thời hạn JWT
     const payload = decodeJwtPayload(currentToken);
     const hasRefreshToken = Boolean(localStorage.getItem('brewlite_refresh_token'));
-    if (payload?.exp && payload.exp * 1000 < Date.now() && !hasRefreshToken) {
+    if (!payload || (payload.exp && payload.exp * 1000 < Date.now() && !hasRefreshToken)) {
       if (!hasRedirectedRef.current) {
         hasRedirectedRef.current = true;
         setReady(false);
