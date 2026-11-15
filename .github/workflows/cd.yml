@@ -12,6 +12,10 @@ permissions:
   contents: read
   packages: write
 
+concurrency:
+  group: brewlite-cd
+  cancel-in-progress: false
+
 jobs:
   delivery-and-deployment:
     name: Build, Package Docker Image, Deploy & Smoke Test
@@ -71,10 +75,11 @@ jobs:
           DEPLOY_WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
         run: |
           cd apps/api
-          npx prisma validate
           if [ -n "$DATABASE_URL" ]; then
+            npx prisma validate
             npx prisma migrate deploy
           else
+            DATABASE_URL="postgresql://postgres:postgres@localhost:5432/brewlite_db" npx prisma validate
             echo "DATABASE_URL secret not configured — schema validated; skipping remote migrate deploy."
           fi
           if [ -n "$DEPLOY_WEBHOOK_URL" ]; then
