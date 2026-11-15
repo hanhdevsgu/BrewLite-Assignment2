@@ -14,8 +14,8 @@ dist/
 *.tsbuildinfo
 
 # Prisma
-backend/prisma/*.db
-backend/prisma/*.db-journal
+apps/api/prisma/*.db
+apps/api/prisma/*.db-journal
 
 # Environment variables
 .env
@@ -23,8 +23,8 @@ backend/prisma/*.db-journal
 .env.development.local
 .env.test.local
 .env.production.local
-backend/.env
-frontend/.env.local
+apps/api/.env
+apps/web/.env.local
 
 # Logs
 npm-debug.log*

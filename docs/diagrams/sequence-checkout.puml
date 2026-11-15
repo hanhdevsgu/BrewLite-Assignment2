@@ -1,0 +1,107 @@
+@startuml sequence-checkout
+title Biểu đồ tuần tự Đặt hàng và Thanh toán Idempotent (UC-12 + UC-13) - BrewLite
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+
+actor "Customer\n(Khách hàng)" as Customer
+participant "Next.js UI\n(Frontend)" as UI
+participant "NestJS API\n(Controller)" as API
+participant "Payment\nService" as Service
+database "Database\n(PostgreSQL)" as DB
+
+== PHẦN 1: KHỞI TẠO ĐƠN HÀNG (PENDING) ==
+Customer -> UI : 1. Chọn Ví/Thẻ (hoặc 0đ) & bấm Thanh toán\n(Hoặc quét VietQR - poll mbbank-check 600ms)
+activate UI
+
+UI -> API : 2. POST /api/orders [Bearer <JWT>]\n{ items (variantId, qty, toppings), promotionCode, loyaltyPointsToUse }
+activate API
+note right of API
+  1. Check JWT, Roles & Validate DTO:
+  JwtAuthGuard + Roles(CUSTOMER),
+  customerId = user.customerId || user.profileId,
+  ValidationPipe (giỏ rỗng / variant sai / voucher không hợp lệ -> HTTP 400)
+  (Nếu thử lại từ /checkout?orderId=... thì bỏ qua Pha 1)
+end note
+
+API -> DB : 3. Query ProductVariant, validate Voucher\n& customer.findUnique(loyaltyPoints)
+activate DB
+DB --> API : 4. Thông tin biến thể, chiết khấu & điểm
+deactivate DB
+
+API -> DB : 5. prisma.$transaction\n- customer.update(-actualPointsUsed) [nếu dùng]\n- order.create(PENDING)\n- orderStatusHistory.create()
+activate DB
+DB --> API : 6. Commit & trả về Order
+deactivate DB
+
+API --> UI : 7. HTTP 201 Created:\n{ success: true, statusCode: 201, data: order }
+deactivate API
+UI --> Customer : 8. Lưu pendingOrderId (dùng chung thử lại/hủy)\n& tiếp nối ngay sang Pha 2
+deactivate UI
+
+== PHẦN 2: XÁC THỰC THANH TOÁN & IDEMPOTENCY ==
+Customer -> UI : 9. Tiếp nối handlePay() (hoặc bấm Thử lại /\nquét lại VietQR - poll mbbank-check 600ms)
+activate UI
+note over UI
+  2. Sinh Idempotency-Key & VietQR Polling:
+  Tạo UUIDv4 gắn Header (reset key khi đổi phương thức; đơn 0đ dùng method='WALLET');
+  CARD hỗ trợ poll GET /api/payments/mbbank-check/:orderCode (600ms)
+end note
+
+UI -> API : 10. POST /api/payments [Idempotency-Key: <UUIDv4>]\n{ orderId, method: 'WALLET' | 'CARD', simulateError?: 'FAIL' | 'TIMEOUT' }
+activate API
+note right of API
+  3. Check JWT, Roles, Header & DTO:
+  JwtAuthGuard + Roles(CUSTOMER); thiếu Header
+  Idempotency-Key hoặc sai DTO -> HTTP 400 Bad Request
+end note
+
+API -> Service : 11. processPayment(dto, key, user)
+activate Service
+Service -> DB : 12. payment.findUnique({ where: { idempotencyKey } })
+activate DB
+DB --> Service : 13. Kết quả tra cứu Payment
+deactivate DB
+
+alt TH 1: Idempotency-Key ĐÃ TỒN TẠI (Replay)
+  note over Service
+    4a. Xử lý Idempotency Replay & Chống tráo Payload:
+    Check chủ đơn (403) & orderId/method (lệch -> HTTP 422);
+    trùng khớp thì trả ngay kết quả cũ (KHÔNG trừ tiền/kho lần 2)
+  end note
+  Service --> API : 14. { cached: true, replayed: true, payment, order }
+  API --> UI : 15. HTTP 200 OK: { success: true, statusCode: 200, cached: true }
+  UI --> Customer : 16. Hiển thị kết quả an toàn (Không trừ tiền 2 lần)
+else TH 2: Idempotency-Key CHƯA TỒN TẠI (Mới)
+  note over Service
+    4b. Quyền sở hữu, Paid Guard & State Machine:
+    Check chủ đơn (403); chặn nếu PAID (409);
+    assertTransition(PENDING / PAYMENT_FAILED -> PAID)
+  end note
+  Service -> DB : 17. Bắt đầu Transaction ACID (prisma.$transaction)
+  activate DB
+  loop Khấu trừ kho (Optimistic Locking, Retry <= 3)
+    Service -> DB : 18. ingredient.updateMany({ stockQuantity: -qty, version: +1 })
+  end
+  note over Service
+    6. Gọi Cổng thanh toán (sau bước OCC):
+    mockGateway.processCharge({ amount, method, simulateError })
+  end note
+  Service -> DB : 19. payment.create(SUCCESS), order.update(PAID),\npromotion.update(+usedCount), customer.update(+points),\norderStatusHistory.create()
+  DB --> Service : 20. Commit thành công
+  deactivate DB
+  Service --> API : 21. { success: true, cached: false, payment, order, earnedPoints }
+  API --> UI : 22. HTTP 201 Created: { success: true, statusCode: 201, data: ... }
+  UI --> Customer : 23. TingTing, hủy QR (/mbbank-invalidate/:code)\n& chuyển trang đơn hàng /orders/:id (sau 2.6s)
+else TH 3: Thanh toán thất bại (Hết kho/OCC 409 hoặc Gateway 400 / 408 Timeout)
+  Service -> DB : 24. Rollback TX; nếu Gateway lỗi:\norder.update(PAYMENT_FAILED) & orderStatusHistory.create()
+  activate DB
+  DB --> Service : 25. Xác nhận Rollback
+  deactivate DB
+  Service --> API : 26. HTTP 409 Conflict / 400 Bad Request / 408 Timeout
+  deactivate Service
+  API --> UI : 27. HTTP 409 Conflict / 400 Bad Request / 408 Timeout
+  deactivate API
+  UI --> Customer : 28. Giữ pendingOrderId, hiện lỗi:\nThử lại hoặc Hủy đơn (POST /api/orders/:id/cancel)
+  deactivate UI
+end
+@enduml

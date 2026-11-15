@@ -6,6 +6,11 @@ on:
       - 'v*.*.*'
     branches:
       - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   delivery-and-deployment:
@@ -24,9 +29,9 @@ jobs:
       # 1. Quality Gate (Install, Lint, Test, Build)
       - name: 1. Run Quality Gate (Install, Lint, Test & Build)
         run: |
-          npm install
-          cd backend && npm install && npm run lint && npm test && npm run build
-          cd ../frontend && npm install && npm run lint && npm run build
+          npm ci || npm install
+          cd apps/api && (npm ci || npm install) && npm run lint && npm test && npm run build
+          cd ../web && (npm ci || npm install) && npm run lint && npm run build
 
       # 2. Tag image with Commit SHA & Semantic Version
       - name: 2. Generate Image Tags
@@ -50,21 +55,28 @@ jobs:
       - name: 5. Build & Push Docker Images
         run: |
           REPO_OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          docker build -t ghcr.io/$REPO_OWNER_LOWER/brewlite-backend:${{ env.SHORT_SHA }} -t ghcr.io/$REPO_OWNER_LOWER/brewlite-backend:${{ env.VERSION_TAG }} ./backend
-          docker build -t ghcr.io/$REPO_OWNER_LOWER/brewlite-frontend:${{ env.SHORT_SHA }} -t ghcr.io/$REPO_OWNER_LOWER/brewlite-frontend:${{ env.VERSION_TAG }} ./frontend
+          docker build -t ghcr.io/$REPO_OWNER_LOWER/brewlite-api:${{ env.SHORT_SHA }} -t ghcr.io/$REPO_OWNER_LOWER/brewlite-api:${{ env.VERSION_TAG }} ./apps/api
+          docker build -t ghcr.io/$REPO_OWNER_LOWER/brewlite-web:${{ env.SHORT_SHA }} -t ghcr.io/$REPO_OWNER_LOWER/brewlite-web:${{ env.VERSION_TAG }} ./apps/web
           if [ "${{ github.event_name }}" = "push" ] && [[ "${{ github.ref }}" == refs/tags/v* || "${{ github.ref }}" == "refs/heads/main" ]]; then
-            docker push ghcr.io/$REPO_OWNER_LOWER/brewlite-backend:${{ env.SHORT_SHA }}
-            docker push ghcr.io/$REPO_OWNER_LOWER/brewlite-backend:${{ env.VERSION_TAG }}
-            docker push ghcr.io/$REPO_OWNER_LOWER/brewlite-frontend:${{ env.SHORT_SHA }}
-            docker push ghcr.io/$REPO_OWNER_LOWER/brewlite-frontend:${{ env.VERSION_TAG }}
+            docker push ghcr.io/$REPO_OWNER_LOWER/brewlite-api:${{ env.SHORT_SHA }}
+            docker push ghcr.io/$REPO_OWNER_LOWER/brewlite-api:${{ env.VERSION_TAG }}
+            docker push ghcr.io/$REPO_OWNER_LOWER/brewlite-web:${{ env.SHORT_SHA }}
+            docker push ghcr.io/$REPO_OWNER_LOWER/brewlite-web:${{ env.VERSION_TAG }}
           fi
 
       # 4. Safe Database Migration & Deploy Hook
       - name: 6. Safe Database Migration & Deploy Trigger
         env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DEPLOY_WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
         run: |
-          cd backend && npx prisma -v
+          cd apps/api
+          npx prisma validate
+          if [ -n "$DATABASE_URL" ]; then
+            npx prisma migrate deploy
+          else
+            echo "DATABASE_URL secret not configured — schema validated; skipping remote migrate deploy."
+          fi
           if [ -n "$DEPLOY_WEBHOOK_URL" ]; then
             curl -fsSL -X POST "$DEPLOY_WEBHOOK_URL"
           else
@@ -78,20 +90,38 @@ jobs:
         run: |
           if [ -n "$PROD_HEALTH_URL" ]; then
             echo "Executing Smoke Test on $PROD_HEALTH_URL..."
-            curl -fsSL "$PROD_HEALTH_URL"
+            RESPONSE=$(curl -fsSL "$PROD_HEALTH_URL")
+            echo "$RESPONSE"
+            echo "$RESPONSE" | grep -q '"status":"ok"'
           else
-            echo "PROD_HEALTH_URL secret not configured — verifying local health route definition."
-            grep -q "api/health" backend/src/app.controller.ts
+            echo "PROD_HEALTH_URL secret not configured — running full-stack Docker Compose container smoke test..."
+            docker compose up -d --build
+            for i in $(seq 1 30); do
+              if curl -fsS http://127.0.0.1:3001/api/health | grep -q '"database":"connected"'; then
+                echo "API Health Check passed:"
+                curl -s http://127.0.0.1:3001/api/health
+                echo ""
+                break
+              fi
+              if [ "$i" -eq 30 ]; then
+                docker compose logs --tail=50
+                docker compose down -v
+                exit 1
+              fi
+              sleep 3
+            done
+            curl -fsSI http://127.0.0.1:3000 | head -n 5
+            docker compose down -v
           fi
 
       # 6. Rollback Mechanism (Triggered on Failure)
       - name: 8. Rollback Trigger (On Failure)
         if: failure()
         run: |
+          docker compose down -v || true
           echo "========================================================="
           echo "🚨 CRITICAL: DEPLOYMENT OR SMOKE TEST FAILED!"
           echo "Kích hoạt cơ chế Rollback tự động về phiên bản trước đó..."
           echo "Xem chi tiết hướng dẫn Rollback tại: docs/rollback-guide.md"
           echo "========================================================="
           exit 1
-

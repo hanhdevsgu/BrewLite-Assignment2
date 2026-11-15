@@ -1,0 +1,17 @@
+{
+  "name": "BrewLite — Quầy Cà Phê Thủ Công Không Tiền Mặt",
+  "short_name": "BrewLite",
+  "description": "Gọi trước, nhận nhanh ở quầy. Đặt đồ uống không tiền mặt với VietQR & Ví điện tử.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF6F0",
+  "theme_color": "#2B211A",
+  "lang": "vi",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -119,7 +119,7 @@
   - **Optimistic Concurrency Control (OCC):** Trừ kho nguyên liệu đồng thời qua cột `version` trên `Ingredient`, tự động retry tối đa 3 lần khi nhiều khách đặt cùng lúc.
   - **Bảng Kanban Pha chế Barista (`/staff`):** Màn hình theo dõi và điều phối đơn hàng thời gian thực cho nhân viên quầy bar theo nguyên tắc FIFO (vào trước làm trước).
   - **Admin Dashboard (`/admin`):** Màn hình quản trị doanh thu, tồn kho nguyên liệu, nhập hàng và lịch sử thanh toán.
-  - **DevOps & Testing:** Cấu hình `docker-compose.yml` (Postgres, NestJS, Next.js), Dockerfile tối ưu đa tầng (Multi-stage build), trọn bộ 5 test suites (43 unit tests Jest) và script kiểm thử đồng thời `scripts/test-race-condition.js`.
+  - **DevOps & Testing:** Cấu hình `docker-compose.yml` (Postgres, NestJS, Next.js), Dockerfile tối ưu đa tầng (Multi-stage build), trọn bộ 11 test suites (113 unit tests Jest) và script kiểm thử đồng thời `scripts/test-race-condition.js`.
 - **Files code phụ trách:**
   - `backend/src/modules/orders/order-state-machine.*`
   - `backend/src/modules/payment/payment.service.ts` (OCC & Idempotency)

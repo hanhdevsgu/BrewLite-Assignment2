@@ -15,7 +15,7 @@ Chuỗi cửa hàng cà phê **BrewLite Coffee** phục vụ lượng lớn khá
 3. **Nguy cơ trùng lặp giao dịch thanh toán**: Khi khách hàng thanh toán trực tuyến trong điều kiện kết nối mạng không ổn định, việc thao tác nhấn gửi lại nhiều lần có thể dẫn đến giao dịch bị xử lý trùng lặp (trừ tiền nhiều lần cho cùng một đơn hàng).
 4. **Rào cản cài đặt ứng dụng**: Khách hàng thường ngại tải và cài đặt ứng dụng di động riêng chỉ để đặt đồ uống nhanh tại cửa hàng.
 
-**Giải pháp**: Xây dựng nền tảng **BrewLite** theo mô hình **PWA (Progressive Web App) Mobile-First**, kết hợp Backend xử lý giao dịch an toàn (ACID Transaction, Idempotent Payment, Optimistic Concurrency Control) giúp khách hàng quét mã gọi món ngay trên trình duyệt, thanh toán nhanh chóng và theo dõi tiến độ pha chế theo thời gian thực.
+**Giải pháp**: Xây dựng nền tảng **BrewLite** theo mô hình **Mobile-First Web App (kèm `manifest.webmanifest`)**, kết hợp Backend xử lý giao dịch an toàn (ACID Transaction, Idempotent Payment, Optimistic Concurrency Control) giúp khách hàng quét mã gọi món ngay trên trình duyệt, thanh toán nhanh chóng và theo dõi tiến độ pha chế theo thời gian thực.
 
 ---
 
@@ -83,7 +83,7 @@ graph TD
 - Tích hợp máy in hóa đơn nhiệt kết nối Bluetooth/LAN tại quầy Barista.
 
 ### 3.3. Ngoài phạm vi (Out-of-Scope)
-- **Không** xây dựng ứng dụng Native Mobile (Swift/Kotlin) để đưa lên Google Play / App Store; dự án tập trung tối ưu PWA trên trình duyệt di động.
+- **Không** xây dựng ứng dụng Native Mobile (Swift/Kotlin) để đưa lên Google Play / App Store; dự án tập trung tối ưu trải nghiệm Mobile-First Web App trên trình duyệt di động.
 - **Không** quản lý chuỗi nhượng quyền đa chi nhánh (Multi-tenant/Multi-store); chỉ tập trung cho 1 cửa hàng chuẩn.
 - **Không** hỗ trợ thanh toán tiền mặt truyền thống không có xác nhận trên hệ thống.
 
@@ -97,7 +97,7 @@ graph TD
 - Đơn vị tiền tệ thanh toán là Việt Nam Đồng (VND), chưa hỗ trợ đa tiền tệ trong phiên bản này.
 
 ### 4.2. Ràng buộc kỹ thuật & quy chuẩn (Constraints)
-- **Frontend**: Bắt buộc sử dụng **Next.js** (App Router / Pages), thiết kế giao diện Mobile-First/PWA với Tailwind CSS.
+- **Frontend**: Bắt buộc sử dụng **Next.js** (App Router), thiết kế giao diện Mobile-First với Tailwind CSS và Web App Manifest (`/manifest.webmanifest`).
 - **Backend**: Bắt buộc sử dụng **NestJS** theo kiến trúc Modular / Domain-Driven, áp dụng Dependency Injection.
 - **Cơ sở dữ liệu**: Bắt buộc sử dụng **PostgreSQL**, quản lý schema và migration qua **Prisma ORM**.
 - **Container hóa**: Bắt buộc có `docker-compose.yml` để khởi chạy đầy đủ Database, API và Frontend ở môi trường local.

@@ -678,7 +678,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"productId\": \"{{testProductId}}\",\n  \"rating\": 5,\n  \"comment\": \"Cà phê rất thơm và đậm đà!\"\n}"
+              "raw": "{\n  \"productId\": \"{{testProductId}}\",\n  \"stars\": 5,\n  \"content\": \"Cà phê rất thơm và đậm đà!\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/reviews",
@@ -720,7 +720,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"rating\": 4,\n  \"comment\": \"Cập nhật lại: Đồ uống ngon, phục vụ nhanh!\"\n}"
+              "raw": "{\n  \"stars\": 4,\n  \"content\": \"Cập nhật lại: Đồ uống ngon, phục vụ nhanh!\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/reviews/{{reviewId}}",

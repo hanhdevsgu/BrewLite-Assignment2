@@ -20,8 +20,8 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 const ROOT_DIR = path.resolve(__dirname, '..');
-const BACKEND_DIR = path.join(ROOT_DIR, 'backend');
-const FRONTEND_DIR = path.join(ROOT_DIR, 'frontend');
+const BACKEND_DIR = path.join(ROOT_DIR, 'apps', 'api');
+const FRONTEND_DIR = path.join(ROOT_DIR, 'apps', 'web');
 
 function run(command, cwd = ROOT_DIR, ignoreError = false) {
   try {
@@ -59,12 +59,12 @@ async function main() {
   copyIfNotExist(
     path.join(BACKEND_DIR, '.env.example'),
     path.join(BACKEND_DIR, '.env'),
-    'backend/.env'
+    'apps/api/.env'
   );
   copyIfNotExist(
     path.join(FRONTEND_DIR, '.env.example'),
     path.join(FRONTEND_DIR, '.env.local'),
-    'frontend/.env.local'
+    'apps/web/.env.local'
   );
   copyIfNotExist(
     path.join(ROOT_DIR, '.env.example'),

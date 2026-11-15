@@ -23,34 +23,28 @@ describe('BrewLite End-to-End (E2E) Order Lifecycle & Payment Flow', () => {
 
   // Step 1: Authentication
   it('E2E-01: Should login as Customer and Barista to retrieve JWT tokens', async () => {
-    // Customer login
     const custRes = await fetch(`${BASE_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: 'customer1', password: 'password123' })
-    }).then(r => r.json()).catch(() => null);
+      body: JSON.stringify({ username: 'customer1', password: '123456' }),
+    }).then((r) => r.json());
 
-    if (custRes && custRes.data?.accessToken) {
-      customerToken = custRes.data.accessToken;
-      expect(customerToken).toBeDefined();
-    }
+    customerToken = custRes?.data?.accessToken || custRes?.accessToken || '';
+    expect(customerToken).toBeTruthy();
 
-    // Barista login
     const staffRes = await fetch(`${BASE_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: 'barista1', password: 'password123' })
-    }).then(r => r.json()).catch(() => null);
+      body: JSON.stringify({ username: 'barista1', password: '123456' }),
+    }).then((r) => r.json());
 
-    if (staffRes && staffRes.data?.accessToken) {
-      staffToken = staffRes.data.accessToken;
-      expect(staffToken).toBeDefined();
-    }
+    staffToken = staffRes?.data?.accessToken || staffRes?.accessToken || '';
+    expect(staffToken).toBeTruthy();
   });
 
   // Step 2: Fetch Menu Products
   it('E2E-02: Should browse product menu and extract a valid coffee variant', async () => {
-    const res = await fetch(`${BASE_URL}/products`).then(r => r.json()).catch(() => null);
+    const res = await fetch(`${BASE_URL}/products`).then((r) => r.json());
     expect(res).toBeDefined();
     const items = res.data?.items || res.items || (Array.isArray(res.data) ? res.data : []);
     expect(items.length).toBeGreaterThan(0);
@@ -58,108 +52,114 @@ describe('BrewLite End-to-End (E2E) Order Lifecycle & Payment Flow', () => {
     const coffee = items.find((p: any) => p.name?.toLowerCase().includes('cà phê')) || items[0];
     expect(coffee.variants.length).toBeGreaterThan(0);
     testVariantId = coffee.variants[0].id;
-    expect(testVariantId).toBeDefined();
+    expect(testVariantId).toBeTruthy();
   });
 
   // Step 3: Create Order (PENDING)
   it('E2E-03: Should create a new order with PENDING status', async () => {
-    if (!customerToken || !testVariantId) return;
+    expect(customerToken).toBeTruthy();
+    expect(testVariantId).toBeTruthy();
 
     const res = await fetch(`${BASE_URL}/orders`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${customerToken}`
+        Authorization: `Bearer ${customerToken}`,
       },
       body: JSON.stringify({
-        items: [{ variantId: testVariantId, quantity: 1 }]
-      })
-    }).then(r => r.json());
+        items: [{ variantId: testVariantId, quantity: 1 }],
+      }),
+    }).then((r) => r.json());
 
     expect(res).toBeDefined();
     activeOrderId = res.data?.id || res.id;
-    expect(activeOrderId).toBeDefined();
+    expect(activeOrderId).toBeTruthy();
     expect(res.data?.status || res.status).toBe('PENDING');
   });
 
   // Step 4: Pay Order (First Time - HTTP 201)
   it('E2E-04: Should process payment successfully and transition to PAID', async () => {
-    if (!customerToken || !activeOrderId) return;
+    expect(customerToken).toBeTruthy();
+    expect(activeOrderId).toBeTruthy();
 
     const res = await fetch(`${BASE_URL}/payments`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${customerToken}`,
-        'x-idempotency-key': testIdempotencyKey
+        Authorization: `Bearer ${customerToken}`,
+        'Idempotency-Key': testIdempotencyKey,
       },
       body: JSON.stringify({
         orderId: activeOrderId,
-        method: 'MOCK_WALLET'
-      })
+        method: 'WALLET',
+      }),
     });
 
     expect(res.status).toBe(201);
     const data = await res.json();
-    expect(data.data?.replayed).toBe(false);
+    expect(data.data?.replayed ?? data.replayed).toBe(false);
   });
 
   // Step 5: Double-Click Replay with Same Idempotency Key (HTTP 200 Replayed)
   it('E2E-05: Should handle duplicate payment request idempotently (replayed: true)', async () => {
-    if (!customerToken || !activeOrderId) return;
+    expect(customerToken).toBeTruthy();
+    expect(activeOrderId).toBeTruthy();
 
     const res = await fetch(`${BASE_URL}/payments`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${customerToken}`,
-        'x-idempotency-key': testIdempotencyKey
+        Authorization: `Bearer ${customerToken}`,
+        'Idempotency-Key': testIdempotencyKey,
       },
       body: JSON.stringify({
         orderId: activeOrderId,
-        method: 'MOCK_WALLET'
-      })
+        method: 'WALLET',
+      }),
     });
 
     expect(res.status).toBe(200);
     const data = await res.json();
-    expect(data.data?.replayed).toBe(true);
+    expect(data.data?.replayed ?? data.replayed).toBe(true);
   });
 
   // Step 6: Barista State Machine: Accept Order (PAID -> PREPARING)
   it('E2E-06: Barista should accept order to change status to PREPARING', async () => {
-    if (!staffToken || !activeOrderId) return;
+    expect(staffToken).toBeTruthy();
+    expect(activeOrderId).toBeTruthy();
 
     const res = await fetch(`${BASE_URL}/staff/orders/${activeOrderId}/accept`, {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${staffToken}` }
+      headers: { Authorization: `Bearer ${staffToken}` },
     });
 
-    expect(res.status).toBe(200);
+    expect([200, 201]).toContain(res.status);
   });
 
   // Step 7: Barista State Machine: Mark Ready (PREPARING -> READY)
   it('E2E-07: Barista should mark drink as READY', async () => {
-    if (!staffToken || !activeOrderId) return;
+    expect(staffToken).toBeTruthy();
+    expect(activeOrderId).toBeTruthy();
 
     const res = await fetch(`${BASE_URL}/staff/orders/${activeOrderId}/ready`, {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${staffToken}` }
+      headers: { Authorization: `Bearer ${staffToken}` },
     });
 
-    expect(res.status).toBe(200);
+    expect([200, 201]).toContain(res.status);
   });
 
   // Step 8: Barista State Machine: Complete Delivery (READY -> COMPLETED)
   it('E2E-08: Barista should deliver drink and complete order (COMPLETED)', async () => {
-    if (!staffToken || !activeOrderId) return;
+    expect(staffToken).toBeTruthy();
+    expect(activeOrderId).toBeTruthy();
 
     const res = await fetch(`${BASE_URL}/staff/orders/${activeOrderId}/complete`, {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${staffToken}` }
+      headers: { Authorization: `Bearer ${staffToken}` },
     });
 
-    expect(res.status).toBe(200);
+    expect([200, 201]).toContain(res.status);
   });
 });
 

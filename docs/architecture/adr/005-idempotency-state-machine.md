@@ -9,12 +9,12 @@
 Trong môi trường mạng di động, khách hàng thường gặp sự cố kết nối chậm hoặc chập chờn dẫn đến việc bấm nút thanh toán nhiều lần. Điều này tiềm ẩn nguy cơ trừ tiền tài khoản 2 lần (Race condition / Double-charging). Đồng thời, nhân viên quầy có thể thao tác sai thứ tự chuyển trạng thái đơn hàng (ví dụ: chuyển thẳng từ PENDING sang COMPLETED).
 
 ## 2. Quyết Định (Decision)
-1. **Idempotency-Key (Task 8)**: Toàn bộ request gọi đến `POST /api/payments` phải đính kèm tiêu đề HTTP `x-idempotency-key`. Hệ thống lưu trữ key và trạng thái xử lý trong CSDL:
-   - Request lần 1: Thực hiện thanh toán và trả về `HTTP 201 Created` (`replayed: false`).
-   - Request lần 2 (cùng key): Hệ thống bỏ qua bước xử lý tiền/kho, lập tức trả về kết quả cũ với mã `HTTP 200 OK` (`replayed: true`).
+1. **Idempotency-Key (Task 8)**: Toàn bộ request gọi đến `POST /api/payments` phải đính kèm tiêu đề HTTP `Idempotency-Key` (`idempotency-key`). Hệ thống lưu trữ key và trạng thái xử lý trong CSDL:
+   - Request lần 1: Thực hiện thanh toán (`PaymentStatus.SUCCESS`) và trả về `HTTP 201 Created` (`replayed: false`).
+   - Request lần 2 (cùng key & cùng chủ sở hữu đơn hàng): Hệ thống bỏ qua bước xử lý tiền/kho, lập tức trả về kết quả cũ với mã `HTTP 200 OK` (`replayed: true`).
 2. **Order State Machine (Task 9)**: Áp dụng máy trạng thái hữu hạn cho vòng đời đơn hàng:
    $$\text{PENDING} \longrightarrow \text{PAID} \longrightarrow \text{PREPARING} \longrightarrow \text{READY} \longrightarrow \text{COMPLETED}$$
-   Mọi hành vi chuyển trạng thái không hợp lệ (nhảy cóc) đều bị chặn đứng và ném ngoại lệ `HTTP 409 Conflict`.
+   Ngoài ra hỗ trợ chuyển sang `CANCELLED` từ `PENDING`, `PAYMENT_FAILED` hoặc `PAID` (hoàn kho nguyên liệu và hoàn điểm Loyalty tương ứng); mọi hành vi chuyển trạng thái không hợp lệ đều bị chặn và ném ngoại lệ `HTTP 409 Conflict`.
 
 ## 3. Lý Do & Hệ Quả (Consequences & Trade-offs)
 - **Ưu điểm**:

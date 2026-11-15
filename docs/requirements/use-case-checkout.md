@@ -49,7 +49,7 @@ graph LR
 | **Mã định danh** | **UC-12 & UC-13** (tương ứng Hình 1.2 trong báo cáo kiến trúc) |
 | **Actor chính** | Khách hàng đã đăng nhập (`Customer`) |
 | **Actor phụ** | Cổng thanh toán mô phỏng (`Mock Payment Gateway`), Nhân viên quầy (`Barista`) |
-| **Trigger (Kích hoạt)** | Khách hàng bấm nút **"Xác nhận thanh toán"** trên màn hình Giỏ hàng / Thanh toán của giao diện Next.js PWA. |
+| **Trigger (Kích hoạt)** | Khách hàng bấm nút **"Xác nhận thanh toán"** trên màn hình Giỏ hàng / Thanh toán của giao diện Next.js Mobile-First Web App. |
 | **Liên kết yêu cầu (Traceability)** | **FR-03** (Giỏ hàng), **FR-04** (Xác thực JWT), **FR-06** (Tạo đơn hàng), **FR-07** (Thanh toán Idempotent), **FR-08** (Order State Machine), **FR-09** (Trừ kho OCC), **NFR-02** (Bảo mật), **NFR-04** (Tính toàn vẹn ACID). |
 
 ---
@@ -82,7 +82,7 @@ graph LR
 2. **Bước 2**: Client Frontend Next.js tự động tạo một khóa ngẫu nhiên duy nhất `idempotencyKey` (chuẩn UUID v4).
 3. **Bước 3**: Client gửi request `POST /api/orders` kèm theo Bearer JWT Token để khởi tạo đơn hàng mới.
 4. **Bước 4**: Backend NestJS xác thực JWT, tính toán tổng tiền, tạo bản ghi `Order` với trạng thái `PENDING` và trả về `orderId`.
-5. **Bước 5**: Client gửi tiếp request thanh toán `POST /api/payments` chứa `orderId`, phương thức thanh toán (`BANK_TRANSFER` / `WALLET`) và header `Idempotency-Key: <idempotencyKey>`.
+5. **Bước 5**: Client gửi tiếp request thanh toán `POST /api/payments` chứa `orderId`, phương thức thanh toán (`CARD` / `WALLET`; riêng đơn 0đ dùng `WALLET`) và header `Idempotency-Key: <idempotencyKey>`.
 6. **Bước 6**: Backend kiểm tra `idempotencyKey` trong bảng `Payment`:
    - Không tìm thấy khóa trùng ➔ Xác định đây là giao dịch mới (First Execution).
 7. **Bước 7**: Backend mở một Interactive Database Transaction (`prisma.$transaction`):
@@ -90,7 +90,7 @@ graph LR
    - Kiểm tra điều kiện tồn kho ≥ số lượng định lượng yêu cầu.
    - Cập nhật số lượng tồn kho mới và tăng cột `version` lên 1 (Optimistic Locking).
    - Chuyển trạng thái đơn hàng từ `PENDING` ➔ `PAID`.
-   - Tạo bản ghi `Payment` với `status: COMPLETED` và `idempotencyKey`.
+   - Tạo bản ghi `Payment` với `status: PaymentStatus.SUCCESS` và `idempotencyKey`.
 8. **Bước 8**: Backend commit transaction thành công, trả về phản hồi `HTTP 201 Created` kèm `replayed: false`.
 9. **Bước 9**: Giao diện hiển thị màn hình chúc mừng "Thanh toán thành công!", xóa giỏ hàng và chuyển hướng khách hàng sang trang **Theo dõi đơn hàng** (`/orders/:id`).
 
@@ -114,9 +114,9 @@ graph LR
 
 #### A3: Khách hàng hủy đơn hàng (Cancel Order & Hoàn kho tự động)
 - Khách hàng gửi yêu cầu hủy đơn qua API `POST /api/orders/:id/cancel`.
-- Nếu đơn ở trạng thái `PENDING`: Đơn lập tức chuyển sang `CANCELLED`.
-- Nếu đơn ở trạng thái `PAID` (trước khi Barista nhận đơn `PREPARING`): Backend kích hoạt giao dịch bù (Compensating Transaction) tự động hoàn trả số lượng tồn kho nguyên liệu (`stockQuantity.increment`) theo công thức, hoàn tiền ví điện tử và thu hồi điểm thưởng loyalty.
-- Nếu đơn đã sang `PREPARING`: Yêu cầu hủy bị từ chối (HTTP 400/409) do nguyên liệu đã đưa vào pha chế thực tế.
+- Nếu đơn ở trạng thái `PENDING` hoặc `PAYMENT_FAILED`: Đơn lập tức chuyển sang `CANCELLED` và hoàn lại điểm Loyalty đã đổi (nếu có).
+- Nếu đơn ở trạng thái `PAID` (trước khi Barista nhận đơn `PREPARING`): Backend kích hoạt giao dịch bù (Compensating Transaction) tự động hoàn trả số lượng tồn kho nguyên liệu (`stockQuantity.increment`) theo công thức, hoàn lượt dùng voucher, hoàn điểm đã dùng và thu hồi điểm đã tích lũy (phần ví mô phỏng do UI cập nhật cục bộ).
+- Nếu đơn đã sang `PREPARING`: Yêu cầu hủy bị từ chối (`HTTP 409 Conflict`) do nguyên liệu đã đưa vào pha chế thực tế.
 
 ---
 

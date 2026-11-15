@@ -746,7 +746,7 @@ Lựa chọn A (BẮT BUỘC THEO ĐỀ BÀI): Modern Monorepo NestJS + Next.js 
 ═════════════════════════════════════════════════════════════════════════════════
 • Cấu trúc Monorepo: /frontend, /backend, docker-compose.yml ở root
 • Backend: NestJS 10, TypeScript, Prisma ORM, Passport JWT, class-validator, Swagger
-• Frontend: Next.js 14/15 App Router, TypeScript, TailwindCSS, TanStack React Query, Zustand
+• Frontend: Next.js 14 App Router, TypeScript, TailwindCSS, Zustand persist, fetch + JWT Auto-Refresh (`lib/api.ts`), `manifest.webmanifest`
 • Cơ sở dữ liệu: PostgreSQL 16 (Hỗ trợ Transaction, Row-level Locking, Decimal chính xác)
 • Cổng thanh toán: Mock Payment Gateway Module độc lập tích hợp sẵn trong backend
 • Kiểm thử: Jest + Supertest (Backend), React Testing Library (Frontend)

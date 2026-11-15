@@ -38,7 +38,7 @@ services:
   # ---------------------------------------------------------------------------------------
   backend:
     build:
-      context: ./backend
+      context: ./apps/api
       dockerfile: Dockerfile
     container_name: brewlite_backend
     restart: always
@@ -49,7 +49,9 @@ services:
       - PORT=3001
       - DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/brewlite_db?schema=public
       - JWT_SECRET=brewlite_super_secret_jwt_key_2026
+      - JWT_EXPIRES_IN=15m
       - JWT_REFRESH_SECRET=brewlite_refresh_secret_key_2026
+      - JWT_REFRESH_EXPIRES_IN=7d
       - FRONTEND_URL=http://localhost:3000
     depends_on:
       # Chỉ khởi động Backend sau khi PostgreSQL đã hoàn toàn pass bài test sức khỏe (service_healthy)
@@ -61,7 +63,7 @@ services:
   # ---------------------------------------------------------------------------------------
   frontend:
     build:
-      context: ./frontend
+      context: ./apps/web
       dockerfile: Dockerfile
       args:
         - NEXT_PUBLIC_API_URL=http://localhost:3001/api # Đường dẫn API nạp vào lúc build Next.js

@@ -1,5 +1,35 @@
 # CHANGELOG - BrewLite Platform
 
+## [Unreleased] - 2026-11-15
+
+### Added
+- **Sprint 1 Product Unit & HTTP Integration Tests (`backend/src/modules/products/products.service.spec.ts`, `backend/test/app.e2e-spec.ts`)**:
+  - Added 6 Jest unit tests in `products.service.spec.ts` covering `findAll` DB `isOutOfStock`, category filtering & pagination fallback, `findOne` DB/sample/`NotFoundException`, and `getToppings` (bringing backend suite total to **12 suites / 119 unit tests**).
+  - Added `IT-09` in `backend/test/app.e2e-spec.ts` validating `GET /api/products`, `GET /api/products/toppings`, `GET /api/products/prod-001`, and `404` error handling (bringing Supertest HTTP integration total to **9 test cases**).
+- **Assignment 2 Specification Completeness (`docs/report/Bao_Cao_BrewLite_v16.tex`, `docs/requirements/srs.md`, `docs/traceability-matrix.md`, `README.md`)**:
+  - Added Overview / Scope / 5-Task workflow (`Mục 1 & 2`), `Future Scope`, `FR-14 (Won't)` MoSCoW row, `UC-12`, `UC-18`, separated `Alternative` vs `Exception` flows in `UC-13`, C4 Context/Container & cross-cutting details (`AllExceptionsFilter`, `TransformInterceptor`, `ConfigService`, `MockGatewayService`, `/health`/`/api/health`, Prisma migration SQL), Deployment component traceability table (`Bảng 3.4`), Repo mapping (`Mục 9`) & 2-Sprint Product Backlog (`Bảng 4.1`–`4.2`), Sprint 1 test notes, separated Task `5.3` CD vs `5.4` Handover sections, and `README.md` `5.9` Build, `5.10` Deploy Production, & `5.11` Rollback sections (leaving Class Diagram Section 2.3 and `class-diagram.*` / `01-usecase-overall.drawio` / `Usecase_cnpm_01.drawio.png` completely untouched).
+
+### Fixed
+- **Cancel Pending/Payment-Failed Order Loyalty Points Refund (`backend/src/modules/orders/orders.service.ts`, `orders.service.spec.ts`)**:
+  - Recorded `[REDEEMED_POINTS:N]` inside the initial `OrderStatusHistory` `note` on `createOrder` whenever loyalty points are redeemed so `cancelOrder` can accurately restore redeemed points on `PENDING`, `PAYMENT_FAILED`, and `PAID` cancellations without schema changes.
+  - Added unit test #6 in `orders.service.spec.ts` verifying redeemed loyalty point refund when cancelling an unpaid `PAYMENT_FAILED` order.
+- **Checkout Pending Order Lifecycle & Method Switch Safety (`frontend/src/app/checkout/page.tsx`)**:
+  - Tracked `pendingOrderId` & `cancellingOrder` state synced with `existingOrderRef.current`, added `handleSelectPaymentMethod(method)` to reset `idempotencyKeyRef.current` & `errorMsg` safely when switching `WALLET` ↔ `CARD` without recreating duplicate orders.
+  - Added `handleCancelPendingOrder()` calling `POST /api/orders/:id/cancel` + `/api/payments/mbbank-invalidate/:code` alongside a shared `pendingCancelBanner` across `0đ`, `CARD`, and `WALLET` modes plus missing error alert display in `WALLET` mode.
+- **SVG PlantUML Renderer Fix (`scripts/render-diagrams.js`)**:
+  - Switched PlantUML rendering from oversized `~h` hex URLs (HTTP 400 on larger diagrams) to PlantUML zlib-deflate encoding (`zlib.deflateRawSync`) with response validation (`<svg` check, no error SVG) and regenerated all 4 `.svg` diagrams cleanly.
+- **Backend Production Entrypoint (`backend/package.json`)**:
+  - Fixed `"start:prod"` from `"node dist/main"` (missing module) to `"node dist/src/main"` matching NestJS compiler output `backend/dist/src/main.js`.
+
+### Changed
+- **Monochrome UML Deployment Diagram & Infrastructure Alignment**:
+  - **Deployment Diagram (`docs/diagrams/deployment-diagram.{drawio,puml,svg}`, `docs/BrewLite_Deployment_Diagram.drawio`, `docs/report/img/deployment-brewlite.png`)**: Replaced the colored deployment diagram and speculative Vercel/Render/Supabase references with a clean monochrome UML 3D-cube diagram aligned 100% with the repo's Cloudflare HTTPS Edge (`:443`) + 3-container Docker Compose topology on `brewlite_network` (`brewlite_frontend :3000`, `brewlite_backend :3001`, `brewlite_postgres :5432` + `brewlite_postgres_data`), CI/CD (`GitHub Actions` + `ghcr.io`, `POST DEPLOY_WEBHOOK_URL`, `GET PROD_HEALTH_URL`), internal `MockGatewayService`, mobile `/mbbank` flow, `/api/health`, `AllExceptionsFilter`, Env Secrets, all 8 NestJS modules, and dashed Local / CI / Production boundaries.
+  - **Deployment, Rollback & Architecture Docs (`docs/deployment.md`, `docs/rollback-guide.md`, `docs/architecture/architecture.md`, `docs/architecture/adr/003-pwa-mobile-first.md`, `docs/architecture/adr/005-idempotency-state-machine.md`, `docs/traceability-matrix.md`, `docs/sprints/sprint-retrospective.md`, `.env.example`, `docs/report/Bao_Cao_BrewLite_v16.tex` Section 3.2)**: Removed unimplemented Vercel/Render/Supabase claims in favor of the actual Cloudflare Tunnel + 3-container Docker Compose deployment, fixed invalid root `npm run build`/`npm run start` commands, documented `INTERNAL_BACKEND_URL`, `PaymentStatus.SUCCESS`, `PAID -> CANCELLED` state transitions, accurate `AllExceptionsFilter` logging, Mobile-First Web status (no false `manifest.json`/Service Worker claim), and synced Table 3.3 & NFR-03 in the LaTeX report.
+- **100% Source ↔ UML ↔ Traceability ↔ LaTeX Report Alignment**:
+  - **Class Diagram (`docs/diagrams/class-diagram.{puml,drawio,svg}`, `docs/BrewLite_Class_Diagram.drawio`, `docs/report/img/class-diagram.png`)**: Aligned with all **17 Prisma models** + all **7 Prisma enums** (`Role`, `AccountStatus`, `OrderStatus`, `PaymentStatus`, `PaymentMethod`, `PromotionType`, `ReviewStatus`) + `LoyaltyTransaction` annotated as `«Logical Domain View»` (`Customer.loyaltyPoints` + `OrderStatusHistory`), corrected `Order` `1 *-- 0..*` `Payment` multiplicity, and aligned English entity names across UML, `docs/traceability-matrix.md`, and `docs/report/Bao_Cao_BrewLite_v16.tex` (Section 2.3).
+  - **Sequence Diagram (`docs/sequence.drawio`, `docs/diagrams/sequence-checkout.{puml,drawio,svg}`, `docs/BrewLite_Sequence_Diagram_Order_Payment.drawio`, `docs/report/img/Sequence_Diagram.png`)**: Synced with `checkout/page.tsx` 2-phase auto-continuation, VietQR `mbbank-check` & `mbbank-invalidate`, `ValidationPipe` HTTP `400 Bad Request` notes, `simulateError?: 'FAIL' | 'TIMEOUT'`, and in-page `/checkout` order cancellation, plus updated Section 2.2 of `docs/report/Bao_Cao_BrewLite_v16.tex`.
+  - **Activity Diagram (`docs/diagrams/activity-end-to-end.{puml,drawio,svg}`, `docs/BrewLite_Activity_Diagram_EndToEnd.drawio`, `docs/report/img/activity-diagram.png`)**: Aligned `/api/*` paths, `isOutOfStock` flag, `/cart` voucher preview prior to login gate, `/checkout` payment/0đ & cancel point-refund flows, 2s `/orders/:id` polling, and updated Section 2.1 of `docs/report/Bao_Cao_BrewLite_v16.tex`.
+
 ## [Unreleased] - 2026-11-14
 
 ### Fixed

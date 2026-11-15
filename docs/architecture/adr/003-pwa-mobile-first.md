@@ -1,4 +1,4 @@
-# ADR 003: Thiết Kế Frontend Theo Định Hướng Next.js Mobile-First & PWA
+# ADR 003: Thiết Kế Frontend Theo Định Hướng Next.js Mobile-First Web UI
 **Trạng thái**: Accepted (Đã chấp thuận)  
 **Ngày quyết định**: 13/10/2026  
 **Người quyết định**: Nhóm phát triển BrewLite  
@@ -9,9 +9,9 @@
 Khách hàng uống cà phê tại quán chủ yếu sử dụng điện thoại thông minh để quét mã QR tại bàn gọi đồ uống. Việc yêu cầu khách hàng phải tải ứng dụng dung lượng lớn (Native App trên App Store/Google Play) tạo ra rào cản rất lớn, làm giảm tỷ lệ chuyển đổi đơn hàng.
 
 ## 2. Quyết Định (Decision)
-Lựa chọn **Next.js (React/TypeScript)** kết hợp phong cách thiết kế **Mobile-First và Progressive Web App (PWA)**:
-- Giao diện tối ưu hóa cho màn hình cảm ứng di động (Bottom Navigation, Touch-friendly buttons, Cart Drawer).
-- Cấu hình Web App Manifest và Service Worker cho phép cài đặt trực tiếp lên màn hình chính (Add to Home Screen).
+Lựa chọn **Next.js 14 App Router (React 18/TypeScript) + Tailwind CSS** kết hợp phong cách thiết kế **Mobile-First Web App**:
+- Giao diện tối ưu hóa cho màn hình cảm ứng di động (`Viewport` metadata với `themeColor`, Responsive Cart/Modal, Touch-friendly buttons).
+- Kiến trúc sẵn sàng mở rộng Web App Manifest / Service Worker (PWA) ở giai đoạn sau mà không cần viết lại giao diện.
 
 ## 3. Lý Do & Hệ Quả (Consequences & Trade-offs)
 - **Ưu điểm**:

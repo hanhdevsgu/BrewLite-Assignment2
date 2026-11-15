@@ -37,50 +37,50 @@ jobs:
           cache: 'npm'
 
       # Step 1: Install Dependencies
-      - name: 1. Install Root & Backend Dependencies
+      - name: 1. Install Root & API Dependencies
         run: |
           npm ci || npm install
-          cd backend && npm ci || npm install
+          cd apps/api && (npm ci || npm install)
 
-      - name: 2. Install Frontend Dependencies
+      - name: 2. Install Web Dependencies
         run: |
-          cd frontend && npm ci || npm install
+          cd apps/web && (npm ci || npm install)
 
       # Step 2: Linting & Type Check (Strict Quality Gate)
-      - name: 3. Run Lint Checks (Backend & Frontend)
+      - name: 3. Run Lint Checks (API & Web)
         run: |
-          cd backend && npm run lint
-          cd ../frontend && npm run lint
+          cd apps/api && npm run lint
+          cd ../web && npm run lint
 
-      # Step 3: Database Migration & Schema Push
-      - name: 4. Push Prisma Schema & Run Seeds on Test DB
+      # Step 3: Database Migration & Seed Verification
+      - name: 4. Run Prisma Migrations & Seed on Test DB
         env:
           DATABASE_URL: "postgresql://postgres:postgrespassword@localhost:5432/brewlite_db?schema=public"
           JWT_SECRET: "brewlite_super_secret_jwt_key_2026"
         run: |
-          cd backend
-          npx prisma db push
+          cd apps/api
+          npx prisma migrate deploy
           npm run seed
 
-      # Step 4: Unit & Integration Tests (Jest)
-      - name: 5. Execute Backend Unit & Integration Tests
+      # Step 4: Unit & Integration Tests (Jest + Supertest)
+      - name: 5. Execute API Unit & Integration Tests
         env:
           DATABASE_URL: "postgresql://postgres:postgrespassword@localhost:5432/brewlite_db?schema=public"
           JWT_SECRET: "brewlite_super_secret_jwt_key_2026"
         run: |
-          cd backend
+          cd apps/api
           npm test
+          npm run test:e2e
 
       # Step 5: Production Build Verification
-      - name: 6. Build Backend Application (NestJS)
+      - name: 6. Build API Application (NestJS)
         run: |
-          cd backend
+          cd apps/api
           npm run build
 
-      - name: 7. Build Frontend Application (Next.js PWA)
+      - name: 7. Build Web Application (Next.js PWA)
         env:
           NEXT_PUBLIC_API_URL: "http://localhost:3001/api"
         run: |
-          cd frontend
+          cd apps/web
           npm run build
-

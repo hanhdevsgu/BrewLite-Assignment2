@@ -27,13 +27,15 @@ graph TD
 
 ### Bước 1: Khôi phục Container / Application về phiên bản trước (Revert Git / Docker Tag)
 1. Xác định mã commit SHA hoặc Tag ổn định trước đó (ví dụ: `v1.0.0` hoặc commit `9546996`).
-2. Kéo (Pull) hoặc chuyển đổi sang image an toàn:
+2. Chuyển mã nguồn về phiên bản ổn định trước đó, build lại Backend (`dist/src/main.js`) & Frontend, rồi khởi động lại:
    ```bash
    git checkout <PREVIOUS_STABLE_COMMIT_OR_TAG>
-   npm run build
-   npm run start
+   npm run build:backend
+   npm run build:frontend
+   npm --prefix apps/api run start:prod
+   npm run start:frontend
    ```
-3. Hoặc nếu sử dụng Docker Compose:
+3. Hoặc nếu sử dụng Docker Compose / Container Registry (`ghcr.io`):
    ```bash
    docker compose down
    docker compose up -d --build
@@ -42,7 +44,7 @@ graph TD
 ### Bước 2: Xử lý Rollback Cơ sở dữ liệu (Database Schema Migration)
 - Nếu bản deploy mới có chứa migration CSDL gây lỗi:
   ```bash
-  cd backend
+  cd apps/api
   # Xem trạng thái migration
   npx prisma migrate status
   
