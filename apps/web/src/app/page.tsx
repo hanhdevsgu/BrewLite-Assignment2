@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { fetchApi } from '../lib/api';
-import { MOCK_PRODUCTS } from '../lib/mockProducts';
 import { useCartStore } from '../store/useCartStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { useRouter } from 'next/navigation';
@@ -136,11 +135,9 @@ function ProductCard({
 }
 
 export default function HomePage() {
-  const [products, setProducts] = useState<ProductItem[]>(
-    process.env.NEXT_PUBLIC_USE_MOCK === 'true' ? (MOCK_PRODUCTS as unknown as ProductItem[]) : []
-  );
-  const [loading, setLoading] = useState(process.env.NEXT_PUBLIC_USE_MOCK !== 'true');
-  const [usingFallback, setUsingFallback] = useState(false);
+  const [products, setProducts] = useState<ProductItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [reloadTick, setReloadTick] = useState(0);
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
@@ -178,6 +175,7 @@ export default function HomePage() {
     async function loadProducts() {
       try {
         setLoading(true);
+        setError(null);
         const params = new URLSearchParams();
         if (search) params.append('search', search);
         if (selectedCategory !== 'ALL') params.append('category', selectedCategory);
@@ -186,7 +184,6 @@ export default function HomePage() {
 
         const data = await fetchApi<{ items?: ProductItem[]; meta?: { page: number; totalPages: number; totalItems: number } } | ProductItem[]>(`/products?${params.toString()}`);
         if (cancelled) return;
-        setUsingFallback(false);
         if (Array.isArray(data)) {
           setProducts(data);
           setTotalPages(Math.ceil(data.length / 8) || 1);
@@ -198,23 +195,12 @@ export default function HomePage() {
             setTotalItems(data.meta.totalItems || data.items.length);
           }
         }
-      } catch {
+      } catch (err) {
         if (cancelled) return;
-        setUsingFallback(true);
-        let fallback = [...MOCK_PRODUCTS] as unknown as ProductItem[];
-        if (selectedCategory !== 'ALL') {
-          fallback = fallback.filter((p) => p.category === selectedCategory);
-        }
-        if (search) {
-          const q = search.toLowerCase();
-          fallback = fallback.filter(
-            (p) => p.name.toLowerCase().includes(q) || (p.description && p.description.toLowerCase().includes(q))
-          );
-        }
-        const startIndex = (currentPage - 1) * 8;
-        setTotalPages(Math.ceil(fallback.length / 8) || 1);
-        setTotalItems(fallback.length);
-        setProducts(fallback.slice(startIndex, startIndex + 8));
+        setProducts([]);
+        setTotalPages(1);
+        setTotalItems(0);
+        setError(err instanceof Error ? err.message : 'Không thể tải thực đơn từ máy chủ. Vui lòng thử lại.');
       } finally {
         if (!cancelled) {
           setLoading(false);
@@ -369,18 +355,6 @@ export default function HomePage() {
 
       {/* Product Grid */}
       <section className="space-y-4">
-        {usingFallback && (
-          <div className="p-3 rounded-lg border border-amber-500/40 bg-amber-500/10 text-xs text-ink flex flex-wrap items-center justify-between gap-2">
-            <span>Máy chủ API đang khởi động hoặc tạm gián đoạn — đang hiển thị thực đơn dự phòng.</span>
-            <button
-              type="button"
-              onClick={() => setReloadTick((v) => v + 1)}
-              className="px-3 py-1 rounded bg-accent text-white font-semibold hover:opacity-90 transition-opacity"
-            >
-              Tải lại thực đơn
-            </button>
-          </div>
-        )}
         {loading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
@@ -392,6 +366,13 @@ export default function HomePage() {
               </div>
             ))}
           </div>
+        ) : error ? (
+          <EmptyState
+            title="Không thể tải thực đơn"
+            description={error}
+            actionLabel="Thử lại"
+            onAction={() => setReloadTick((v) => v + 1)}
+          />
         ) : products.length === 0 ? (
           <EmptyState
             title="Không tìm thấy món uống phù hợp"
