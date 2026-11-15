@@ -3,9 +3,10 @@
 ## [Unreleased] - 2026-11-15
 
 ### Changed (Documentation, Report & Overleaf Sync)
-- **LaTeX Report TOC & Monorepo Path Alignment (`docs/report/Bao_Cao_BrewLite_v16.tex`)**:
+- **LaTeX Report TOC, Class Diagram Section 2.3 & Monorepo Path Alignment (`docs/report/Bao_Cao_BrewLite_v16.tex`)**:
   - Updated Section `1.1` and `1.1.2` headings to explicitly include `Stakeholder` / `Stakeholders` in the Table of Contents (`\section{Bối cảnh, các bên liên quan (Stakeholder) và phạm vi}`, `\subsection{Các bên liên quan chính (Stakeholders)}`), Section `3.1` to `Phương pháp và quyết định kiến trúc`, and Section `7.3` to `Đối chiếu cấu trúc Repository và Hạng mục bàn giao`.
-  - Replaced remaining pre-refactor `frontend/` and `backend/` references in Chapters 3–7 with `apps/web/` and `apps/api/`, updated Tag refs (`v1.0.0`, `v1.0.1`), and recorded verified GitHub Actions CI/CD pass & fail runs (`43728698541`, `43728146170` → `3e9207c` → `43728703140`). Left all images and Section `2.3` (Class Diagram) untouched.
+  - Updated Section `2.3` (`Class Diagram`) and `FR-05` traceability (`Bao_Cao_BrewLite_v16.tex`, `docs/traceability-matrix.md`) to match the updated diagram (`17` persistent entities + `1` non-persistent domain class `GiaoDichDiemThuong <<Domain / Non-persistent>>` + `7` enumerations, `21` associations + `8` dashed enum dependencies).
+  - Replaced remaining pre-refactor `frontend/` and `backend/` references in Chapters 3–7 with `apps/web/` and `apps/api/`, updated Tag refs (`v1.0.0`, `v1.0.1`), and recorded verified GitHub Actions CI/CD pass & fail runs (`43728698541`, `43728146170` → `3e9207c` → `43728703140`). Left all images untouched.
 - **Repository Docs Sync (`README.md`, `docs/traceability-matrix.md`, `docs/sprints/sprint-retrospective.md`, `docs/architecture/architecture.md`, `docs/architecture/adr/001-monorepo.md`, `docs/RELEASE_NOTES.md`, `docs/TASK-ALLOCATION.md`, `docs/DECISIONS.md`)**:
   - Added the 6th stakeholder (`Giảng viên hướng dẫn / Khách hàng nghiệm thu`) to `README.md` Section `1.2`, added `v1.0.1` summary to `docs/RELEASE_NOTES.md`, and updated remaining `frontend/`/`backend/` paths and test counts (`12 suites / 119 unit tests`, `9 Supertest HTTP integration tests`) across docs.
 
