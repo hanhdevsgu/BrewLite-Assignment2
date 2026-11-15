@@ -286,7 +286,7 @@ export class OrdersService {
         },
         orderBy: { createdAt: 'desc' },
       });
-      if (orders && orders.length > 0) {
+      if (Array.isArray(orders)) {
         return orders;
       }
     } catch {

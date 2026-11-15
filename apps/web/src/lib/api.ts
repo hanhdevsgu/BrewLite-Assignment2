@@ -12,11 +12,42 @@ export function getApiBaseUrl(): string {
     }
     // Production (Vercel / custom domain): ưu tiên NEXT_PUBLIC_API_URL nếu khác localhost, ngược lại dùng Next.js rewrite /api
     if (process.env.NEXT_PUBLIC_API_URL && !process.env.NEXT_PUBLIC_API_URL.includes('localhost') && !process.env.NEXT_PUBLIC_API_URL.includes('127.0.0.1')) {
-      return process.env.NEXT_PUBLIC_API_URL;
+      return process.env.NEXT_PUBLIC_API_URL.replace(/\/+$/, '');
     }
     return '/api';
   }
-  return API_URL;
+  return API_URL.replace(/\/+$/, '');
+}
+
+const COLD_START_RETRY_DELAYS_MS = [1500, 3000];
+
+function isRetryableGatewayStatus(status: number): boolean {
+  return status === 502 || status === 503 || status === 504;
+}
+
+async function fetchWithColdStartRetry(url: string, init: RequestInit): Promise<Response> {
+  const method = (init.method || 'GET').toUpperCase();
+  const canRetry = method === 'GET' || method === 'HEAD';
+
+  let lastError: unknown;
+  const maxAttempts = canRetry ? 1 + COLD_START_RETRY_DELAYS_MS.length : 1;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    try {
+      const response = await fetch(url, init);
+      if (!canRetry || !isRetryableGatewayStatus(response.status) || attempt === maxAttempts - 1) {
+        return response;
+      }
+    } catch (err) {
+      lastError = err;
+      if (!canRetry || attempt === maxAttempts - 1) {
+        throw err;
+      }
+    }
+    await new Promise((resolve) => setTimeout(resolve, COLD_START_RETRY_DELAYS_MS[attempt]));
+  }
+
+  throw lastError instanceof Error ? lastError : new Error('Không thể kết nối máy chủ API');
 }
 
 export class ApiError extends Error {
@@ -55,7 +86,7 @@ export async function fetchApi<T = unknown>(endpoint: string, options: RequestIn
 
   const baseUrl = getApiBaseUrl();
   const url = endpoint.startsWith('http') ? endpoint : `${baseUrl}${endpoint}`;
-  const response = await fetch(url, {
+  const response = await fetchWithColdStartRetry(url, {
     ...options,
     headers,
   });

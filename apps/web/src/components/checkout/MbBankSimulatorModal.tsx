@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { X, ExternalLink, Smartphone } from 'lucide-react';
+import { getApiBaseUrl } from '@/lib/api';
 
 interface MbBankSimulatorModalProps {
   isOpen: boolean;
@@ -18,10 +19,11 @@ export default function MbBankSimulatorModal({
 }: MbBankSimulatorModalProps) {
   if (!isOpen) return null;
 
+  const apiBase = getApiBaseUrl();
   const bankQuery =
     amount || orderCode
-      ? `?amount=${amount || ''}&orderCode=${orderCode || ''}&memo=BREWLITE%20${orderCode || ''}&name=BREWLITE%20COFFEE&account=99998888&bank=MBB`
-      : '';
+      ? `?amount=${amount || ''}&orderCode=${orderCode || ''}&memo=BREWLITE%20${orderCode || ''}&name=BREWLITE%20COFFEE&account=99998888&bank=MBB&api=${encodeURIComponent(apiBase)}`
+      : `?api=${encodeURIComponent(apiBase)}`;
   const fullUrl = `/mbbank/index.html${bankQuery}`;
 
   return (

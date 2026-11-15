@@ -1,42 +1,67 @@
 import { NextResponse } from 'next/server';
+import { buildEndpointUrl, getBackendApiTargets } from '@/lib/backend-urls';
 
-declare global {
-  // eslint-disable-next-line no-var
-  var __brewlite_mb_payments: Map<string, any> | undefined;
+interface MbPaymentRecord {
+  orderCode: string;
+  amount: number;
+  content: string;
+  sender: string;
+  senderName: string;
+  transId: string;
+  time: number;
+}
+
+const globalForMbPayments = globalThis as typeof globalThis & {
+  __brewlite_mb_payments?: Map<string, MbPaymentRecord>;
+};
+
+async function queryBackendCheck(
+  baseUrls: string[],
+  code: string,
+  timeoutMs: number,
+): Promise<{ paid: boolean; payment?: MbPaymentRecord } | null> {
+  const path = `/payments/mbbank-check/${encodeURIComponent(code)}`;
+  for (const baseUrl of baseUrls) {
+    try {
+      const res = await fetch(buildEndpointUrl(baseUrl, path), {
+        cache: 'no-store',
+        signal: AbortSignal.timeout(timeoutMs),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        const payload = json?.data || json;
+        if (payload && payload.paid) {
+          return payload;
+        }
+      }
+    } catch {
+      // Try next candidate backend
+    }
+  }
+  return null;
 }
 
 export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ orderCode: string }> }
+  _request: Request,
+  { params }: { params: Promise<{ orderCode: string }> },
 ) {
   const { orderCode } = await params;
   const code = String(orderCode || '').toUpperCase().trim();
 
-  // 1. Thử hỏi NestJS Backend trước
-  const backendEndpoints = [
-    `http://backend:3001/api/payments/mbbank-check/${encodeURIComponent(code)}`,
-    `http://brewlite_backend:3001/api/payments/mbbank-check/${encodeURIComponent(code)}`,
-    `http://127.0.0.1:3001/api/payments/mbbank-check/${encodeURIComponent(code)}`,
-    `http://localhost:3001/api/payments/mbbank-check/${encodeURIComponent(code)}`,
-  ];
+  const { configured, localFallbacks } = getBackendApiTargets();
+  const remoteMatch = await queryBackendCheck(configured, code, 4500);
+  if (remoteMatch) {
+    return NextResponse.json({ success: true, data: remoteMatch });
+  }
 
-  for (const url of backendEndpoints) {
-    try {
-      const res = await fetch(url, { cache: 'no-store' });
-      if (res.ok) {
-        const json = await res.json();
-        const payload = json.data || json;
-        if (payload && payload.paid) {
-          return NextResponse.json({ success: true, data: payload });
-        }
-      }
-    } catch {
-      // Thử endpoint tiếp theo
+  if (configured.length === 0) {
+    const localMatch = await queryBackendCheck(localFallbacks, code, 1000);
+    if (localMatch) {
+      return NextResponse.json({ success: true, data: localMatch });
     }
   }
 
-  // 2. Fallback: tra cứu trong local cache của Next.js
-  const localPayments = global.__brewlite_mb_payments;
+  const localPayments = globalForMbPayments.__brewlite_mb_payments;
   if (localPayments && code.length >= 4) {
     let payment = localPayments.get(code);
     if (!payment) {

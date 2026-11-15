@@ -7,7 +7,7 @@ import Image from 'next/image';
 import QRCode from 'qrcode';
 import { useCartStore } from '../../store/useCartStore';
 import { useAuthStore } from '../../store/useAuthStore';
-import { fetchApi, getErrorMessage } from '../../lib/api';
+import { fetchApi, getApiBaseUrl, getErrorMessage } from '../../lib/api';
 import { Button, PageHeader } from '../../components/ui';
 import {
   Wallet,
@@ -1368,7 +1368,7 @@ function CheckoutContent() {
 
                 <div className="flex flex-wrap gap-2 pt-1">
                   <a
-                    href={`/mbbank/index.html?amount=${finalTotal}&orderCode=${orderCodeDisplay}&memo=BREWLITE%20${orderCodeDisplay}&name=BREWLITE%20COFFEE&account=99998888&bank=MBB`}
+                    href={`/mbbank/index.html?amount=${finalTotal}&orderCode=${orderCodeDisplay}&memo=BREWLITE%20${orderCodeDisplay}&name=BREWLITE%20COFFEE&account=99998888&bank=MBB&api=${encodeURIComponent(getApiBaseUrl())}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm"

@@ -136,13 +136,17 @@ function ProductCard({
 }
 
 export default function HomePage() {
-  const [products, setProducts] = useState<ProductItem[]>(MOCK_PRODUCTS as unknown as ProductItem[]);
-  const [loading, setLoading] = useState(false);
+  const [products, setProducts] = useState<ProductItem[]>(
+    process.env.NEXT_PUBLIC_USE_MOCK === 'true' ? (MOCK_PRODUCTS as unknown as ProductItem[]) : []
+  );
+  const [loading, setLoading] = useState(process.env.NEXT_PUBLIC_USE_MOCK !== 'true');
+  const [usingFallback, setUsingFallback] = useState(false);
+  const [reloadTick, setReloadTick] = useState(0);
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(3);
-  const [totalItems, setTotalItems] = useState(24);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
   const [toast, setToast] = useState<{
     message: string;
     type?: 'success' | 'danger' | 'info';
@@ -169,6 +173,8 @@ export default function HomePage() {
   }, [search, selectedCategory]);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function loadProducts() {
       try {
         setLoading(true);
@@ -179,6 +185,8 @@ export default function HomePage() {
         params.append('limit', '8');
 
         const data = await fetchApi<{ items?: ProductItem[]; meta?: { page: number; totalPages: number; totalItems: number } } | ProductItem[]>(`/products?${params.toString()}`);
+        if (cancelled) return;
+        setUsingFallback(false);
         if (Array.isArray(data)) {
           setProducts(data);
           setTotalPages(Math.ceil(data.length / 8) || 1);
@@ -191,6 +199,8 @@ export default function HomePage() {
           }
         }
       } catch {
+        if (cancelled) return;
+        setUsingFallback(true);
         let fallback = [...MOCK_PRODUCTS] as unknown as ProductItem[];
         if (selectedCategory !== 'ALL') {
           fallback = fallback.filter((p) => p.category === selectedCategory);
@@ -206,13 +216,19 @@ export default function HomePage() {
         setTotalItems(fallback.length);
         setProducts(fallback.slice(startIndex, startIndex + 8));
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
 
-    const timer = setTimeout(loadProducts, 200);
-    return () => clearTimeout(timer);
-  }, [search, selectedCategory, currentPage]);
+    const delayMs = search ? 200 : 0;
+    const timer = setTimeout(loadProducts, delayMs);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [search, selectedCategory, currentPage, reloadTick]);
 
   const handleModalAddToCart = (
     item: {
@@ -352,7 +368,19 @@ export default function HomePage() {
       </section>
 
       {/* Product Grid */}
-      <section>
+      <section className="space-y-4">
+        {usingFallback && (
+          <div className="p-3 rounded-lg border border-amber-500/40 bg-amber-500/10 text-xs text-ink flex flex-wrap items-center justify-between gap-2">
+            <span>Máy chủ API đang khởi động hoặc tạm gián đoạn — đang hiển thị thực đơn dự phòng.</span>
+            <button
+              type="button"
+              onClick={() => setReloadTick((v) => v + 1)}
+              className="px-3 py-1 rounded bg-accent text-white font-semibold hover:opacity-90 transition-opacity"
+            >
+              Tải lại thực đơn
+            </button>
+          </div>
+        )}
         {loading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (

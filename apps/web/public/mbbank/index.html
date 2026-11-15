@@ -3424,21 +3424,28 @@
                 }
             } catch (e) {}
 
-            // Gửi API đến backend thanh toán BrewLite (hoạt động đa thiết bị: điện thoại -> máy tính qua mạng LAN/Tunnel)
+            // Gửi API đến backend thanh toán BrewLite (hỗ trợ cả Production Vercel/Render & Local/LAN)
             const host = window.location.hostname || 'localhost';
             const protocol = window.location.protocol && window.location.protocol.startsWith('http') ? window.location.protocol : 'http:';
             const origin = window.location.origin || '';
-            const syncUrls = [
-                '/api/payments/mbbank-sync',
-                origin + '/api/payments/mbbank-sync',
-                protocol + '//' + host + ':3000/api/payments/mbbank-sync',
-                'http://' + host + ':3001/api/payments/mbbank-sync',
-                protocol + '//' + host + ':3001/api/payments/mbbank-sync',
-                'http://localhost:3001/api/payments/mbbank-sync',
-                'http://127.0.0.1:3001/api/payments/mbbank-sync'
-            ];
+            const apiParam = new URLSearchParams(window.location.search).get('api') || '';
+            const syncUrls = [];
+            if (apiParam && (apiParam.startsWith('https://') || apiParam.startsWith('http://') || apiParam.startsWith('/'))) {
+                syncUrls.push(apiParam.replace(/\/+$/, '') + '/payments/mbbank-sync');
+            }
+            syncUrls.push('/api/payments/mbbank-sync');
+            if (origin) syncUrls.push(origin + '/api/payments/mbbank-sync');
+            if (protocol === 'http:' || host === 'localhost' || host === '127.0.0.1') {
+                syncUrls.push(
+                    protocol + '//' + host + ':3000/api/payments/mbbank-sync',
+                    'http://' + host + ':3001/api/payments/mbbank-sync',
+                    'http://localhost:3001/api/payments/mbbank-sync',
+                    'http://127.0.0.1:3001/api/payments/mbbank-sync'
+                );
+            }
+            const uniqueSyncUrls = Array.from(new Set(syncUrls));
 
-            syncUrls.forEach(url => {
+            uniqueSyncUrls.forEach(url => {
                 fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
