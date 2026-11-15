@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { X, ExternalLink, Smartphone } from 'lucide-react';
