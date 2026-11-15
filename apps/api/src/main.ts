@@ -4,14 +4,15 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { API_GLOBAL_PREFIX, API_PREFIX_EXCLUDES } from './common/constants/api-prefix.constant';
 
 async function bootstrap() {
   const logger = new Logger('BrewLiteBootstrap');
   const app = await NestFactory.create(AppModule);
 
-  // 1. Cấu hình tiền tố toàn cục /api (loại trừ /health để hỗ trợ cả /health và /api/health)
-  app.setGlobalPrefix('api', {
-    exclude: ['health', 'api/health'],
+  // 1. Cấu hình tiền tố toàn cục /api (loại trừ /, /api và /health để truy cập trực tiếp không bị 404)
+  app.setGlobalPrefix(API_GLOBAL_PREFIX, {
+    exclude: API_PREFIX_EXCLUDES,
   });
 
   // 2. Cấu hình CORS

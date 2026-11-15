@@ -5,6 +5,10 @@ import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { AllExceptionsFilter } from '../src/common/filters/http-exception.filter';
 import { TransformInterceptor } from '../src/common/interceptors/transform.interceptor';
+import {
+  API_GLOBAL_PREFIX,
+  API_PREFIX_EXCLUDES,
+} from '../src/common/constants/api-prefix.constant';
 
 describe('BrewLite NestJS HTTP Integration Suite (/api)', () => {
   let app: INestApplication;
@@ -29,8 +33,8 @@ describe('BrewLite NestJS HTTP Integration Suite (/api)', () => {
       .compile();
 
     app = moduleFixture.createNestApplication();
-    app.setGlobalPrefix('api', {
-      exclude: ['health', 'api/health'],
+    app.setGlobalPrefix(API_GLOBAL_PREFIX, {
+      exclude: API_PREFIX_EXCLUDES,
     });
     app.useGlobalPipes(
       new ValidationPipe({
@@ -50,7 +54,32 @@ describe('BrewLite NestJS HTTP Integration Suite (/api)', () => {
     }
   });
 
-  it('IT-01: GET /api/health trả trạng thái ok', async () => {
+  it('IT-00: GET / và GET /api trả thông tin gốc API (200), route không tồn tại vẫn 404', async () => {
+    const rootRes = await request(app.getHttpServer()).get('/').expect(200);
+    expect(rootRes.body?.success).toBe(true);
+    expect(rootRes.body?.data).toMatchObject({
+      status: 'ok',
+      service: 'BrewLite Backend API',
+      database: 'connected',
+      endpoints: {
+        health: '/api/health',
+        docs: '/api/docs',
+        products: '/api/products',
+      },
+    });
+
+    const apiRes = await request(app.getHttpServer()).get('/api').expect(200);
+    expect(apiRes.body?.success).toBe(true);
+    expect(apiRes.body?.data?.status).toBe('ok');
+
+    await request(app.getHttpServer()).get('/unknown-route').expect(404);
+    await request(app.getHttpServer()).get('/api/unknown-route').expect(404);
+  });
+
+  it('IT-01: GET /health và GET /api/health trả trạng thái ok', async () => {
+    const healthRes = await request(app.getHttpServer()).get('/health').expect(200);
+    expect(healthRes.body?.data?.status || healthRes.body?.status).toBe('ok');
+
     const res = await request(app.getHttpServer()).get('/api/health').expect(200);
     expect(res.body?.data?.status || res.body?.status).toBe('ok');
   });
