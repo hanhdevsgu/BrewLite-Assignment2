@@ -6,6 +6,9 @@
 > **Kiến trúc hệ thống**: Monorepo NestJS 10 (Backend REST API) + Next.js 14 App Router (Frontend Web App) + PostgreSQL 16 + Prisma ORM 5.x + Docker Compose  
 > **Mô hình phát triển**: Agile Scrum kết hợp Order State Machine & Optimistic Concurrency Control (OCC)  
 > **Repository GitHub**: [https://github.com/hanhdevsgu/BrewLite-Assignment2](https://github.com/hanhdevsgu/BrewLite-Assignment2)  
+> **Frontend Production (Vercel)**: [https://brew-lite-assignment2-flax.vercel.app](https://brew-lite-assignment2-flax.vercel.app)  
+> **Backend API Production (Render)**: [https://brewlite-api-hj1i.onrender.com](https://brewlite-api-hj1i.onrender.com)  
+> **Health Check & Swagger UI**: [https://brewlite-api-hj1i.onrender.com/api/health](https://brewlite-api-hj1i.onrender.com/api/health) | [https://brewlite-api-hj1i.onrender.com/api/docs](https://brewlite-api-hj1i.onrender.com/api/docs)  
 > **Nhánh tích hợp chính**: `develop` | **Nhánh chức năng**: 7 Feature Branches (`feat/p1` đến `feature/p7`)  
 
 ---
@@ -16,11 +19,12 @@
 > *"BrewLite giúp khách hàng đặt và thanh toán đồ uống không dùng tiền mặt chỉ trong vài chạm, giảm thời gian xếp hàng và nhận đơn nhanh tại quầy."*
 
 ### 1.2 Các Bên Liên Quan (Stakeholders)
-- **Khách hàng**: Đặt đồ uống, chọn size/topping, thanh toán không tiền mặt (VietQR/MBBank Simulator) và theo dõi lịch sử đơn.
-- **Nhân viên quầy / Barista**: Tiếp nhận đơn và cập nhật trạng thái pha chế thời gian thực trên Bảng Kanban (`/staff`).
-- **Quản lý cửa hàng / Product Owner**: Xác định yêu cầu, ưu tiên Product Backlog và nghiệm thu Increment sau mỗi Sprint.
+- **Khách hàng (Customer)**: Đặt đồ uống, chọn size/topping, thanh toán không tiền mặt (VietQR/MBBank Simulator) và theo dõi lịch sử đơn.
+- **Nhân viên quầy / Pha chế (Barista)**: Tiếp nhận đơn và cập nhật trạng thái pha chế thời gian thực trên Bảng Kanban (`/staff`).
+- **Quản lý cửa hàng / Admin (Product Owner)**: Xác định yêu cầu, quản lý thực đơn/nguyên liệu/khuyến mãi, ưu tiên Product Backlog và nghiệm thu Increment sau mỗi Sprint.
 - **Nhóm phát triển (Development Team)**: 7 thành viên phân tích, thiết kế, lập trình, kiểm thử và bàn giao hệ thống.
-- **Đơn vị thanh toán**: Cổng thanh toán mô phỏng (Mock Payment Gateway & MBBank Webhook).
+- **Đơn vị thanh toán (Payment Gateway)**: Cổng thanh toán mô phỏng (Mock Payment Gateway & MBBank Webhook).
+- **Giảng viên hướng dẫn / Khách hàng nghiệm thu**: Đánh giá quy trình phát triển tuần tự từ yêu cầu đến triển khai, ma trận truy vết và sản phẩm bàn giao.
 
 ---
 
@@ -250,8 +254,8 @@ node scripts/tunnel.js
 ```powershell
 npm run test
 # Hoặc:
-npm --prefix backend test
-npm --prefix backend run test:e2e
+npm --prefix apps/api test
+npm --prefix apps/api run test:e2e
 ```
 *Kiểm thử toàn diện: Products Menu/Toppings & `isOutOfStock`, Auth JWT (`15m`/`7d`), State Machine, Idempotency-Key, Loyalty, Optimistic Locking tồn kho, Review `KiemTraDaMua` (`COMPLETED`), ValidationPipe & RBAC.*
 
@@ -282,7 +286,7 @@ node scripts/test-race-condition.js
 * **Nguyên nhân**: Thư mục cache `.next` của Next.js bị xung đột khi lưu file trong quá trình biên dịch.
 * **Cách khắc phục**:
   ```powershell
-  Remove-Item -Path "frontend\.next" -Recurse -Force
+  Remove-Item -Path "apps\web\.next" -Recurse -Force
   npm run dev:frontend
   ```
 
@@ -342,7 +346,7 @@ Dữ liệu tài khoản đã nạp sẵn trong lệnh `npm run seed`:
 ---
 
 ## 📋 8. DEFINITION OF DONE (MỤC 10 ĐỀ BÀI)
-- [x] Code chạy ổn định, không có lỗi build (`npm --prefix backend run build` & `npm --prefix frontend run build` pass 100%).
+- [x] Code chạy ổn định, không có lỗi build (`npm --prefix apps/api run build` & `npm --prefix apps/web run build` pass 100%).
 - [x] Đầy đủ commit trên Git với conventional commit (`feat`, `fix`, `docs`, `refactor`).
 - [x] Toàn bộ API có validation (`class-validator`), UI có trạng thái loading/error boundary/skeleton.
 - [x] Có hướng dẫn cài đặt, build, deploy và rollback từ A đến Z trong file README.md này.
@@ -410,6 +414,6 @@ Toàn bộ các tạo phẩm theo đúng quy định tại đề tài **Assignme
 - [x] **Source code frontend, backend và migration**: `apps/web/`, `apps/api/`, `apps/api/prisma/migrations/`
 - [x] **Unit, integration và end-to-end test**: 12/12 suites (119/119 Jest Unit Tests) + 9/9 Supertest HTTP Integration (`apps/api/test/app.e2e-spec.ts`) + 49 Postman API Requests + `tests/e2e/order-checkout.e2e-spec.ts` (8 full-stack E2E cases)
 - [x] **Pipeline CI/CD chạy thành công**: `.github/workflows/ci.yml` và `.github/workflows/cd.yml`
-- [x] **URL production, API và health check**: `/api/health` trả về HTTP 200 `{ status: 'ok', database: 'connected' }`
+- [x] **URL production, API và health check**: Frontend Vercel (`https://brew-lite-assignment2-flax.vercel.app`), Backend Render (`https://brewlite-api-hj1i.onrender.com`), Health Check (`https://brewlite-api-hj1i.onrender.com/api/health` trả về HTTP 200 `{ status: 'ok', database: 'connected' }`), Swagger (`https://brewlite-api-hj1i.onrender.com/api/docs`)
 - [x] **Release notes, README và hướng dẫn rollback**: `docs/RELEASE_NOTES.md`, `README.md`, `docs/rollback-guide.md`
 - [x] **Video/demo và Sprint Retrospective**: `docs/sprints/sprint-retrospective.md` và `docs/BrewLite_Full_API_Collection.postman_collection.json`
