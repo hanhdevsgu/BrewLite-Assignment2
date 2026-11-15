@@ -12,7 +12,7 @@ Xây dựng nền tảng kỹ thuật vững chắc (Monorepo, Docker PostgreSQL
 
 ### 1.2. Kết Quả Nghiệm Thu (Sprint Review)
 - **Tạo phẩm đạt được**:
-  - Khởi tạo thành công repository monorepo với cấu trúc phân tầng `frontend/`, `backend/`, `docs/`.
+  - Khởi tạo thành công repository monorepo với cấu trúc phân tầng `apps/web/`, `apps/api/`, `docs/`, `tests/`.
   - Cấu hình file `docker-compose.yml` khởi chạy PostgreSQL 16.
   - Hiện thực API danh mục và đồ uống: `GET /api/products`, `GET /api/products/:id`, `GET /api/products/toppings`.
   - Giao diện thực đơn Mobile-First bằng Next.js: Hỗ trợ tìm kiếm, lọc danh mục, hiển thị đầy đủ trạng thái Loading và Empty state.
@@ -39,7 +39,7 @@ Hoàn thành luồng mua hàng và xử lý đơn hàng trọn vẹn (End-to-End
   - Hiện thực **Task 8 (Idempotent Payment)**: Header `Idempotency-Key` (`idempotency-key`) xử lý click đúp an toàn (Lần 1 trả HTTP 201, Lần 2 trả HTTP 200 Replayed).
   - Hiện thực **Task 9 (Order State Machine)**: Chuyển đổi trạng thái đơn tuần tự từ `PENDING` ➔ `PAID` ➔ `PREPARING` ➔ `READY` ➔ `COMPLETED`, chặn đứng nhảy cóc với `HTTP 409 Conflict`.
   - Hiện thực **Task 10.3 (Optimistic Concurrency Control)**: Cột `version` trong bảng `Ingredient` chống bán âm kho khi 2 khách hàng cùng tranh mua ly cà phê cuối cùng.
-  - Bộ kiểm thử tự động hoàn chỉnh: **11 Unit test suites Jest (`113` tests pass 100%)** + **NestJS HTTP Integration Suite (`backend/test/app.e2e-spec.ts` — 8 test cases pass)** + **Full-Stack E2E (`tests/e2e/order-checkout.e2e-spec.ts` — 8 cases)** + **Postman Collection 49 API requests**.
+  - Bộ kiểm thử tự động hoàn chỉnh: **12 Unit test suites Jest (`119` tests pass 100%)** + **NestJS HTTP Integration Suite (`apps/api/test/app.e2e-spec.ts` — 9 test cases pass)** + **Full-Stack E2E (`tests/e2e/order-checkout.e2e-spec.ts` — 8 cases)** + **Postman Collection 49 API requests**.
   - Pipeline GitHub Actions CI/CD (`.github/workflows/ci.yml`, `cd.yml`).
   - Toàn bộ hồ sơ tài liệu theo chuẩn Assignment 2: `context-and-scope.md`, `srs.md`, `use-case-checkout.md`, `architecture.md`, 5 file ADR, `traceability-matrix.md`, `deployment.md`, `rollback-guide.md`.
 - **Tình trạng nghiệm thu**: **100% Hoàn thành (Accepted)**.
@@ -47,7 +47,7 @@ Hoàn thành luồng mua hàng và xử lý đơn hàng trọn vẹn (End-to-End
 ### 2.3. Đánh Giá Cải Tiến (Sprint Retrospective)
 | Phân loại | Nội dung chi tiết |
 |---|---|
-| **What went well (Làm tốt)** | • Giải quyết triệt để các bài toán kỹ thuật trọng tâm (Idempotency-Key chống trừ trùng, Optimistic Locking chống âm kho, Order State Machine, `KiemTraDaMua` chỉ mở đánh giá sau `COMPLETED`).<br>• Chuẩn hóa bộ Postman Collection 49 API requests (`docs/BrewLite_Full_API_Collection.postman_collection.json`), Supertest Integration Suite (`npm --prefix backend run test:e2e`) và E2E full-stack (`tests/e2e/order-checkout.e2e-spec.ts`).<br>• Ma trận truy vết (`docs/traceability-matrix.md`) đồng bộ giữa yêu cầu, sơ đồ UML và mã nguồn. |
+| **What went well (Làm tốt)** | • Giải quyết triệt để các bài toán kỹ thuật trọng tâm (Idempotency-Key chống trừ trùng, Optimistic Locking chống âm kho, Order State Machine, `KiemTraDaMua` chỉ mở đánh giá sau `COMPLETED`).<br>• Chuẩn hóa bộ Postman Collection 49 API requests (`docs/BrewLite_Full_API_Collection.postman_collection.json`), Supertest Integration Suite (`npm --prefix apps/api run test:e2e`) và E2E full-stack (`tests/e2e/order-checkout.e2e-spec.ts`).<br>• Ma trận truy vết (`docs/traceability-matrix.md`) đồng bộ giữa yêu cầu, sơ đồ UML và mã nguồn. |
 | **What we learned (Bài học rút ra)** | • Hiểu sâu sắc về thiết kế hệ thống phân tán, cơ chế khóa lạc quan (OCC) và tầm quan trọng của việc kiểm thử phòng thủ (Defensive Programming). |
 | **Conclusion (Kết luận)** | Hệ thống BrewLite Coffee đã sẵn sàng 100% cho buổi bảo vệ đồ án trước Hội đồng chấm thi môn Công nghệ Phần mềm! |
 

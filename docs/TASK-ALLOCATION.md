@@ -30,9 +30,9 @@
   - Tích hợp thanh tìm kiếm thời gian thực (Debounce 200ms) và phân trang mượt mà.
   - Xây dựng component `ProductCard`: Hiển thị số sao thực tế từ database, badge danh mục, **tự động hiển thị badge `⛔ Tạm hết hàng`, làm mờ ảnh và vô hiệu hóa nút chọn nhanh khi món hết nguyên liệu**.
 - **Files code phụ trách:**
-  - `frontend/src/app/page.tsx`
-  - `frontend/src/components/Navbar.tsx`
-  - `frontend/src/components/ui/*`
+  - `apps/web/src/app/page.tsx`
+  - `apps/web/src/components/Navbar.tsx`
+  - `apps/web/src/components/ui/*`
 
 ---
 
@@ -44,9 +44,9 @@
   - Tùy chọn Topping đi kèm có ảnh minh họa chuẩn F&B (Trân châu đường đen, Kem Cheese Macchiato, Thạch đào, Nha đam, Hạt sen, Khúc bạch...), tự động tăng giảm đơn giá tức thì.
   - **Khu vực Đánh giá sản phẩm (Reviews):** Hiển thị danh sách nhận xét, phân bố sao, form viết đánh giá cập nhật ngay lập tức vào database không cần tải lại trang.
 - **Files code phụ trách:**
-  - `frontend/src/app/products/[id]/page.tsx`
-  - `frontend/src/components/ProductQuickSelectModal.tsx`
-  - `frontend/src/lib/toppings.ts`
+  - `apps/web/src/app/products/[id]/page.tsx`
+  - `apps/web/src/components/ProductQuickSelectModal.tsx`
+  - `apps/web/src/lib/toppings.ts`
 
 ---
 
@@ -59,9 +59,9 @@
     - Tính toán áp dụng Voucher theo điều kiện (chặn chọn khi đơn 0đ, không cho chọn chồng chéo voucher cùng loại, loại bỏ mã freeship).
     - Tích hợp điểm thưởng thành viên theo tỉ lệ **1 điểm = 100đ**, khấu trừ trực tiếp vào tổng tiền thanh toán.
 - **Files code phụ trách:**
-  - `frontend/src/store/useCartStore.ts`
-  - `frontend/src/app/cart/page.tsx`
-  - `frontend/src/lib/vouchers.ts`
+  - `apps/web/src/store/useCartStore.ts`
+  - `apps/web/src/app/cart/page.tsx`
+  - `apps/web/src/lib/vouchers.ts`
 
 ---
 
@@ -73,11 +73,11 @@
   - **Trình mô phỏng MBBank Mobile Simulator:** Lắng nghe giao dịch chuyển khoản thời gian thực, tự động gạch nợ thành công trên màn hình khách hàng mà không cần bấm nút thủ công.
   - Màn hình Xác nhận đơn thành công và trang **Lịch sử đơn hàng cá nhân** (`/orders/me`), hiển thị chi tiết món, giá trị đã thanh toán và nút đánh giá.
 - **Files code phụ trách:**
-  - `frontend/src/app/login/page.tsx`, `frontend/src/app/register/page.tsx`
-  - `frontend/src/app/checkout/page.tsx`
-  - `frontend/src/app/orders/me/page.tsx`, `frontend/src/app/profile/page.tsx`
-  - `frontend/src/store/useAuthStore.ts`
-  - `frontend/src/components/checkout/*`
+  - `apps/web/src/app/login/page.tsx`, `apps/web/src/app/register/page.tsx`
+  - `apps/web/src/app/checkout/page.tsx`
+  - `apps/web/src/app/orders/me/page.tsx`, `apps/web/src/app/profile/page.tsx`
+  - `apps/web/src/store/useAuthStore.ts`
+  - `apps/web/src/components/checkout/*`
 
 ---
 
@@ -90,10 +90,10 @@
     - **Thuật toán tính tồn kho Real-Time:** Đọc bảng `Recipe` đối chiếu với `Ingredient.stockQuantity` trong CSDL, tính toán cờ `isOutOfStock` theo từng kích cỡ và cho toàn sản phẩm.
   - **Xây dựng API Đánh giá (`/api/reviews`):** Cho phép khách hàng gửi đánh giá (`POST /api/reviews`), tự động tính lại điểm sao trung bình và số lượt đánh giá của sản phẩm trong CSDL.
 - **Files code phụ trách:**
-  - `backend/src/modules/products/*`
-  - `backend/src/modules/reviews/*`
-  - `backend/prisma/schema.prisma`
-  - `backend/prisma/seed.ts`
+  - `apps/api/src/modules/products/*`
+  - `apps/api/src/modules/reviews/*`
+  - `apps/api/prisma/schema.prisma`
+  - `apps/api/prisma/seed.ts`
 
 ---
 
@@ -105,10 +105,10 @@
   - **Phân hệ Cổng thanh toán giả lập (Mock Gateway):** Xử lý thanh toán mô phỏng (`POST /api/mock-gateway/charge`), API webhook đồng bộ chuyển khoản MBBank thời gian thực (`/api/payments/mbbank-sync`, `/api/payments/mbbank-check/:orderCode`).
   - **Cơ chế Fallback Store (`fallback-store.ts`):** Bộ nhớ in-memory dự phòng giúp hệ thống Auth, Orders và Payment duy trì hoạt động ngay cả khi CSDL offline.
 - **Files code phụ trách:**
-  - `backend/src/modules/orders/orders.controller.ts`, `backend/src/modules/orders/orders.service.ts`
-  - `backend/src/modules/auth/*`
-  - `backend/src/modules/payment/mock-gateway/*`
-  - `backend/src/prisma/fallback-store.ts`
+  - `apps/api/src/modules/orders/orders.controller.ts`, `apps/api/src/modules/orders/orders.service.ts`
+  - `apps/api/src/modules/auth/*`
+  - `apps/api/src/modules/payment/mock-gateway/*`
+  - `apps/api/src/prisma/fallback-store.ts`
 
 ---
 
@@ -119,14 +119,14 @@
   - **Optimistic Concurrency Control (OCC):** Trừ kho nguyên liệu đồng thời qua cột `version` trên `Ingredient`, tự động retry tối đa 3 lần khi nhiều khách đặt cùng lúc.
   - **Bảng Kanban Pha chế Barista (`/staff`):** Màn hình theo dõi và điều phối đơn hàng thời gian thực cho nhân viên quầy bar theo nguyên tắc FIFO (vào trước làm trước).
   - **Admin Dashboard (`/admin`):** Màn hình quản trị doanh thu, tồn kho nguyên liệu, nhập hàng và lịch sử thanh toán.
-  - **DevOps & Testing:** Cấu hình `docker-compose.yml` (Postgres, NestJS, Next.js), Dockerfile tối ưu đa tầng (Multi-stage build), trọn bộ 11 test suites (113 unit tests Jest) và script kiểm thử đồng thời `scripts/test-race-condition.js`.
+  - **DevOps & Testing:** Cấu hình `docker-compose.yml` (Postgres, NestJS, Next.js), Dockerfile tối ưu đa tầng (Multi-stage build), trọn bộ 12 test suites (119 unit tests Jest), HTTP Integration (`IT-01..IT-09`) và script kiểm thử đồng thời `scripts/test-race-condition.js`.
 - **Files code phụ trách:**
-  - `backend/src/modules/orders/order-state-machine.*`
-  - `backend/src/modules/payment/payment.service.ts` (OCC & Idempotency)
-  - `frontend/src/app/staff/page.tsx`
-  - `frontend/src/app/admin/page.tsx`
-  - `docker-compose.yml`, `backend/Dockerfile`, `frontend/Dockerfile`
-  - `backend/src/modules/orders/orders.service.spec.ts`, `backend/src/modules/payment/payment.service.spec.ts`
+  - `apps/api/src/modules/orders/order-state-machine.*`
+  - `apps/api/src/modules/payment/payment.service.ts` (OCC & Idempotency)
+  - `apps/web/src/app/staff/page.tsx`
+  - `apps/web/src/app/admin/page.tsx`
+  - `docker-compose.yml`, `apps/api/Dockerfile`, `apps/web/Dockerfile`
+  - `apps/api/src/modules/orders/orders.service.spec.ts`, `apps/api/src/modules/payment/payment.service.spec.ts`
 
 ---
 

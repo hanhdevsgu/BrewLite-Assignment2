@@ -178,7 +178,7 @@ Tổng hợp & Truy vết \& Nghiệm thu & Ma trận truy vết FR/NFR, tổng 
 
 \chapter{KHAI THÁC VÀ PHÂN TÍCH YÊU CẦU}
 
-\section{Bối cảnh và các bên liên quan}
+\section{Bối cảnh, các bên liên quan (Stakeholder) và phạm vi}
 
 \subsection{Bối cảnh và phạm vi dự án}
 
@@ -188,7 +188,7 @@ Một vấn đề khác không kém phần nghiêm trọng là công tác quản
 
 Xuất phát từ những hạn chế nêu trên, hệ thống BrewLite được đề xuất và xây dựng nhằm số hóa toàn bộ quy trình đặt món và thanh toán tại cửa hàng cà phê. BrewLite cho phép khách hàng chủ động đặt đồ uống ngay trên thiết bị cá nhân, tùy chọn size, topping, mức đường, mức đá, sau đó thanh toán không dùng tiền mặt thông qua cổng thanh toán điện tử trước khi đến quầy nhận món. Về phía cửa hàng, hệ thống quản lý tập trung thực đơn, đơn hàng, nguyên liệu tồn kho, khuyến mãi và điểm thưởng trên một nền tảng duy nhất, với các cơ chế kỹ thuật chặt chẽ như máy trạng thái đơn hàng (PENDING $\rightarrow$ PAID $\rightarrow$ PREPARING $\rightarrow$ READY $\rightarrow$ COMPLETED), thanh toán chống trùng lặp (Idempotency) và khóa lạc quan (Optimistic Locking) chống bán âm tồn kho. Phạm vi của dự án bao gồm các nghiệp vụ đặt món, giỏ hàng, thanh toán trực tuyến, quản lý đơn hàng tại quầy, quản lý thực đơn và nguyên liệu, khuyến mãi, tích điểm và thống kê báo cáo cho một cửa hàng hoặc chuỗi cửa hàng cà phê quy mô vừa; hệ thống chưa bao gồm nghiệp vụ giao hàng tận nơi bởi đối tác vận chuyển bên thứ ba và quản lý nhân sự -- chấm công. Hệ thống được phát triển trên nền tảng web với Next.js ở phía giao diện người dùng (Frontend), NestJS ở phía xử lý nghiệp vụ (Backend) và hệ quản trị cơ sở dữ liệu PostgreSQL.
 
-\subsection{Các bên liên quan chính}
+\subsection{Các bên liên quan chính (Stakeholders)}
 
 Qua quá trình khảo sát thực tế tại các cửa hàng cà phê và mô hình vận hành bán hàng hiện đại, nhóm thực hiện xác định hệ thống BrewLite có sáu bên liên quan chính (ba bên tương tác trực tiếp với phần mềm và ba bên tham gia quản lý, phát triển, nghiệm thu):
 
@@ -1111,17 +1111,17 @@ Các thực thể mở rộng khác (Kho, Công thức, Đánh giá \& Enum) & N
 
 Chương này trình bày thiết kế kiến trúc hệ thống BrewLite, bao gồm phương pháp tổ chức kiến trúc phân tầng, các quyết định kiến trúc trọng tâm (ADR) và sơ đồ triển khai trên môi trường production thực tế.
 
-\section{Phương pháp kiến trúc}
+\section{Phương pháp và quyết định kiến trúc}
 
 \subsection{Kiến trúc tổng thể hệ thống}
 
 Hệ thống BrewLite được thiết kế theo mô hình \textbf{C4 (System Context \& Container)} kết hợp \textbf{kiến trúc phân lớp (Layered Architecture)} và \textbf{Modular Monolith} (tài liệu nguồn tại \path{docs/architecture/architecture.md}):
 \begin{itemize}[leftmargin=*]
-\item \textbf{Tầng trình diễn (Presentation -- Next.js 14 Mobile-First / Web App):} Giao diện \path{frontend/} (Next.js 14.2.5 App Router, React 18.3, Tailwind CSS, Zustand persist \path{useCartStore}), thiết kế mobile-first kèm \path{Viewport}, \path{public/manifest.webmanifest} và \path{public/icon.svg}; giao tiếp API thông qua \path{lib/api.ts} (tự động làm mới JWT) và Next.js Rewrites (\path{/api/:path*} $\rightarrow$ \path{INTERNAL_BACKEND_URL}).
-\item \textbf{Tầng ứng dụng (Application -- NestJS 10 Modular):} Dịch vụ \path{backend/} tổ chức thành các domain module độc lập qua Dependency Injection, tiếp nhận REST API chuẩn OpenAPI/Swagger (\path{/api/docs}), kiểm soát máy trạng thái đơn hàng, idempotency thanh toán và khóa lạc quan OCC.
-\item \textbf{Tầng dữ liệu (Data -- PostgreSQL 16 \& Prisma ORM):} Lưu trữ 17 bảng dữ liệu quan hệ trên PostgreSQL 16; quản lý lược đồ và tiến hóa CSDL bằng \path{backend/prisma/schema.prisma} cùng migration SQL phiên bản hóa (\path{backend/prisma/migrations/20261021070318_init/migration.sql}). Ở môi trường CI/Production sử dụng \path{prisma migrate deploy} (hoặc \path{prisma db push} + \path{prisma/seed.ts} khi khởi tạo local).
+\item \textbf{Tầng trình diễn (Presentation -- Next.js 14 Mobile-First / Web App):} Giao diện \path{apps/web/} (Next.js 14.2.5 App Router, React 18.3, Tailwind CSS, Zustand persist \path{useCartStore}), thiết kế mobile-first kèm \path{Viewport}, \path{public/manifest.webmanifest} và \path{public/icon.svg}; giao tiếp API thông qua \path{lib/api.ts} (tự động làm mới JWT) và Next.js Rewrites (\path{/api/:path*} $\rightarrow$ \path{INTERNAL_BACKEND_URL}).
+\item \textbf{Tầng ứng dụng (Application -- NestJS 10 Modular):} Dịch vụ \path{apps/api/} tổ chức thành các domain module độc lập qua Dependency Injection, tiếp nhận REST API chuẩn OpenAPI/Swagger (\path{/api/docs}), kiểm soát máy trạng thái đơn hàng, idempotency thanh toán và khóa lạc quan OCC.
+\item \textbf{Tầng dữ liệu (Data -- PostgreSQL 16 \& Prisma ORM):} Lưu trữ 17 bảng dữ liệu quan hệ trên PostgreSQL 16; quản lý lược đồ và tiến hóa CSDL bằng \path{apps/api/prisma/schema.prisma} cùng migration SQL phiên bản hóa (\path{apps/api/prisma/migrations/20261021070318_init/migration.sql}). Ở môi trường CI/Production sử dụng \path{prisma migrate deploy} (hoặc \path{prisma db push} + \path{prisma/seed.ts} khi khởi tạo local).
 \item \textbf{Dịch vụ thanh toán mô phỏng (Mock Payment Gateway \& VietQR):} Tích hợp \path{MockGatewayService} và \path{MockGatewayController} (\path{POST /api/mock-gateway/charge}) nằm trong \path{PaymentModule}, kết hợp trình giả lập ngân hàng \path{/mbbank} và các API đồng bộ VietQR (\path{mbbank-sync}, \path{mbbank-check}, \path{mbbank-invalidate}), sẵn sàng thay thế bằng cổng VNPay/MoMo thực tế qua REST/Webhook.
-\item \textbf{Logging, Health Check \& Quản lý cấu hình:} Mọi ngoại lệ đi qua \path{AllExceptionsFilter} (\path{backend/src/common/filters/http-exception.filter.ts}) sử dụng \path{Logger('HTTP_EXCEPTION')} chuẩn hóa JSON (\texttt{success}, \texttt{statusCode}, \texttt{errorCode}, \texttt{message}, \texttt{timestamp}, \texttt{path}) và \path{TransformInterceptor}; cấu hình đọc tập trung qua \path{ConfigService} từ biến môi trường \path{.env}; sức khỏe dịch vụ được kiểm tra qua \path{AppController} (\path{GET /health}, \path{GET /api/health} thực thi \texttt{SELECT 1}).
+\item \textbf{Logging, Health Check \& Quản lý cấu hình:} Mọi ngoại lệ đi qua \path{AllExceptionsFilter} (\path{apps/api/src/common/filters/http-exception.filter.ts}) sử dụng \path{Logger('HTTP_EXCEPTION')} chuẩn hóa JSON (\texttt{success}, \texttt{statusCode}, \texttt{errorCode}, \texttt{message}, \texttt{timestamp}, \texttt{path}) và \path{TransformInterceptor}; cấu hình đọc tập trung qua \path{ConfigService} từ biến môi trường \path{.env}; sức khỏe dịch vụ được kiểm tra qua \path{AppController} (\path{GET /health}, \path{GET /api/health} thực thi \texttt{SELECT 1}).
 \end{itemize}
 
 \begin{itemize}[leftmargin=*]
@@ -1177,7 +1177,7 @@ Các quyết định kiến trúc quan trọng của dự án được chuẩn h
 \rowcolor{gray!20} \textbf{Mã ADR} & \textbf{Quyết định} & \textbf{Lý do lựa chọn và đánh đổi (Trade-off)} \\
 \hline
 \endhead
-ADR-001 & Cấu trúc Monorepo & Quản lý cả Frontend (\texttt{frontend/}) và Backend (\texttt{backend/}) trong cùng một repository giúp đồng bộ tài liệu, Docker Compose và quy trình CI/CD. \\
+ADR-001 & Cấu trúc Monorepo & Quản lý cả Frontend (\texttt{apps/web/}) và Backend (\texttt{apps/api/}) trong cùng một repository giúp đồng bộ tài liệu, Docker Compose và quy trình CI/CD. \\
 \hline
 ADR-002 & Backend NestJS Modular & Tổ chức NestJS theo từng domain module (\texttt{auth}, \texttt{products}, \texttt{orders}, \texttt{payment}, \texttt{staff}, \texttt{admin}...) giúp tách biệt trách nhiệm rõ ràng và dễ viết unit test với Jest. \\
 \hline
@@ -1255,13 +1255,13 @@ Bảng 3.4 truy vết từng thành phần/container trên sơ đồ triển kha
 \rowcolor{gray!20} \textbf{Node / Container} & \textbf{Thành phần kiến trúc} & \textbf{Tệp mã nguồn / Cấu hình thực tế} \\
 \hline
 \endhead
-Cloudflare Edge / Proxy & Edge HTTPS (:443 TLS 1.3) & \path{scripts/tunnel.js}, \path{frontend/next.config.js} \\
+Cloudflare Edge / Proxy & Edge HTTPS (:443 TLS 1.3) & \path{scripts/tunnel.js}, \path{apps/web/next.config.js} \\
 \hline
-\textit{brewlite\_frontend} & Tầng trình diễn Next.js (:3000) & \path{frontend/Dockerfile}, \path{docker-compose.yml}, \path{frontend/src/app/} \\
+\textit{brewlite\_frontend} & Tầng trình diễn Next.js (:3000) & \path{apps/web/Dockerfile}, \path{docker-compose.yml}, \path{apps/web/src/app/} \\
 \hline
-\textit{brewlite\_backend} & Tầng ứng dụng NestJS (:3001) & \path{backend/Dockerfile}, \path{docker-compose.yml}, \path{backend/src/main.ts} \\
+\textit{brewlite\_backend} & Tầng ứng dụng NestJS (:3001) & \path{apps/api/Dockerfile}, \path{docker-compose.yml}, \path{apps/api/src/main.ts} \\
 \hline
-\textit{brewlite\_postgres} & Tầng dữ liệu PostgreSQL (:5432) & \path{docker-compose.yml} (volume \texttt{brewlite\_postgres\_data}), \path{backend/prisma/schema.prisma} \\
+\textit{brewlite\_postgres} & Tầng dữ liệu PostgreSQL (:5432) & \path{docker-compose.yml} (volume \texttt{brewlite\_postgres\_data}), \path{apps/api/prisma/schema.prisma} \\
 \hline
 GitHub Actions \& \texttt{ghcr.io} & Hạ tầng CI/CD \& Container Registry & \path{.github/workflows/ci.yml}, \path{.github/workflows/cd.yml} \\
 \hline
@@ -1279,34 +1279,34 @@ Sprint 1 thực hiện mục tiêu tạo nền tảng kỹ thuật chuẩn hóa 
 Kho mã nguồn được lưu trữ công khai trên GitHub tại \url{https://github.com/hanhdevsgu/BrewLite-Assignment2}, tổ chức theo kiến trúc Monorepo và phân tách rõ ràng theo từng nhóm thành phần như trong Bảng 4.1.
 
 \begingroup\footnotesize
-\begin{longtable}{>{\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}p{7.8cm}}
-\caption{Cấu trúc thư mục mã nguồn và ánh xạ thành phần}\\
+\begin{longtable}{>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}p{10.6cm}}
+\caption{Cấu trúc thư mục mã nguồn Monorepo và vai trò thành phần}\\
 \hline
-\rowcolor{gray!20} \textbf{Phân hệ chuẩn} & \textbf{Thư mục / Tệp thực tế} & \textbf{Vai trò và nội dung chính} \\
+\rowcolor{gray!20} \textbf{Thư mục / Tệp gốc} & \textbf{Vai trò và nội dung chính} \\
 \hline
 \endfirsthead
 \hline
-\rowcolor{gray!20} \textbf{Phân hệ chuẩn} & \textbf{Thư mục / Tệp thực tế} & \textbf{Vai trò và nội dung chính} \\
+\rowcolor{gray!20} \textbf{Thư mục / Tệp gốc} & \textbf{Vai trò và nội dung chính} \\
 \hline
 \endhead
-\path{apps/web} & \path{frontend/} & Ứng dụng web Next.js 14 App Router (TypeScript, Tailwind CSS, Zustand, Mobile-First) cùng tài nguyên PWA (\path{public/manifest.webmanifest}, \path{icon.svg}) và giả lập \path{public/mbbank/}. \\
+\path{apps/web/} & Ứng dụng web Next.js 14 App Router (TypeScript, Tailwind CSS, Zustand, Mobile-First) cùng tài nguyên PWA (\path{public/manifest.webmanifest}, \path{icon.svg}) và giả lập \path{public/mbbank/}. \\
 \hline
-\path{apps/api} & \path{backend/} & Dịch vụ REST API NestJS 10 (TypeScript, Prisma ORM, PostgreSQL 16), chứa \path{prisma/schema.prisma}, \path{prisma/migrations/}, \path{prisma/seed.ts}, unit tests (\path{src/**/*.spec.ts}) và HTTP integration tests (\path{test/app.e2e-spec.ts}). \\
+\path{apps/api/} & Dịch vụ REST API NestJS 10 (TypeScript, Prisma ORM, PostgreSQL 16), chứa \path{prisma/schema.prisma}, \path{prisma/migrations/}, \path{prisma/seed.ts}, unit tests (\path{src/**/*.spec.ts}) và HTTP integration tests (\path{test/app.e2e-spec.ts}). \\
 \hline
-\path{docs/} & \path{docs/} & Toàn bộ hồ sơ đặc tả (\path{requirements/}), sơ đồ UML nguồn \& ảnh (\path{diagrams/}, \path{report/img/}), kiến trúc \& 5 ADR (\path{architecture/}), phân công (\path{TASK-ALLOCATION.md}), truy vết (\path{traceability-matrix.md}), triển khai (\path{deployment.md}), rollback (\path{rollback-guide.md}), release notes (\path{RELEASE_NOTES.md}) và biên bản Sprint (\path{sprints/}). \\
+\path{docs/} & Toàn bộ hồ sơ đặc tả (\path{requirements/}), sơ đồ UML nguồn \& ảnh (\path{diagrams/}, \path{report/img/}), kiến trúc \& 5 ADR (\path{architecture/}), phân công (\path{TASK-ALLOCATION.md}), truy vết (\path{traceability-matrix.md}), triển khai (\path{deployment.md}), rollback (\path{rollback-guide.md}), release notes (\path{RELEASE_NOTES.md}) và biên bản Sprint (\path{sprints/}). \\
 \hline
-\path{tests/} & \path{tests/} \& \path{scripts/} & Kịch bản kiểm thử đầu-cuối full-stack (\path{tests/e2e/order-checkout.e2e-spec.ts}) và kịch bản kiểm thử xung đột OCC (\path{scripts/test-race-condition.js}). \\
+\path{tests/} \& \path{scripts/} & Kịch bản kiểm thử đầu-cuối full-stack (\path{tests/e2e/order-checkout.e2e-spec.ts}) và kịch bản kiểm thử xung đột OCC (\path{scripts/test-race-condition.js}). \\
 \hline
-\path{.github/workflows/} & \path{.github/workflows/} & Cấu hình pipeline tự động hóa CI (\path{ci.yml}) và CD (\path{cd.yml}). \\
+\path{.github/workflows/} & Cấu hình pipeline tự động hóa CI (\path{ci.yml}) và CD (\path{cd.yml}). \\
 \hline
-\path{.env.example}, \path{docker-compose.yml}, \path{README.md} & Thư mục gốc repository & Mẫu biến môi trường không chứa secret, \path{.gitignore} (loại trừ \path{.env}, \path{frontend/.env.local}, \path{backend/.env}, \path{node_modules/}, \path{dist/}, \path{.next/}), đóng gói 3 container và hướng dẫn vận hành. \\
+\path{.env.example}, \path{docker-compose.yml}, \path{README.md} & Mẫu biến môi trường không chứa secret, \path{.gitignore} (loại trừ \path{.env}, \path{apps/web/.env.local}, \path{apps/api/.env}, \path{node_modules/}, \path{dist/}, \path{.next/}), đóng gói 3 container và hướng dẫn vận hành. \\
 \hline
 \end{longtable}
 \endgroup
 
 \subsection{Chiến lược phân nhánh, Product Backlog 2 Sprint và DoD}
 \begin{itemize}[leftmargin=*]
-\item \textbf{Chiến lược nhánh:} Nhánh \path{main} (phát hành ổn định, gắn tag \path{v1.0.0}), nhánh \path{develop} (tích hợp chính) và 7 nhánh tính năng cho 7 thành viên: \path{feat/p1-menu-page}, \path{feat/p2-product-details}, \path{feat/p3-cart-store}, \path{feat/p4-checkout-history}, \path{feat/p5-api-products}, \path{feat/p6-payment-ingredients-orders}, \path{feature/p7-backend}.
+\item \textbf{Chiến lược nhánh:} Nhánh \path{main} (phát hành ổn định, gắn tag \path{v1.0.0}, \path{v1.0.1}), nhánh \path{develop} (tích hợp chính) và 7 nhánh tính năng cho 7 thành viên: \path{feat/p1-menu-page}, \path{feat/p2-product-details}, \path{feat/p3-cart-store}, \path{feat/p4-checkout-history}, \path{feat/p5-api-products}, \path{feat/p6-payment-ingredients-orders}, \path{feature/p7-backend}.
 \item \textbf{Quản lý Product Backlog 2 Sprint:} Bảng 4.2 tổng hợp các đầu việc cốt lõi cho Sprint 1 và Sprint 2, liên kết với bảng phân công 7 gói công việc P1--P7 trong \path{docs/TASK-ALLOCATION.md} (tổ chức thành 3 đợt thực thi nội bộ trong \path{README.md}) và biên bản nghiệm thu tại \path{docs/sprints/sprint-retrospective.md}.
 \item \textbf{Quy ước Commit:} Áp dụng Conventional Commits (\texttt{feat:}, \texttt{fix:}, \texttt{docs:}, \texttt{chore:}) trên các commit và Pull Request.
 \item \textbf{Definition of Done (DoD):} Mã nguồn biên dịch sạch (\path{tsc --noEmit}, \path{nest build}, \path{next build}), vượt qua bộ kiểm thử tự động, mọi DTO đầu vào có \path{class-validator}, giao diện xử lý đủ loading/empty/error và cập nhật hướng dẫn trong \path{README.md}.
@@ -1347,15 +1347,16 @@ Mọi cập nhật đối với yêu cầu, sơ đồ UML hoặc thiết kế ki
 \begin{itemize}[leftmargin=*]
 \item Nhóm commit đồng bộ đặc tả yêu cầu: \path{ffc8e08}, \path{2360867} và \path{2502a8a} cập nhật tiêu đề chuẩn \path{Idempotency-Key}, bổ sung mức ưu tiên \texttt{Won't} trong \path{srs.md} và loại bỏ đường dẫn cục bộ khỏi tài liệu repo.
 \item Nhóm commit đồng bộ mô hình UML với mã nguồn: \path{47c0552}, \path{76871be}, \path{3c6bbcd} và \path{064305a} hiệu chỉnh sơ đồ Use-Case, Activity, Sequence, Class và Deployment theo đúng phân quyền RBAC (\path{CUSTOMER}/\path{STAFF}/\path{ADMIN}), quy trình hủy đơn hoàn điểm và giao dịch thanh toán thực tế.
+\item Nhóm commit chuẩn hóa cấu trúc Monorepo và CI/CD: \path{8356783} và \path{3e9207c} tổ chức lại thư mục chuẩn \path{apps/web/} và \path{apps/api/}, loại bỏ các tệp \path{.drawio} dư thừa ở thư mục gốc và hoàn thiện quyền đẩy Docker image lên \path{ghcr.io}.
 \end{itemize}
 
 \section{Hiện thực MVP Sprint 1 -- Luồng xem thực đơn}
 
 \begin{enumerate}[leftmargin=*]
 \item \textbf{Backend API Thực đơn}: Hiện thực \path{GET /api/products} (hỗ trợ tìm kiếm, lọc danh mục không phân biệt hoa/thường, phân trang), \path{GET /api/products/toppings} và \path{GET /api/products/:id} trong \path{ProductsModule}. API tự động đối chiếu định lượng nguyên liệu trong bảng \path{Recipe} và \path{Ingredient} để trả về cờ \path{isOutOfStock}.
-\item \textbf{Frontend Menu Mobile-First}: Trang chủ \path{frontend/src/app/page.tsx} gọi API thực đơn, hiển thị danh sách món responsive, hỗ trợ tìm kiếm debounce, lọc theo danh mục (Cà phê, Trà, Đá xay), xử lý đầy đủ trạng thái loading (skeleton), danh sách rỗng (empty state) và thông báo lỗi (error state).
-\item \textbf{Database Seed}: File \path{backend/prisma/seed.ts} khởi tạo 6 tài khoản thuộc 3 vai trò (\path{customer1}, \path{customer2}, \path{customer3} [LOCKED], \path{barista1}, \path{barista2}, \path{admin} --- dùng chung mật khẩu kiểm thử \path{123456}), 12 món đồ uống (108 biến thể gồm 3 size S/M/L $\times$ 3 cấu hình topping mỗi món), 10 nguyên liệu, 2 nhà cung cấp, 1 phiếu nhập kho, 4 mã khuyến mãi (\path{BREW10}, \path{GIAM20K}, \path{EXPIRED50}, \path{SOLDOUT}), 3 đơn hàng mẫu và 1 đánh giá.
-\item \textbf{Kiểm thử tối thiểu cho luồng sản phẩm Sprint 1}: Bổ sung \path{backend/src/modules/products/products.service.spec.ts} (6 unit test cases kiểm tra \path{findAll}, tính cờ hết hàng \path{isOutOfStock}, phân trang/fallback, \path{findOne}, ngoại lệ \path{NotFoundException} và \path{getToppings}) cùng ca kiểm thử tích hợp HTTP \path{IT-09} trong \path{backend/test/app.e2e-spec.ts} kiểm chứng các tuyến \path{/api/products}, \path{/api/products/toppings}, \path{/api/products/:id} và lỗi \texttt{404}.
+\item \textbf{Frontend Menu Mobile-First}: Trang chủ \path{apps/web/src/app/page.tsx} gọi API thực đơn, hiển thị danh sách món responsive, hỗ trợ tìm kiếm debounce, lọc theo danh mục (Cà phê, Trà, Đá xay), xử lý đầy đủ trạng thái loading (skeleton), danh sách rỗng (empty state) và thông báo lỗi (error state).
+\item \textbf{Database Seed}: File \path{apps/api/prisma/seed.ts} khởi tạo 6 tài khoản thuộc 3 vai trò (\path{customer1}, \path{customer2}, \path{customer3} [LOCKED], \path{barista1}, \path{barista2}, \path{admin} --- dùng chung mật khẩu kiểm thử \path{123456}), 12 món đồ uống (108 biến thể gồm 3 size S/M/L $\times$ 3 cấu hình topping mỗi món), 10 nguyên liệu, 2 nhà cung cấp, 1 phiếu nhập kho, 4 mã khuyến mãi (\path{BREW10}, \path{GIAM20K}, \path{EXPIRED50}, \path{SOLDOUT}), 3 đơn hàng mẫu và 1 đánh giá.
+\item \textbf{Kiểm thử tối thiểu cho luồng sản phẩm Sprint 1}: Bổ sung \path{apps/api/src/modules/products/products.service.spec.ts} (6 unit test cases kiểm tra \path{findAll}, tính cờ hết hàng \path{isOutOfStock}, phân trang/fallback, \path{findOne}, ngoại lệ \path{NotFoundException} và \path{getToppings}) cùng ca kiểm thử tích hợp HTTP \path{IT-09} trong \path{apps/api/test/app.e2e-spec.ts} kiểm chứng các tuyến \path{/api/products}, \path{/api/products/toppings}, \path{/api/products/:id} và lỗi \texttt{404}.
 \end{enumerate}
 
 \section{Pipeline Continuous Integration (CI)}
@@ -1364,7 +1365,7 @@ Nhóm cấu hình workflow \path{.github/workflows/ci.yml} tự động kích ho
 \begin{center}
 \textbf{Checkout} $\rightarrow$ \textbf{Install Dependencies} $\rightarrow$ \textbf{Lint} $\rightarrow$ \textbf{Prisma Push \& Seed} $\rightarrow$ \textbf{Unit Test \& HTTP Integration Test} $\rightarrow$ \textbf{Build}
 \end{center}
-Commit \path{081d319} thiết lập cổng kiểm tra lint nghiêm ngặt trong CI để chặn mã lỗi trước khi hợp nhất; lịch sử git ghi nhận chuỗi Pull Request hợp nhất từ các nhánh thành viên (\path{PR #5} \path{e1dd048}, \path{PR #6} \path{bbe47b6}, \path{PR #7} \path{7c4d459}, \path{PR #8} \path{df1fe84}, \path{PR #9} \path{5d7d7fa}/\path{5991ae3}/\path{0ca1984} và \path{PR #10} \path{ba0bfa0}/\path{a3a1472}/\path{73c9cec}/\path{4dd8ea5}) vào nhánh tích hợp \path{develop}.
+Commit \path{081d319} thiết lập cổng kiểm tra lint nghiêm ngặt trong CI để chặn mã lỗi trước khi hợp nhất; lịch sử git ghi nhận chuỗi hợp nhất từ các nhánh thành viên (\path{e1dd048}, \path{bbe47b6}, \path{7c4d459}, \path{df1fe84}, \path{5d7d7fa}/\path{5991ae3}/\path{0ca1984} và \path{ba0bfa0}/\path{a3a1472}/\path{73c9cec}/\path{4dd8ea5}) vào nhánh \path{develop}. Pipeline CI trên GitHub Actions đạt trạng thái \textbf{Pass (success)} ở tất cả các bước trên nhánh \path{develop} (ví dụ: run \path{43728139168} tại commit \path{8356783} và run \path{43728698541} tại commit \path{3e9207c}).
 
 \chapter{HOÀN THIỆN SẢN PHẨM, KIỂM THỬ VÀ TRIỂN KHAI}
 
@@ -1376,18 +1377,18 @@ Sprint 2 hoàn thành toàn bộ luồng nghiệp vụ từ chọn món đến t
 \item \textbf{Chi tiết sản phẩm, Size \& Topping}: Hỗ trợ cả hộp thoại chọn nhanh (\path{ProductQuickSelectModal.tsx}) và trang chi tiết (\path{products/[id]/page.tsx}) để chọn Size (S/M/L), Topping (12 loại đồng bộ từ \path{GET /api/products/toppings}), mức đường, mức đá và xem/gửi đánh giá.
 \item \textbf{Giỏ hàng \& Tính tổng tiền}: Store \path{useCartStore.ts} (Zustand + persist) tự động gộp món trùng tùy chọn, tách dòng khi khác tùy chọn, áp dụng mã Voucher (\path{POST /api/promotions/validate}) và điểm thưởng.
 \item \textbf{Xác thực JWT \& Tạo đơn hàng}: \path{AuthModule} cung cấp đăng ký/đăng nhập/làm mới phiên/đổi mật khẩu với bcrypt (10 rounds) và JWT; \path{OrdersModule} nhận giỏ hàng tại \path{POST /api/orders} và tạo đơn \path{PENDING}.
-\item \textbf{Thanh toán không tiền mặt \& Đồng bộ VietQR}: \path{PaymentModule} nhận header \path{Idempotency-Key} để chống trừ tiền hai lần, thực hiện \texttt{prisma.\$transaction} trừ kho theo khóa lạc quan (OCC, retry tối đa 3 lần), cộng điểm thưởng và hỗ trợ quét mã VietQR chuẩn EMVCo kết hợp ứng dụng giả lập MBBank (\path{frontend/public/mbbank/index.html}).
+\item \textbf{Thanh toán không tiền mặt \& Đồng bộ VietQR}: \path{PaymentModule} nhận header \path{Idempotency-Key} để chống trừ tiền hai lần, thực hiện \texttt{prisma.\$transaction} trừ kho theo khóa lạc quan (OCC, retry tối đa 3 lần), cộng điểm thưởng và hỗ trợ quét mã VietQR chuẩn EMVCo kết hợp ứng dụng giả lập MBBank (\path{apps/web/public/mbbank/index.html}).
 \item \textbf{Theo dõi, Lịch sử \& Quầy pha chế}: Khách hàng theo dõi tiến độ tại \path{/orders/[id]} và lịch sử tại \path{/orders/me} (gọi \path{GET /api/orders/me}); nhân viên Barista xử lý đơn theo FIFO trên bảng Kanban \path{/staff} qua các API \path{POST /api/staff/orders/:id/accept}, \path{/ready}, \path{/complete} được kiểm soát bởi \path{assertTransition}.
-\item \textbf{Xử lý lỗi, Validate dữ liệu \& Trạng thái UI nhất quán}: Backend áp dụng \path{ValidationPipe} (\path{class-validator}), \path{TransformInterceptor} và \path{AllExceptionsFilter} (\path{backend/src/common/filters/http-exception.filter.ts}) chuẩn hóa mã lỗi HTTP (\texttt{400}, \texttt{401}, \texttt{403}, \texttt{404}, \texttt{409}, \texttt{422}); Frontend cung cấp thông báo lỗi rõ ràng (bao gồm luồng hủy đơn/đổi phương thức thanh toán trên \path{/checkout}) cùng trạng thái loading/empty.
+\item \textbf{Xử lý lỗi, Validate dữ liệu \& Trạng thái UI nhất quán}: Backend áp dụng \path{ValidationPipe} (\path{class-validator}), \path{TransformInterceptor} và \path{AllExceptionsFilter} (\path{apps/api/src/common/filters/http-exception.filter.ts}) chuẩn hóa mã lỗi HTTP (\texttt{400}, \texttt{401}, \texttt{403}, \texttt{404}, \texttt{409}, \texttt{422}); Frontend cung cấp thông báo lỗi rõ ràng (bao gồm luồng hủy đơn/đổi phương thức thanh toán trên \path{/checkout}) cùng trạng thái loading/empty.
 \end{itemize}
 
 \section{Tích hợp và Kiểm thử đa tầng}
 
 \begin{itemize}[leftmargin=*]
-\item \textbf{Migration \& Seed tái tạo CSDL}: Lược đồ quan hệ được quản lý qua migration SQL phiên bản hóa tại \path{backend/prisma/migrations/20261021070318_init/migration.sql} kết hợp \path{backend/prisma/seed.ts} và quy trình thiết lập môi trường (\path{npx prisma migrate deploy} hoặc \path{npm run db:setup}) giúp dựng lại cấu trúc bảng và dữ liệu mẫu đồng nhất.
-\item \textbf{Unit Tests Backend (Jest)}: Chạy lệnh \path{npm --prefix backend test} đạt kết quả \textbf{12/12 test suites và 119/119 test cases pass 100\%}, bao phủ: \path{auth.service.spec.ts} (JWT \texttt{15m}/\texttt{7d} qua \texttt{ConfigService}), \path{products.service.spec.ts} (danh sách món, \path{isOutOfStock}, \path{NotFoundException}, toppings), \path{orders.service.spec.ts} (stacking voucher, hoàn điểm, lan truyền lỗi HTTP), \path{orders.controller.spec.ts}, \path{order-state-machine.spec.ts}, \path{payment.service.spec.ts}, \path{payment.controller.spec.ts}, \path{promotions.service.spec.ts}, \path{reviews.service.spec.ts} (\texttt{KiemTraDaMua} bắt buộc đơn \texttt{COMPLETED}), \path{reviews.controller.spec.ts}, \path{staff.service.spec.ts} và \path{staff.controller.spec.ts}.
-\item \textbf{HTTP Integration Tests Backend (Supertest)}: Chạy lệnh \path{npm --prefix backend run test:e2e} (\path{backend/test/app.e2e-spec.ts}) đạt \textbf{9/9 test cases pass}, kiểm chứng qua \path{ValidationPipe}, \path{TransformInterceptor}, \path{AllExceptionsFilter}, \path{JwtAuthGuard} và \path{RolesGuard} trên các tuyến \path{/api/health}, \path{/api/auth/login}, \path{/api/promotions/available}, \path{/api/orders}, \path{/api/payments} (Idempotency \texttt{201}/\texttt{200}/\texttt{422}), \path{/api/staff/orders} (RBAC \texttt{403}), \path{/api/reviews} (\texttt{KiemTraDaMua} \texttt{403} chưa \texttt{COMPLETED} và \texttt{201} sau \texttt{COMPLETED}) và \path{/api/products} (\path{IT-09}).
-\item \textbf{Build \& Lint Verification}: Lệnh \path{npm --prefix backend run lint} (\path{tsc --noEmit}), \path{npm --prefix backend run build} (\path{nest build}), \path{npm --prefix frontend run lint} và \path{npm --prefix frontend run build} (\path{next build}, \path{Generating static pages (16/16)}) đều vượt qua với mã thoát 0.
+\item \textbf{Migration \& Seed tái tạo CSDL}: Lược đồ quan hệ được quản lý qua migration SQL phiên bản hóa tại \path{apps/api/prisma/migrations/20261021070318_init/migration.sql} kết hợp \path{apps/api/prisma/seed.ts} và quy trình thiết lập môi trường (\path{npx prisma migrate deploy} hoặc \path{npm run db:setup}) giúp dựng lại cấu trúc bảng và dữ liệu mẫu đồng nhất.
+\item \textbf{Unit Tests Backend (Jest)}: Chạy lệnh \path{npm --prefix apps/api test} đạt kết quả \textbf{12/12 test suites và 119/119 test cases pass 100\%}, bao phủ: \path{auth.service.spec.ts} (JWT \texttt{15m}/\texttt{7d} qua \texttt{ConfigService}), \path{products.service.spec.ts} (danh sách món, \path{isOutOfStock}, \path{NotFoundException}, toppings), \path{orders.service.spec.ts} (stacking voucher, hoàn điểm, lan truyền lỗi HTTP), \path{orders.controller.spec.ts}, \path{order-state-machine.spec.ts}, \path{payment.service.spec.ts}, \path{payment.controller.spec.ts}, \path{promotions.service.spec.ts}, \path{reviews.service.spec.ts} (\texttt{KiemTraDaMua} bắt buộc đơn \texttt{COMPLETED}), \path{reviews.controller.spec.ts}, \path{staff.service.spec.ts} và \path{staff.controller.spec.ts}.
+\item \textbf{HTTP Integration Tests Backend (Supertest)}: Chạy lệnh \path{npm --prefix apps/api run test:e2e} (\path{apps/api/test/app.e2e-spec.ts}) đạt \textbf{9/9 test cases pass}, kiểm chứng qua \path{ValidationPipe}, \path{TransformInterceptor}, \path{AllExceptionsFilter}, \path{JwtAuthGuard} và \path{RolesGuard} trên các tuyến \path{/api/health}, \path{/api/auth/login}, \path{/api/promotions/available}, \path{/api/orders}, \path{/api/payments} (Idempotency \texttt{201}/\texttt{200}/\texttt{422}), \path{/api/staff/orders} (RBAC \texttt{403}), \path{/api/reviews} (\texttt{KiemTraDaMua} \texttt{403} chưa \texttt{COMPLETED} và \texttt{201} sau \texttt{COMPLETED}) và \path{/api/products} (\path{IT-09}).
+\item \textbf{Build \& Lint Verification}: Lệnh \path{npm --prefix apps/api run lint} (\path{tsc --noEmit}), \path{npm --prefix apps/api run build} (\path{nest build}), \path{npm --prefix apps/web run lint} và \path{npm --prefix apps/web run build} (\path{next build}, \path{Generating static pages (16/16)}) đều vượt qua với mã thoát 0.
 \item \textbf{Kiểm thử đồng thời (Race Condition OCC)}: Kịch bản \path{scripts/test-race-condition.js} mô phỏng nhiều yêu cầu thanh toán gửi đồng thời vào server đang chạy tranh mua phần nguyên liệu cuối cùng nhằm kiểm chứng cơ chế Optimistic Locking chặn bán âm bằng HTTP 409.
 \item \textbf{Kiểm thử đầu-cuối (Full-Stack E2E) \& API Collection}: Kịch bản \path{tests/e2e/order-checkout.e2e-spec.ts} (8 cases end-to-end khi chạy kèm PostgreSQL + Backend \texttt{:3001}) cho luồng đặt đơn -- thanh toán idempotent -- pha chế -- đánh giá, cùng bộ Postman Collection 49 API requests tại \path{docs/BrewLite_Full_API_Collection.postman_collection.json}.
 \item \textbf{Docker Compose \& Health Check}: File \path{docker-compose.yml} điều phối đồng bộ 3 container (\path{postgres}, \path{backend}, \path{frontend}); backend cung cấp endpoint \path{GET /health} và \path{GET /api/health} trong \path{app.controller.ts} kiểm tra kết nối PostgreSQL qua \path{SELECT 1}.
@@ -1395,21 +1396,21 @@ Sprint 2 hoàn thành toàn bộ luồng nghiệp vụ từ chọn món đến t
 
 \section{Quy trình Continuous Delivery / Deployment (CD)}
 
-Pipeline Continuous Delivery được cấu hình tại \path{.github/workflows/cd.yml} (kích hoạt khi push lên \path{main} hoặc chạy thủ công) nhằm tự động hóa quy trình từ kiểm tra chất lượng đến cập nhật phiên bản chạy thực tế:
+Pipeline Continuous Delivery được cấu hình tại \path{.github/workflows/cd.yml} (kích hoạt khi push lên \path{main}, gắn tag \path{v*} hoặc chạy thủ công) nhằm tự động hóa quy trình từ kiểm tra chất lượng đến cập nhật phiên bản chạy thực tế:
 \begin{enumerate}[leftmargin=*]
-\item \textbf{Quality Gate \& Build Verification}: Tái chạy kiểm tra type-check/lint, Jest Unit Tests, Supertest HTTP Integration Tests và build cả Backend lẫn Frontend trước khi đóng gói.
-\item \textbf{Đóng gói \& Đẩy Container Image}: Build Docker image cho \path{backend/} và \path{frontend/}, gắn tag theo Commit SHA và \texttt{latest}, sau đó đẩy lên GitHub Container Registry (\texttt{ghcr.io}).
-\item \textbf{Quản lý Migration an toàn}: Chạy \path{npx prisma validate} và tự động thực thi \path{npx prisma migrate deploy} khi biến môi trường \texttt{DATABASE\_URL} được cung cấp trong GitHub Secrets.
-\item \textbf{Kích hoạt Triển khai \& Xác minh Health Check}: Gửi webhook đến \texttt{DEPLOY\_WEBHOOK\_URL} để máy chủ/hạ tầng kéo image mới, sau đó gọi kiểm tra \texttt{PROD\_HEALTH\_URL} (\path{/api/health}) xác nhận trạng thái \texttt{200 OK}.
+\item \textbf{Quality Gate \& Build Verification}: Tái chạy kiểm tra lint, \path{prisma db push} \& seed trên \path{postgres:16-alpine}, Jest Unit Tests, Supertest HTTP Integration Tests và build cả Backend lẫn Frontend trước khi đóng gói.
+\item \textbf{Đóng gói \& Đẩy Container Image}: Build Docker image cho \path{apps/api/} và \path{apps/web/}, gắn tag theo Commit SHA, tên nhánh/tag phát hành và \texttt{latest}, sau đó đẩy lên GitHub Container Registry (\texttt{ghcr.io}).
+\item \textbf{Quản lý Migration an toàn}: Chạy \path{npx prisma validate} và tự động thực thi \path{npx prisma migrate deploy} khi biến môi trường \texttt{DATABASE\_URL} được cung cấp trong GitHub Secrets (fallback URL cục bộ khi chưa cấu hình secret để kiểm chứng schema).
+\item \textbf{Kích hoạt Triển khai, Smoke Test \& Rollback tự động}: Gửi webhook đến \texttt{DEPLOY\_WEBHOOK\_URL} (nếu có) hoặc khởi chạy kiểm thử toàn bộ stack qua \path{docker compose up -d --build}, xác minh \path{GET /api/health} trả về \texttt{"database":"connected"} cùng HTTP \texttt{200} từ Frontend (\texttt{:3000}), và kích hoạt cảnh báo Rollback khi thất bại. Pipeline CD đã ghi nhận lỗi thực tế ở các lần chạy trước (như run \path{43585868394} tại \path{v1.0.0} và \path{43728146170} tại \path{8356783} khi thiếu fallback \texttt{DATABASE\_URL}) trước khi được khắc phục ở commit \path{3e9207c} và chạy \textbf{Pass (success)} toàn trình tại run \path{43728703140}.
 \end{enumerate}
 
 \section{Triển khai và Bàn giao hệ thống}
 
 \begin{itemize}[leftmargin=*]
-\item \textbf{Kiểm tra giao diện, API \& Health Check sau đóng gói}: Địa chỉ kiểm chứng cục bộ/Docker Compose mặc định gồm \path{http://localhost:3000} (Frontend), \path{http://localhost:3000/mbbank} (giả lập thanh toán VietQR), \path{http://localhost:3001/api/docs} (Swagger OpenAPI) và \path{http://localhost:3001/api/health} (Health Check); khi công bố công khai sử dụng Cloudflare Tunnel (\path{scripts/tunnel.js}) ánh xạ lưu lượng HTTPS Edge \texttt{:443} vào dịch vụ nội bộ.
+\item \textbf{Kiểm tra giao diện, API \& Health Check sau đóng gói}: Địa chỉ kiểm chứng cục bộ/Docker Compose mặc định gồm \path{http://localhost:3000} (Frontend), \path{http://localhost:3000/mbbank} (giả lập thanh toán VietQR), \path{http://localhost:3001/api/docs} (Swagger OpenAPI), \path{http://localhost:3001/health} và \path{http://localhost:3001/api/health} (Health Check); khi công bố công khai sử dụng Cloudflare Tunnel (\path{scripts/tunnel.js}) ánh xạ lưu lượng HTTPS Edge \texttt{:443} vào dịch vụ nội bộ.
 \item \textbf{An toàn cơ sở dữ liệu \& Secret}: Ở cấu hình phát triển local (\path{docker-compose.yml}), cổng \texttt{5432} được mở về máy cục bộ phục vụ \path{prisma migrate} và Prisma Studio; khi triển khai production như thiết kế trên Deployment Diagram, container PostgreSQL (\textit{brewlite\_postgres}) chỉ lắng nghe trong mạng Docker nội bộ \textit{brewlite\_network} và không phơi bày cổng \texttt{5432} ra mạng công cộng. Mọi bí mật cấu hình (\texttt{DATABASE\_URL}, \texttt{JWT\_SECRET}, webhook token) được quản lý qua \path{.env} (nằm trong \path{.gitignore}, đã kiểm tra không có file \path{.env} nào bị theo dõi bởi Git) và GitHub Secrets.
-\item \textbf{Release Notes, README \& Rollback Guide}: Phiên bản phát hành \path{v1.0.0} (đã gắn Git tag \path{v1.0.0}) tổng hợp tại \path{docs/RELEASE_NOTES.md}; hướng dẫn Cài đặt -- Build -- Deploy Production -- Rollback đầy đủ được cập nhật trong \path{README.md} (Mục \texttt{5.1}--\texttt{5.11}), \path{docs/deployment.md} và \path{docs/rollback-guide.md}.
-\item \textbf{Sprint Review \& Retrospective}: Biên bản đánh giá kết quả đạt được, tồn tại (như tự động hóa thêm test Frontend và chạy CD thực tế) cùng kế hoạch cải tiến sau hai Sprint được lưu tại \path{docs/sprints/sprint-retrospective.md}.
+\item \textbf{Release Notes, README \& Rollback Guide}: Phiên bản phát hành \path{v1.0.0} / \path{v1.0.1} (đã gắn Git tag \path{v1.0.0}, \path{v1.0.1}) tổng hợp tại \path{docs/RELEASE_NOTES.md}; hướng dẫn Cài đặt -- Build -- Deploy Production -- Rollback đầy đủ được cập nhật trong \path{README.md} (Mục \texttt{5.1}--\texttt{5.11}), \path{docs/deployment.md} và \path{docs/rollback-guide.md}.
+\item \textbf{Sprint Review \& Retrospective}: Biên bản đánh giá kết quả đạt được (Sprint Review), các điểm làm tốt và kế hoạch cải tiến sau hai Sprint (Sprint Retrospective) được lưu tại \path{docs/sprints/sprint-retrospective.md}.
 \end{itemize}
 
 \chapter{MA TRẬN TRUY VẾT YÊU CẦU (TRACEABILITY MATRIX)}
@@ -1427,11 +1428,11 @@ Bảng 6.1 và Bảng 6.2 thiết lập ma trận liên kết truy vết hai chi
 \rowcolor{gray!20} \textbf{Mã YC} & \textbf{Use-case} & \textbf{Thiết kế / Sơ đồ} & \textbf{Mã nguồn / API} & \textbf{Kiểm thử (Test)} \\
 \hline
 \endhead
-FR-01 & UC-07 Xem thực đơn & Activity Diagram, Class Diagram (\path{SanPham}) & \path{GET /api/products}, \path{products.controller.ts}, \path{frontend/src/app/page.tsx} & Jest: \path{products.service.spec.ts}, Supertest \path{IT-09}, Postman, \path{next build} \\
+FR-01 & UC-07 Xem thực đơn & Activity Diagram, Class Diagram (\path{SanPham}) & \path{GET /api/products}, \path{products.controller.ts}, \path{apps/web/src/app/page.tsx} & Jest: \path{products.service.spec.ts}, Supertest \path{IT-09}, Postman, \path{next build} \\
 \hline
 FR-02 & UC-08 Chi tiết món, Size \& Topping & Class Diagram (\path{ChiTietSanPham}) & \path{GET /api/products/:id}, \path{/api/products/toppings}, \path{ProductQuickSelectModal.tsx}, \path{products/[id]/page.tsx} & Jest: \path{products.service.spec.ts}, Supertest \path{IT-09}, Postman \\
 \hline
-FR-03 & UC-09 Quản lý giỏ hàng & Activity Diagram, Class Diagram (\path{ChiTietDonHang}) & \path{frontend/src/store/useCartStore.ts}, \path{frontend/src/app/cart/page.tsx} & \path{tests/e2e/order-checkout.e2e-spec.ts} \\
+FR-03 & UC-09 Quản lý giỏ hàng & Activity Diagram, Class Diagram (\path{ChiTietDonHang}) & \path{apps/web/src/store/useCartStore.ts}, \path{apps/web/src/app/cart/page.tsx} & \path{tests/e2e/order-checkout.e2e-spec.ts} \\
 \hline
 FR-04 & UC-01..06 Tài khoản \& JWT & Sequence Diagram (JWT check), Class (\path{TaiKhoan}) & \path{POST /api/auth/*}, \path{GET /api/auth/me}, \path{auth.controller.ts} & Jest: \path{auth.service.spec.ts}, Supertest \path{IT-02}, \path{IT-03} \\
 \hline
@@ -1451,7 +1452,7 @@ FR-11 & UC-18 Hủy đơn hoàn kho \& điểm & Class Diagram (\path{DonHang.Hu
 \hline
 FR-12 & UC-20, UC-21 Đánh giá món & Class Diagram (\path{DanhGia}, \path{KiemTraDaMua()}) & \path{POST /api/reviews}, \path{PATCH/DELETE /api/reviews/:id} & Jest: \path{reviews.service.spec.ts}, Supertest \path{IT-08} \\
 \hline
-FR-13 & UC-27..32 Quản trị Admin & Deployment Diagram, Class (\path{PhieuNhap}, \path{ChiTietPhieuNhap}, \path{NhaCungCap}, \path{Admin}) & \path{admin.controller.ts}, \path{frontend/src/app/admin/page.tsx} & Postman API Collection \\
+FR-13 & UC-27..32 Quản trị Admin & Deployment Diagram, Class (\path{PhieuNhap}, \path{ChiTietPhieuNhap}, \path{NhaCungCap}, \path{Admin}) & \path{admin.controller.ts}, \path{apps/web/src/app/admin/page.tsx} & Postman API Collection \\
 \hline
 FR-14 & Ngoài phạm vi (Won't) & \path{context-and-scope.md} (Ngoài phạm vi) & Không triển khai trong phạm vi đồ án & Ngoài phạm vi đồ án (Native/Đa chi nhánh/Tiền mặt) \\
 \hline
@@ -1473,7 +1474,7 @@ NFR-01 & Hiệu năng & Phân trang \path{GET /api/products}, kiến trúc NestJ
 \hline
 NFR-02 & Bảo mật & Bcrypt 10 rounds (\path{auth.service.ts}), JWT \texttt{15m}/\texttt{7d}, \path{JwtAuthGuard}, \path{RolesGuard}, \path{ValidationPipe} & Jest: \path{auth.service.spec.ts}, Supertest \path{IT-05} (\texttt{401}), \path{IT-07} (\texttt{403}) \\
 \hline
-NFR-03 & Khả dụng (Mobile-First) & Next.js 14 App Router, Tailwind CSS, thiết kế mobile-first + \path{manifest.webmanifest} & \path{npm --prefix frontend run build} (Generating static pages 16/16) \\
+NFR-03 & Khả dụng (Mobile-First) & Next.js 14 App Router, Tailwind CSS, thiết kế mobile-first + \path{manifest.webmanifest} & \path{npm --prefix apps/web run build} (Generating static pages 16/16) \\
 \hline
 NFR-04 & Toàn vẹn ACID & \texttt{prisma.\$transaction} kết hợp khóa lạc quan cột \path{version} & Jest: \path{payment.service.spec.ts}, \path{test-race-condition.js} \\
 \hline
@@ -1500,7 +1501,7 @@ NFR-06 & Giám sát & Endpoint \path{GET /health} và \path{GET /api/health} tro
 \item Bổ sung unit test cho các component frontend (React Testing Library) và chạy kịch bản E2E full-stack trực tiếp trên môi trường staging trong CI/CD.
 \end{itemize}
 
-\section{Tổng kết đánh giá và Mức độ hoàn thành sản phẩm}
+\section{Đối chiếu cấu trúc Repository và Hạng mục bàn giao}
 
 Bảng 7.1 tổng hợp trạng thái hoàn thiện các hạng mục bàn giao cốt lõi của hệ thống BrewLite.
 
@@ -1514,19 +1515,19 @@ Bảng 7.1 tổng hợp trạng thái hoàn thiện các hạng mục bàn giao 
 \rowcolor{gray!20} \textbf{Hạng mục bàn giao} & \textbf{Trạng thái} & \textbf{Vị trí / Ghi chú xác minh} \\
 \hline
 \endhead
-Link repository \& quyền truy cập giảng viên & Hoàn thành (trên GitHub) & \url{https://github.com/hanhdevsgu/BrewLite-Assignment2} (kèm \path{README.md}, 7 nhánh tính năng) \\
+Link repository \& quyền truy cập giảng viên & Hoàn thành (trên GitHub) & \url{https://github.com/hanhdevsgu/BrewLite-Assignment2} (cấu trúc chuẩn \path{apps/web}, \path{apps/api}, \path{docs}, \path{tests}, \path{.github/workflows}) \\
 \hline
 SRS, đặc tả use-case \& ma trận truy vết & Đầy đủ & \path{docs/requirements/*}, \path{docs/traceability-matrix.md}, Chương 1 \& Chương 6 \\
 \hline
 Activity, sequence, class \& deployment diagram & Đầy đủ & Nguồn \path{.drawio}/\path{.puml} \& ảnh xuất trong \path{docs/diagrams/} và \path{docs/report/img/} \\
 \hline
-Source code frontend, backend \& migration & Đầy đủ & \path{frontend/}, \path{backend/}, \path{backend/prisma/schema.prisma}, \path{migrations/} \& \path{seed.ts} \\
+Source code frontend, backend \& migration & Đầy đủ & \path{apps/web/}, \path{apps/api/}, \path{apps/api/prisma/schema.prisma}, \path{migrations/} \& \path{seed.ts} \\
 \hline
 Unit, integration \& end-to-end test & Đầy đủ & 12/12 suites Jest (119 unit tests), 9/9 Supertest (\path{test:e2e}), E2E \& \path{test-race-condition.js} \\
 \hline
-Pipeline CI/CD tự động hóa & Đã hoàn thiện & \path{.github/workflows/ci.yml}, \path{.github/workflows/cd.yml} (kiểm tra lint, test và build tự động) \\
+Pipeline CI/CD tự động hóa & Đã chạy thành công & \path{.github/workflows/ci.yml} (Pass: run \path{43728698541}) \& \path{cd.yml} (Build/push \path{ghcr.io} + Compose Smoke Test Pass: run \path{43728703140}) \\
 \hline
-Cổng dịch vụ, API \& health check & Sẵn sàng vận hành & \path{GET /health}, \path{GET /api/health} trên cấu hình Docker Compose \& Nginx reverse proxy \\
+Cổng dịch vụ, API \& health check & Sẵn sàng vận hành & \path{GET /health}, \path{GET /api/health} kiểm tra PostgreSQL trên Docker Compose (\path{:3000}, \path{:3001}) \& Cloudflare Tunnel HTTPS \\
 \hline
 Release notes, README \& rollback guide & Đầy đủ & \path{docs/RELEASE_NOTES.md}, \path{README.md}, \path{docs/deployment.md}, \path{docs/rollback-guide.md} \\
 \hline

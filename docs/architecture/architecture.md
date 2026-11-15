@@ -93,7 +93,7 @@ graph TD
 
 ### 3.4. Giám Sát, Logging & Health Check
 - **Health Check Endpoint**: Cung cấp `GET /api/health` và `GET /health` kiểm tra trạng thái hoạt động của Node.js process, uptime và câu truy vấn ping CSDL (`SELECT 1`).
-- **Error Exception Logging**: Toàn bộ ngoại lệ được lọc qua `AllExceptionsFilter` toàn cục (`backend/src/common/filters/http-exception.filter.ts`), ghi log lỗi với `Logger('HTTP_EXCEPTION')` (phương thức, URL, thông điệp, stack trace) và chuẩn hóa phản hồi JSON (`success`, `statusCode`, `errorCode`, `message`, `timestamp`, `path`).
+- **Error Exception Logging**: Toàn bộ ngoại lệ được lọc qua `AllExceptionsFilter` toàn cục (`apps/api/src/common/filters/http-exception.filter.ts`), ghi log lỗi với `Logger('HTTP_EXCEPTION')` (phương thức, URL, thông điệp, stack trace) và chuẩn hóa phản hồi JSON (`success`, `statusCode`, `errorCode`, `message`, `timestamp`, `path`).
 
 ---
 
@@ -101,7 +101,7 @@ graph TD
 
 | Thành phần kiến trúc | Ưu điểm (Pros) | Hạn chế / Trade-offs (Cons) | Giải pháp cân bằng |
 |---|---|---|---|
-| **Monorepo (Frontend + Backend trong 1 repo)** | Dễ dàng đồng bộ phiên bản giữa FE/BE, dùng chung tài liệu, quản lý 1 pipeline CI/CD duy nhất. | Repository có dung lượng lớn hơn theo thời gian, cần phân tách dependencies rõ ràng. | Sử dụng thư mục độc lập `frontend/` và `backend/`, cài đặt script npm root điều phối linh hoạt. |
+| **Monorepo (Frontend + Backend trong 1 repo)** | Dễ dàng đồng bộ phiên bản giữa FE/BE, dùng chung tài liệu, quản lý 1 pipeline CI/CD duy nhất. | Repository có dung lượng lớn hơn theo thời gian, cần phân tách dependencies rõ ràng. | Sử dụng thư mục độc lập `apps/web/` và `apps/api/`, cài đặt script npm root điều phối linh hoạt. |
 | **Next.js Mobile-First Web UI** | Khách hàng không cần cài đặt qua App Store, tải nhanh, giao diện thân thiện trên di động, tiết kiệm chi phí phát triển native. | Không truy cập được sâu vào phần cứng đặc thù như Bluetooth của máy in POS đời cũ. | Đáp ứng hoàn hảo 100% mục tiêu của đề tài đồ án môn học và trải nghiệm người dùng thực tế. |
 | **PostgreSQL + Prisma ORM** | Đảm bảo tính toàn vẹn ACID, type-safety mạnh mẽ giữa TypeScript và CSDL, hỗ trợ migration tự động. | Prisma có overhead nhỏ so với Raw SQL trong các câu truy vấn siêu phức tạp hàng triệu bản ghi. | Hoàn toàn tối ưu cho quy mô chuỗi cửa hàng cà phê (vài chục nghìn request/ngày), thời gian phản hồi ≤ 20ms. |
 | **Optimistic Locking (OCC)** | Không khóa cứng bảng CSDL (non-blocking), thông lượng (throughput) cao khi số lượng đơn song song lớn. | Giao dịch đến sau bị thất bại cần cơ chế thông báo rõ ràng cho người dùng. | Trả về mã lỗi HTTP 409 rõ ràng kèm thông điệp hướng dẫn khách chọn món khác. |

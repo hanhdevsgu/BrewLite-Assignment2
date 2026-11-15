@@ -10,8 +10,8 @@ Dự án BrewLite bao gồm cả ứng dụng giao diện người dùng (Fronte
 
 ## 2. Quyết Định (Decision)
 Quyết định áp dụng mô hình **Monorepo** với cấu trúc thư mục rõ ràng:
-- `frontend/` (hoặc `apps/web`): Ứng dụng Next.js.
-- `backend/` (hoặc `apps/api`): Ứng dụng NestJS.
+- `apps/web/` (trước đây là `frontend/`): Ứng dụng Next.js.
+- `apps/api/` (trước đây là `backend/`): Ứng dụng NestJS.
 - `docs/`: Toàn bộ tài liệu đặc tả yêu cầu, sơ đồ thiết kế, quyết định kiến trúc và ma trận truy vết.
 - `.github/workflows/`: Quy trình CI/CD tích hợp tự động cho cả hệ thống.
 

@@ -1,8 +1,14 @@
-# Release Notes — BrewLite `v1.0.0`
+# Release Notes — BrewLite `v1.0.0` & `v1.0.1`
 
-**Ngày phát hành**: 14/11/2026  
-**Nhánh / Tag**: `develop` → `v1.0.0`  
+**Ngày phát hành**: 14–15/11/2026  
+**Nhánh / Tag**: `develop` → `main` (`v1.0.0`, `v1.0.1`)  
 **Phạm vi**: Hoàn thành Assignment 2 (Requirements to Deployment — Task 1 đến Task 5)
+
+---
+
+## 0. Cập nhật bản phát hành `v1.0.1` (15/11/2026)
+- Chuẩn hóa cấu trúc repository Monorepo đúng chuẩn Assignment 2: `apps/web/` (Next.js) và `apps/api/` (NestJS), loại bỏ tệp `.drawio` dư thừa ở thư mục gốc.
+- Hoàn thiện GitHub Actions CI (`.github/workflows/ci.yml`, run `43728698541` **success**) và CD (`.github/workflows/cd.yml`, đóng gói đẩy image lên `ghcr.io`, kiểm tra `prisma validate` & Docker Compose smoke test `/api/health`, run `43728703140` **success**).
 
 ---
 
@@ -22,8 +28,8 @@
   - Thống kê doanh thu, quản lý kho & phiếu nhập, sản phẩm & công thức, mã khuyến mãi, kiểm duyệt đánh giá và quản lý tài khoản.
 
 ## 2. Kiểm thử & Chất lượng
-- Unit tests Backend (`backend/src/**/*.spec.ts` — 11 suites / 113 tests): Auth (`15m`/`7d` JWT), Order State Machine, Orders, Payment (Idempotency & OCC), Promotions, Reviews (`KiemTraDaMua` bắt buộc `COMPLETED`), Staff.
-- HTTP Integration tests (`backend/test/app.e2e-spec.ts` — 8 test cases via Supertest) & Full-Stack E2E (`tests/e2e/order-checkout.e2e-spec.ts` — 8 cases).
+- Unit tests Backend (`apps/api/src/**/*.spec.ts` — 12 suites / 119 tests): Auth (`15m`/`7d` JWT), Products (`findAll`/`isOutOfStock`/`getToppings`), Order State Machine, Orders, Payment (Idempotency & OCC), Promotions, Reviews (`KiemTraDaMua` bắt buộc `COMPLETED`), Staff.
+- HTTP Integration tests (`apps/api/test/app.e2e-spec.ts` — 9 test cases `IT-01..IT-09` via Supertest) & Full-Stack E2E (`tests/e2e/order-checkout.e2e-spec.ts` — 8 cases).
 - Health Check endpoint: `GET /health` và `GET /api/health`.
 - CI/CD Workflows: `.github/workflows/ci.yml` (Install → Lint → Unit & HTTP Integration Tests → Build) và `.github/workflows/cd.yml` (Quality Gate → Docker Build/Push `ghcr.io` → `prisma validate`/`migrate deploy` → Deploy → Smoke Test → Rollback).
 

@@ -9,8 +9,8 @@
 
 - **Bối cảnh**: Đề bài bài tập lớn môn CNPM yêu cầu xây dựng ứng dụng với Backend bằng NestJS và Frontend bằng Next.js, đi kèm với Docker Compose.
 - **Quyết định**: Tổ chức theo dạng Monorepo tại thư mục gốc:
-  - `/backend`: NestJS 10, Prisma ORM, Passport JWT, Swagger OpenAPI, Jest/Supertest.
-  - `/frontend`: Next.js 14 App Router, TailwindCSS, Zustand persist, `lib/api.ts` (JWT Auto-Refresh), `manifest.webmanifest`.
+  - `/apps/api` (trước đây `/backend`): NestJS 10, Prisma ORM, Passport JWT, Swagger OpenAPI, Jest/Supertest.
+  - `/apps/web` (trước đây `/frontend`): Next.js 14 App Router, TailwindCSS, Zustand persist, `lib/api.ts` (JWT Auto-Refresh), `manifest.webmanifest`.
   - `docker-compose.yml` ở root điều phối PostgreSQL, Backend và Frontend cùng 1 mạng nội bộ `brewlite_network`.
 - **Hệ quả**: Phát triển độc lập, test riêng biệt, đóng gói 1 lệnh, chuẩn hóa CI/CD.
 
