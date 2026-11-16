@@ -257,10 +257,20 @@ function CheckoutContent() {
     : Math.max(0, subtotal - discountAmount);
   const hasPayableOrder = activeItems.length > 0 || !!retryOrder || paymentStatus === 'SUCCESS';
   const [outOfStockItemNames, setOutOfStockItemNames] = useState<string[]>([]);
+  const [stockChecking, setStockChecking] = useState<boolean>(true);
 
   useEffect(() => {
-    if (paymentStatus === 'SUCCESS' || activeItems.length === 0) {
+    const itemsToCheck =
+      activeItems.length > 0
+        ? activeItems.map((i) => ({ variantId: i.variantId, name: `${i.productName} (Size ${i.size})` }))
+        : (retryOrder?.items || []).map((i: any) => ({
+            variantId: i.variantId,
+            name: `${i.variant?.product?.name || 'Món'} (Size ${i.variant?.size || 'M'})`,
+          }));
+
+    if (paymentStatus === 'SUCCESS' || itemsToCheck.length === 0) {
       setOutOfStockItemNames([]);
+      setStockChecking(false);
       return;
     }
     let cancelled = false;
@@ -274,12 +284,14 @@ function CheckoutContent() {
             if (v.isOutOfStock) oosIds.add(v.id);
           }
         }
-        const oosNames = activeItems
+        const oosNames = itemsToCheck
           .filter((item) => oosIds.has(item.variantId))
-          .map((item) => `${item.productName} (Size ${item.size})`);
+          .map((item) => item.name);
         if (!cancelled) setOutOfStockItemNames(oosNames);
       } catch {
         // Bỏ qua lỗi mạng tạm thời
+      } finally {
+        if (!cancelled) setStockChecking(false);
       }
     };
     checkCheckoutStock();
@@ -290,7 +302,7 @@ function CheckoutContent() {
       clearInterval(iv);
       window.removeEventListener('focus', checkCheckoutStock);
     };
-  }, [activeItems, paymentStatus]);
+  }, [activeItems, retryOrder, paymentStatus]);
   const [orderCodeDisplay, setOrderCodeDisplay] = useState<string>(() => {
     if (typeof window !== 'undefined') {
       const saved =
@@ -514,6 +526,10 @@ function CheckoutContent() {
   const handlePay = useCallback(
     async (paymentDetails?: { senderStk: string; senderName: string }) => {
       if (isPayingRef.current) return false;
+      if (outOfStockItemNames.length > 0) {
+        setErrorMsg(`Món vừa hết nguyên liệu (${outOfStockItemNames.join(', ')}). Không thể thanh toán.`);
+        return false;
+      }
       if (!user) {
         setErrorMsg('Vui lòng đăng nhập tài khoản trước khi thực hiện thanh toán!');
         router.push('/login?redirect=/checkout');
@@ -1015,7 +1031,12 @@ function CheckoutContent() {
       )}
 
       {/* KHI ĐƠN HÀNG CÓ TỔNG TIỀN BẰNG 0Đ (THANH TOÁN 100% BẰNG VOUCHER / ĐIỂM THƯỞNG) */}
-      {(paymentStatus as string) === 'SUCCESS' ? null : outOfStockItemNames.length > 0 ? (
+      {(paymentStatus as string) === 'SUCCESS' ? null : stockChecking ? (
+        <div className="bg-surface border border-line rounded-2xl p-8 text-center space-y-3 max-w-2xl mx-auto">
+          <RefreshCw className="w-6 h-6 animate-spin text-accent mx-auto" />
+          <p className="text-xs text-ink-2">Đang kiểm tra tồn kho nguyên liệu theo thời gian thực...</p>
+        </div>
+      ) : outOfStockItemNames.length > 0 ? (
         <div className="bg-surface border-2 border-danger rounded-2xl p-6 sm:p-8 shadow-sm text-center space-y-4 animate-fade-in max-w-2xl mx-auto">
           <div className="w-14 h-14 bg-danger-soft text-danger rounded-full flex items-center justify-center mx-auto">
             <AlertCircle className="w-8 h-8" />
