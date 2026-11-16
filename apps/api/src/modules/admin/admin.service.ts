@@ -396,6 +396,7 @@ export class AdminService {
       data: {
         ...dto,
         code: dto.code.toUpperCase(),
+        minOrderValue: Number(dto.minOrderValue || 0),
         startDate: new Date(dto.startDate),
         endDate: new Date(dto.endDate),
       },

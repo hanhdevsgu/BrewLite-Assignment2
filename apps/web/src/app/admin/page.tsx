@@ -200,6 +200,7 @@ export default function AdminDashboardPage() {
   const [newPromoName, setNewPromoName] = useState('');
   const [newPromoValue, setNewPromoValue] = useState('15');
   const [newPromoType, setNewPromoType] = useState<'PERCENT' | 'FIXED'>('PERCENT');
+  const [newPromoMinOrder, setNewPromoMinOrder] = useState('0');
 
   const [toastMsg, setToastMsg] = useState<{ message: string; type: 'success' | 'danger' } | null>(null);
 
@@ -2435,6 +2436,7 @@ export default function AdminDashboardPage() {
                   name: newPromoName.trim(),
                   discountType: newPromoType,
                   discountValue: Number(newPromoValue),
+                  minOrderValue: Number(newPromoMinOrder) || 0,
                   quantity: 100,
                   startDate: new Date().toISOString(),
                   endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
@@ -2483,6 +2485,14 @@ export default function AdminDashboardPage() {
               onChange={(e) => setNewPromoValue(e.target.value)}
             />
           </div>
+          <Input
+            label="Đơn tối thiểu áp dụng (VNĐ)"
+            type="number"
+            min="0"
+            value={newPromoMinOrder}
+            onChange={(e) => setNewPromoMinOrder(e.target.value)}
+            placeholder="VD: 10000 (0 = không giới hạn)"
+          />
           <div className="flex justify-end gap-2 pt-3 border-t border-line">
             <Button variant="secondary" size="sm" type="button" onClick={() => setPromoModalOpen(false)}>
               Hủy
