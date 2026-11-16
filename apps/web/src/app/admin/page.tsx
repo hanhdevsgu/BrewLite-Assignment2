@@ -429,11 +429,16 @@ export default function AdminDashboardPage() {
   const handleSaveQuickStock = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingStockIngredient) return;
+    const parsedQty = Number(quickStockValue);
+    if (!Number.isFinite(parsedQty) || parsedQty < 0) {
+      setToastMsg({ message: 'Số lượng tồn kho tuyệt đối không được là số âm (>= 0).', type: 'danger' });
+      return;
+    }
     try {
       setSavingStock(true);
       await fetchApi(`/admin/ingredients/${editingStockIngredient.id}`, {
         method: 'PATCH',
-        body: JSON.stringify({ stockQuantity: Number(quickStockValue) }),
+        body: JSON.stringify({ stockQuantity: parsedQty }),
       });
       setIngredients((prev) =>
         prev.map((i) =>
@@ -2518,10 +2523,16 @@ export default function AdminDashboardPage() {
             </label>
             <input
               type="number"
+              inputMode="decimal"
               min="0"
+              step="1"
               required
+              autoFocus
               value={quickStockValue}
-              onChange={(e) => setQuickStockValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (['-', '+', 'e', 'E'].includes(e.key)) e.preventDefault();
+              }}
+              onChange={(e) => setQuickStockValue(e.target.value.replace(/[^0-9.]/g, ''))}
               className="w-full h-9 px-3 bg-bg border border-line rounded text-ink text-sm font-mono focus:border-accent focus:outline-none"
               placeholder="VD: 10 để test tranh mua hoặc 0 để test hết hàng"
             />
