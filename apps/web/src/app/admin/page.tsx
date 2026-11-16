@@ -2215,8 +2215,9 @@ export default function AdminDashboardPage() {
       <Modal
         isOpen={recipeModalOpen}
         onClose={() => setRecipeModalOpen(false)}
+        maxWidth="2xl"
         title={`Công thức pha chế & Định lượng kho: ${selectedProductForRecipe?.name}`}
-        description="Định lượng nguyên liệu thực tế cho từng kích cỡ. Khi khách đặt món, hệ thống sẽ tự động trừ kho nguyên liệu theo công thức này."
+        description="Định lượng nguyên liệu thực tế cho từng kích cỡ và topping. Khi khách đặt món, hệ thống sẽ tự động trừ kho nguyên liệu theo công thức này."
       >
         <div className="space-y-4 text-xs text-left max-h-[75vh] overflow-y-auto pr-1">
           {recipeLoading ? (
@@ -2237,20 +2238,23 @@ export default function AdminDashboardPage() {
                 ) : (
                   <div className="divide-y divide-line border border-line rounded bg-surface">
                     {productRecipes.map((r) => (
-                      <div key={r.id} className="p-2.5 flex items-center justify-between gap-3">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono text-[10px] font-bold bg-espresso text-espresso-text px-1.5 py-0.5 rounded">
-                              Size {r.variant?.size || 'Tiêu chuẩn'}
+                      <div key={r.id} className="p-3 flex items-center justify-between gap-4">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-mono text-[11px] font-bold bg-espresso text-espresso-text px-2 py-0.5 rounded whitespace-nowrap shrink-0">
+                              Size {r.variant?.size || 'S'}
+                            </span>
+                            <span className="text-[11px] font-medium text-ink-2 bg-surface-2 border border-line px-2 py-0.5 rounded whitespace-nowrap shrink-0">
+                              {(r.variant as { topping?: string } | undefined)?.topping || 'Tiêu chuẩn'}
                             </span>
                             <span className="font-medium text-ink text-sm">{r.ingredient?.name}</span>
                           </div>
-                          <span className="text-[11px] text-ink-3 mt-0.5 block">
+                          <span className="text-[11px] text-ink-3 mt-1 block">
                             Tồn kho còn: {Number(r.ingredient?.stockQuantity || 0).toLocaleString('vi-VN')} {r.ingredient?.unit}
                           </span>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 shrink-0">
                           {editingRecipeId === r.id ? (
                             <div className="flex items-center gap-1.5">
                               <input
@@ -2280,7 +2284,7 @@ export default function AdminDashboardPage() {
                             </div>
                           ) : (
                             <div className="flex items-center gap-2">
-                              <span className="font-mono font-bold text-accent text-sm">
+                              <span className="font-mono font-bold text-accent text-sm whitespace-nowrap">
                                 {Number(r.quantityRequired).toLocaleString('vi-VN')} {r.ingredient?.unit}
                               </span>
                               <Button
@@ -2317,26 +2321,28 @@ export default function AdminDashboardPage() {
               <form onSubmit={handleAddRecipeIngredient} className="p-3 bg-surface-2/40 border border-line rounded space-y-3">
                 <span className="font-semibold text-ink block">+ Thêm nguyên liệu định lượng vào món</span>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  <div className="space-y-1">
-                    <label className="text-[11px] text-ink-2 block">Chọn Size món</label>
+                <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                  <div className="space-y-1 sm:col-span-5">
+                    <label className="text-[11px] text-ink-2 block">Chọn Size & Topping</label>
                     <select
                       value={newRecipeVariantId}
                       onChange={(e) => setNewRecipeVariantId(e.target.value)}
-                      className="w-full h-8 px-2 bg-bg border border-line rounded text-ink text-xs focus:border-accent focus:outline-none"
+                      className="w-full h-9 px-2.5 bg-bg border border-line rounded text-ink text-xs focus:border-accent focus:outline-none"
                     >
                       {selectedProductForRecipe?.variants?.map((v) => (
-                        <option key={v.id} value={v.id}>Size {v.size} ({Number(v.price).toLocaleString('vi-VN')}đ)</option>
+                        <option key={v.id} value={v.id}>
+                          Size {v.size} · {v.topping || 'Tiêu chuẩn'} ({Number(v.price).toLocaleString('vi-VN')}đ)
+                        </option>
                       ))}
                     </select>
                   </div>
 
-                  <div className="space-y-1">
+                  <div className="space-y-1 sm:col-span-4">
                     <label className="text-[11px] text-ink-2 block">Chọn Nguyên liệu kho</label>
                     <select
                       value={newRecipeIngredientId}
                       onChange={(e) => setNewRecipeIngredientId(e.target.value)}
-                      className="w-full h-8 px-2 bg-bg border border-line rounded text-ink text-xs focus:border-accent focus:outline-none"
+                      className="w-full h-9 px-2.5 bg-bg border border-line rounded text-ink text-xs focus:border-accent focus:outline-none"
                     >
                       {ingredients.map((ing) => (
                         <option key={ing.id} value={ing.id}>{ing.name} ({ing.unit})</option>
@@ -2344,8 +2350,8 @@ export default function AdminDashboardPage() {
                     </select>
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="text-[11px] text-ink-2 block">Định lượng cần (ml / g)</label>
+                  <div className="space-y-1 sm:col-span-3">
+                    <label className="text-[11px] text-ink-2 block">Định lượng (ml / g)</label>
                     <div className="flex items-center gap-1.5">
                       <input
                         type="number"
@@ -2354,9 +2360,9 @@ export default function AdminDashboardPage() {
                         value={newRecipeQty}
                         onChange={(e) => setNewRecipeQty(e.target.value)}
                         placeholder="VD: 40"
-                        className="w-full h-8 px-2 bg-bg border border-line rounded text-ink text-xs focus:border-accent focus:outline-none"
+                        className="w-full h-9 px-2.5 bg-bg border border-line rounded text-ink text-xs focus:border-accent focus:outline-none"
                       />
-                      <Button variant="primary" size="sm" type="submit" className="h-8 px-3 shrink-0">
+                      <Button variant="primary" size="sm" type="submit" className="h-9 px-3 whitespace-nowrap shrink-0">
                         Thêm
                       </Button>
                     </div>
