@@ -1266,7 +1266,11 @@ export default function AdminDashboardPage() {
                                     </span>
                                   </td>
                                   <td className="py-3 px-3 text-center">
-                                    {isCritical ? (
+                                    {stock <= 0 ? (
+                                      <Badge variant="danger" className="text-[11px] gap-1 inline-flex font-bold">
+                                        <AlertTriangle className="w-3 h-3" /> Hết hàng
+                                      </Badge>
+                                    ) : isCritical ? (
                                       <Badge variant="danger" className="text-[11px] gap-1 inline-flex">
                                         <AlertTriangle className="w-3 h-3" /> Sắp hết hàng
                                       </Badge>
