@@ -1,0 +1,98 @@
+@startuml
+title Sơ đồ Triển khai Hệ thống BrewLite (UML Deployment Diagram)
+
+scale 1.5
+left to right direction
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 4
+skinparam linetype polyline
+skinparam nodesep 42
+skinparam ranksep 52
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 12
+skinparam defaultFontColor #172033
+skinparam titleFontSize 16
+skinparam titleFontStyle bold
+skinparam titleFontColor #172033
+
+skinparam node {
+  BackgroundColor #F8FAFC
+  BorderColor #64748B
+  FontColor #172033
+}
+skinparam cloud {
+  BackgroundColor #F8FAFC
+  BorderColor #64748B
+}
+skinparam artifact {
+  BackgroundColor #FFFFFF
+  BorderColor #475569
+}
+skinparam database {
+  BackgroundColor #E2E8F0
+  BorderColor #475569
+}
+skinparam package {
+  BackgroundColor #FFFFFF
+  BorderColor #94A3B8
+  BorderStyle dashed
+}
+skinparam ArrowColor #334155
+skinparam ArrowFontColor #1E293B
+skinparam ArrowFontSize 11
+
+package "Environment 1: Local Development" as env_local {
+  node "Máy cá nhân / Docker Compose\n(docker-compose.yml)" <<local>> {
+    artifact "Next.js (:3000) + NestJS (:3001)\n+ PostgreSQL (:5432)" as local_stack
+  }
+}
+
+package "Environment 2: CI/CD & Container Registry" as env_cicd {
+  node "GitHub Actions\n(.github/workflows/)" <<ubuntu-latest>> as gh_node {
+    artifact "ci.yml: Lint -> Test -> Build\ncd.yml: Build -> Smoke Test -> Rollback" as ci_cd
+  }
+  node "Container Registry\n(ghcr.io)" <<registry>> as reg_node {
+    artifact "brewlite-web:<SHA>\nbrewlite-api:<SHA>" as images
+  }
+}
+
+package "Environment 3: Production Live (Vercel + Render)" as env_prod {
+  node "Thiết bị Người dùng" <<device>> {
+    node "Trình duyệt Web\n(Mobile-First / PWA)" <<executionEnvironment>> {
+      artifact "BrewLite Web UI\n& MBBank VietQR" as web_client
+    }
+  }
+
+  cloud "Vercel CDN / Edge\n(HTTPS :443)" <<CDN>> {
+    node "Next.js 14 Web App" <<executionEnvironment>> {
+      artifact "UI + /api/* Rewrite\nEnv: NEXT_PUBLIC_API_URL" as next_app
+    }
+  }
+
+  cloud "Render Cloud (render.yaml)" <<PaaS>> {
+    node "Container: brewlite-api\n(node:20-alpine | Port 3001)" <<container>> {
+      artifact "NestJS API + MockGateway\nHealth: GET /api/health\nLogs: AllExceptionsFilter\nSecrets: DATABASE_URL, JWT_*" as api_app
+    }
+
+    node "Managed PostgreSQL 16\n(Internal Network Only)" <<databaseServer>> {
+      database "brewlite_db\n(17 Tables)" as pg_db
+      database "Persistent Disk\n(Storage Volume)" as pg_vol
+    }
+  }
+}
+
+' Luồng giao tiếp Production (trái -> phải thẳng hàng)
+web_client <--> next_app : "HTTPS :443\n(Web UI & API)"
+next_app <--> api_app : "HTTPS REST :443 -> :3001\n(/api/* + Idempotency-Key)"
+api_app <--> pg_db : "TCP/IP :5432\n(Private)"
+pg_db --> pg_vol : "Persist"
+
+' Luồng Local -> CI/CD -> Production (trái -> phải ở hàng dưới)
+local_stack --> ci_cd : "git push / PR"
+ci_cd --> images : "docker push"
+ci_cd ..> api_app : "\n\nDeploy Hook &\nSmoke Test (/api/health)"
+images ..> api_app : "Pull Image\n(Dockerfile)"
+
+@enduml
