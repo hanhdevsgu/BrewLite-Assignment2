@@ -966,7 +966,7 @@ function CheckoutContent() {
               🎉 TING TING! THANH TOÁN THÀNH CÔNG
             </h2>
             <p className="text-lg font-bold text-ink font-mono">
-              Đã nhận {finalTotal.toLocaleString('vi-VN')} đ
+              Đã nhận {(successNotice?.amount ?? finalTotal).toLocaleString('vi-VN')} đ
             </p>
             <p className="text-xs text-ink-2 max-w-md mx-auto">
               Đơn hàng <b className="font-mono">#{orderCodeDisplay}</b> đã được gạch nợ thành công và tự động chuyển xuống quầy pha chế!
@@ -980,7 +980,7 @@ function CheckoutContent() {
       )}
 
       {/* KHI ĐƠN HÀNG CÓ TỔNG TIỀN BẰNG 0Đ (THANH TOÁN 100% BẰNG VOUCHER / ĐIỂM THƯỞNG) */}
-      {finalTotal === 0 ? (
+      {(paymentStatus as string) === 'SUCCESS' ? null : finalTotal === 0 ? (
         <div className="bg-surface border-2 border-emerald-500 rounded-2xl p-6 sm:p-8 shadow-sm text-center space-y-5 animate-fade-in max-w-2xl mx-auto">
           <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto text-3xl shadow-sm">
             🎁
