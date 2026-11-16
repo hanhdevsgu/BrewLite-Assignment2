@@ -1,107 +1,303 @@
-@startuml sequence-checkout
-title Biểu đồ tuần tự Đặt hàng và Thanh toán Idempotent (UC-12 + UC-13) - BrewLite
+@startuml
+
+' ============================================================
+' TRÌNH BÀY UML – chỉ định dạng, không thay đổi luồng nghiệp vụ
+' ============================================================
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
+skinparam style strictuml        ' mũi tên/vùng hoạt động theo chuẩn UML
+skinparam roundcorner 0          ' bỏ bo góc: activation bar là hình chữ nhật
 
-actor "Customer\n(Khách hàng)" as Customer
-participant "Next.js UI\n(Frontend)" as UI
-participant "NestJS API\n(Controller)" as API
-participant "Payment\nService" as Service
-database "Database\n(PostgreSQL)" as DB
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 12
+skinparam defaultFontColor #172033
 
-== PHẦN 1: KHỞI TẠO ĐƠN HÀNG (PENDING) ==
-Customer -> UI : 1. Chọn Ví/Thẻ (hoặc 0đ) & bấm Thanh toán\n(Hoặc quét VietQR - poll mbbank-check 600ms)
+skinparam titleFontSize 16
+skinparam titleFontStyle bold
+skinparam titleFontColor #172033
+
+skinparam sequence {
+  ArrowColor #334155
+  ArrowFontColor #172033
+  ArrowFontSize 11
+  LifeLineBorderColor #94A3B8
+  LifeLineBackgroundColor #F8FAFC
+  ParticipantBorderColor #64748B
+  ParticipantBackgroundColor #E2E8F0
+  ParticipantFontColor #172033
+  ActorBorderColor #64748B
+  ActorFontColor #172033
+  DatabaseBorderColor #64748B
+  DatabaseBackgroundColor #E2E8F0
+  DatabaseFontColor #172033
+  GroupBorderColor #64748B
+  GroupHeaderFontColor #172033
+  GroupBodyBackgroundColor #F8FAFC
+  GroupFontColor #172033
+  ActivationBorderColor #64748B
+  ActivationBackgroundColor #DBEAFE
+  BoxBorderColor #94A3B8
+  BoxFontColor #334155
+  ParticipantPadding 18
+  BoxPadding 8
+  MessageAlign center
+  ResponseMessageBelowArrow true
+}
+
+title BrewLite – Biểu đồ Tuần tự Đặt hàng & Thanh toán (UC-09)
+autonumber "<b>[00]"
+
+' ---------- Lifeline: Customer -> Next.js UI -> NestJS API -> Database -> Payment Service ----------
+actor "Khách hàng\n(Customer)" as Customer
+participant "Next.js UI" as UI
+
+box "NestJS API" #F8FAFC
+  participant "JwtAuthGuard /\nValidationPipe" as Guard
+  participant "Orders\nModule" as OS
+  participant "Promotions\nService" as PS
+  participant "Payment\nModule" as PAY
+end box
+
+database "PostgreSQL\n(Prisma)" as DB
+participant "Payment Service\n(MockGateway / MBBank)" as GW
+
+' ============================================================
+' PHA 1: TẠO ĐƠN HÀNG (POST /api/orders)
+' ============================================================
+Customer -> UI : Chọn món, ưu đãi, phương thức (Ví/Thẻ/VietQR)\nvà bấm Đặt hàng
 activate UI
 
-UI -> API : 2. POST /api/orders [Bearer <JWT>]\n{ items (variantId, qty, toppings), promotionCode, loyaltyPointsToUse }
-activate API
-note right of API
-  1. Check JWT, Roles & Validate DTO:
-  JwtAuthGuard + Roles(CUSTOMER),
-  customerId = user.customerId || user.profileId,
-  ValidationPipe (giỏ rỗng / variant sai / voucher không hợp lệ -> HTTP 400)
-  (Nếu thử lại từ /checkout?orderId=... thì bỏ qua Pha 1)
-end note
+UI -> Guard : POST /api/orders (Bearer JWT,\n{items, promotionCode?, loyaltyPointsToUse?})
+activate Guard
+Guard -> Guard : Kiểm tra JWT & validate DTO
 
-API -> DB : 3. Query ProductVariant, validate Voucher\n& customer.findUnique(loyaltyPoints)
-activate DB
-DB --> API : 4. Thông tin biến thể, chiết khấu & điểm
-deactivate DB
-
-API -> DB : 5. prisma.$transaction\n- customer.update(-actualPointsUsed) [nếu dùng]\n- order.create(PENDING)\n- orderStatusHistory.create()
-activate DB
-DB --> API : 6. Commit & trả về Order
-deactivate DB
-
-API --> UI : 7. HTTP 201 Created:\n{ success: true, statusCode: 201, data: order }
-deactivate API
-UI --> Customer : 8. Lưu pendingOrderId (dùng chung thử lại/hủy)\n& tiếp nối ngay sang Pha 2
-deactivate UI
-
-== PHẦN 2: XÁC THỰC THANH TOÁN & IDEMPOTENCY ==
-Customer -> UI : 9. Tiếp nối handlePay() (hoặc bấm Thử lại /\nquét lại VietQR - poll mbbank-check 600ms)
-activate UI
-note over UI
-  2. Sinh Idempotency-Key & VietQR Polling:
-  Tạo UUIDv4 gắn Header (reset key khi đổi phương thức; đơn 0đ dùng method='WALLET');
-  CARD hỗ trợ poll GET /api/payments/mbbank-check/:orderCode (600ms)
-end note
-
-UI -> API : 10. POST /api/payments [Idempotency-Key: <UUIDv4>]\n{ orderId, method: 'WALLET' | 'CARD', simulateError?: 'FAIL' | 'TIMEOUT' }
-activate API
-note right of API
-  3. Check JWT, Roles, Header & DTO:
-  JwtAuthGuard + Roles(CUSTOMER); thiếu Header
-  Idempotency-Key hoặc sai DTO -> HTTP 400 Bad Request
-end note
-
-API -> Service : 11. processPayment(dto, key, user)
-activate Service
-Service -> DB : 12. payment.findUnique({ where: { idempotencyKey } })
-activate DB
-DB --> Service : 13. Kết quả tra cứu Payment
-deactivate DB
-
-alt TH 1: Idempotency-Key ĐÃ TỒN TẠI (Replay)
-  note over Service
-    4a. Xử lý Idempotency Replay & Chống tráo Payload:
-    Check chủ đơn (403) & orderId/method (lệch -> HTTP 422);
-    trùng khớp thì trả ngay kết quả cũ (KHÔNG trừ tiền/kho lần 2)
-  end note
-  Service --> API : 14. { cached: true, replayed: true, payment, order }
-  API --> UI : 15. HTTP 200 OK: { success: true, statusCode: 200, cached: true }
-  UI --> Customer : 16. Hiển thị kết quả an toàn (Không trừ tiền 2 lần)
-else TH 2: Idempotency-Key CHƯA TỒN TẠI (Mới)
-  note over Service
-    4b. Quyền sở hữu, Paid Guard & State Machine:
-    Check chủ đơn (403); chặn nếu PAID (409);
-    assertTransition(PENDING / PAYMENT_FAILED -> PAID)
-  end note
-  Service -> DB : 17. Bắt đầu Transaction ACID (prisma.$transaction)
-  activate DB
-  loop Khấu trừ kho (Optimistic Locking, Retry <= 3)
-    Service -> DB : 18. ingredient.updateMany({ stockQuantity: -qty, version: +1 })
-  end
-  note over Service
-    6. Gọi Cổng thanh toán (sau bước OCC):
-    mockGateway.processCharge({ amount, method, simulateError })
-  end note
-  Service -> DB : 19. payment.create(SUCCESS), order.update(PAID),\npromotion.update(+usedCount), customer.update(+points),\norderStatusHistory.create()
-  DB --> Service : 20. Commit thành công
-  deactivate DB
-  Service --> API : 21. { success: true, cached: false, payment, order, earnedPoints }
-  API --> UI : 22. HTTP 201 Created: { success: true, statusCode: 201, data: ... }
-  UI --> Customer : 23. TingTing, hủy QR (/mbbank-invalidate/:code)\n& chuyển trang đơn hàng /orders/:id (sau 2.6s)
-else TH 3: Thanh toán thất bại (Hết kho/OCC 409 hoặc Gateway 400 / 408 Timeout)
-  Service -> DB : 24. Rollback TX; nếu Gateway lỗi:\norder.update(PAYMENT_FAILED) & orderStatusHistory.create()
-  activate DB
-  DB --> Service : 25. Xác nhận Rollback
-  deactivate DB
-  Service --> API : 26. HTTP 409 Conflict / 400 Bad Request / 408 Timeout
-  deactivate Service
-  API --> UI : 27. HTTP 409 Conflict / 400 Bad Request / 408 Timeout
-  deactivate API
-  UI --> Customer : 28. Giữ pendingOrderId, hiện lỗi:\nThử lại hoặc Hủy đơn (POST /api/orders/:id/cancel)
-  deactivate UI
+break JWT không hợp lệ / chưa đăng nhập
+  Guard --> UI : HTTP 401 Unauthorized
+  UI --> Customer : Yêu cầu đăng nhập / đăng ký (JWT)
 end
+
+break Giỏ hàng không hợp lệ (rỗng / sai định dạng)
+  Guard --> UI : HTTP 400 Bad Request
+  UI --> Customer : Thông báo lỗi dữ liệu giỏ hàng
+end
+
+Guard -> OS : createOrder(customerId, dto)
+activate OS
+deactivate Guard
+
+OS -> DB : productVariant.findMany(variantIds)
+activate DB
+DB --> OS : Danh sách ProductVariant & giá
+deactivate DB
+
+break Có variantId không tồn tại / không hợp lệ
+  OS --> UI : HTTP 400 Bad Request (BadRequestException)
+  UI --> Customer : Thông báo món không khả dụng
+end
+
+opt Có promotionCode
+  loop Mỗi mã trong promotionCode
+    OS -> PS : validatePromotion(code, subtotal)
+    activate PS
+    PS -> DB : promotion.findUnique(code)
+    activate DB
+    DB --> PS : Thông tin Promotion
+    deactivate DB
+    PS --> OS : discountAmount (hoặc throw 400 nếu hết hạn/sai)
+    deactivate PS
+  end
+end
+
+critical prisma.$transaction (ACID – tạo đơn PENDING)
+  opt Có dùng điểm thưởng (loyaltyPointsToUse > 0)
+    OS -> DB : customer.findUnique(customerId)
+    activate DB
+    DB --> OS : Số dư loyaltyPoints
+    deactivate DB
+    OS -> DB : customer.updateMany(loyaltyPoints -= usedPoints\nWHERE loyaltyPoints >= usedPoints)
+    activate DB
+    DB --> OS : {count} (nếu 0 -> throw 409 Conflict)
+    deactivate DB
+  end
+  OS -> DB : order.create(status: PENDING)
+  activate DB
+  DB --> OS : order
+  deactivate DB
+  OS -> DB : orderStatusHistory.create(-> PENDING)
+  activate DB
+  DB --> OS : Đã ghi lịch sử
+  deactivate DB
+  OS -> DB : COMMIT
+  activate DB
+  DB --> OS : Committed
+  deactivate DB
+end
+
+OS --> UI : HTTP 201 Created {order PENDING}
+deactivate OS
+
+' ============================================================
+' PHA 2: THANH TOÁN & CẬP NHẬT TỒN KHO (POST /api/payments)
+' ============================================================
+opt Chọn VietQR MBBank (TTL 300s)
+  UI -> UI : Sinh mã QR EMVCo & đếm ngược TTL 300s
+  GW -> PAY : POST /api/payments/mbbank-sync (webhook đối soát)
+  activate PAY
+  PAY --> GW : HTTP 200 OK
+  deactivate PAY
+  UI -> PAY : GET /api/payments/mbbank-check/:orderCode (polling)
+  activate PAY
+  PAY --> UI : {paid: true}
+  deactivate PAY
+end
+
+UI -> UI : Sinh Idempotency-Key (UUIDv4)\n(giữ nguyên key nếu client retry / click đúp)
+UI -> Guard : POST /api/payments (Bearer JWT,\nHeader: Idempotency-Key, {orderId, method})
+activate Guard
+Guard -> Guard : Kiểm tra JWT & validate DTO (ProcessPaymentDto)
+
+break JWT không hợp lệ / DTO sai định dạng
+  Guard --> UI : HTTP 401 / 400 Bad Request
+  UI --> Customer : Thông báo lỗi xác thực / dữ liệu không hợp lệ
+end
+
+Guard -> PAY : processPayment(dto, idempotencyKey, user)
+activate PAY
+deactivate Guard
+
+break Thiếu Header Idempotency-Key (!idempotencyKey?.trim())
+  PAY --> UI : HTTP 400 Bad Request (BadRequestException)
+  UI --> Customer : Thông báo phiên thanh toán không hợp lệ
+end
+
+PAY -> DB : payment.findUnique({ idempotencyKey })
+activate DB
+DB --> PAY : existingPayment (hoặc null)
+deactivate DB
+
+break Key ĐÃ TỒN TẠI (Idempotency Replay khi client gửi lại)
+  alt Khác chủ đơn (order.customerId != user.id)
+    PAY --> UI : HTTP 403 Forbidden (ForbiddenException)
+    UI --> Customer : Thông báo không có quyền thanh toán đơn này
+  else Khác orderId hoặc khác method
+    PAY --> UI : HTTP 422 Unprocessable Entity
+    UI --> Customer : Thông báo xung đột khóa Idempotency
+  else Trùng khớp hoàn toàn (Replay hợp lệ)
+    PAY --> UI : HTTP 200 OK {replayed: true, payment, order}\n(trả kết quả cũ, KHÔNG trừ tiền/kho lần 2)
+    UI -> UI : Xóa giỏ cục bộ & mở /orders/:id
+    UI --> Customer : Hiển thị kết quả thanh toán đã lưu & trạng thái đơn
+  end
+end
+
+' ---- Key chưa tồn tại: giao dịch mới ----
+PAY -> DB : order.findUnique(orderId, include items -> recipes)
+activate DB
+DB --> PAY : order (hoặc null)
+deactivate DB
+
+break Không tìm thấy đơn hoặc sai trạng thái (vd: đã PAID)
+  opt Sai trạng thái chuyển đổi (assertTransition)
+    PAY -> DB : orderStatusHistory.create(cảnh báo)
+    activate DB
+    DB --> PAY : Đã ghi lịch sử
+    deactivate DB
+  end
+  PAY --> UI : HTTP 404 Not Found / 409 Conflict
+  UI --> Customer : Thông báo đơn không tồn tại hoặc đã thanh toán
+end
+
+PAY -> PAY : Gộp nhu cầu nguyên liệu theo công thức
+
+critical prisma.$transaction (ACID – trừ kho OCC & thanh toán)
+  PAY -> DB : order.findUnique (re-check trạng thái đầu TX)
+  activate DB
+  DB --> PAY : order
+  deactivate DB
+
+  loop Từng nguyên liệu cần khấu trừ
+    loop Optimistic Locking (retry tối đa 3 lần)
+      PAY -> DB : ingredient.findUnique(id)
+      activate DB
+      DB --> PAY : {stockQuantity, version}
+      deactivate DB
+      alt stockQuantity >= qty
+        PAY -> DB : ingredient.updateMany(stock -= qty, version += 1 WHERE version)
+        activate DB
+        DB --> PAY : {count} (1 = thành công; 0 = retry)
+        deactivate DB
+      else stockQuantity < qty
+        PAY -> PAY : Ghi nhận thiếu hàng (thoát vòng lặp)
+      end
+    end
+  end
+
+  break Hết tồn kho hoặc xung đột OCC vượt quá 3 lần
+    PAY -> DB : ROLLBACK
+    activate DB
+    DB --> PAY : Rolled back
+    deactivate DB
+    PAY --> UI : HTTP 409 Conflict (ConflictException – đơn giữ nguyên PENDING)
+    UI --> Customer : Thông báo hết nguyên liệu / vui lòng thử lại
+  end
+
+  PAY -> GW : processCharge({orderId, amount, method})
+  activate GW
+  GW --> PAY : paymentResult {status, transactionId}
+  deactivate GW
+
+  alt Thanh toán thành công (Gateway SUCCESS)
+    PAY -> DB : payment.create(SUCCESS)
+    activate DB
+    DB --> PAY : payment
+    deactivate DB
+    PAY -> DB : order.update(status: PAID)
+    activate DB
+    DB --> PAY : order
+    deactivate DB
+    opt Có áp dụng Voucher
+      PAY -> DB : promotion.update(usedCount += 1)
+      activate DB
+      DB --> PAY : Đã cập nhật lượt dùng
+      deactivate DB
+    end
+    opt earnedPoints > 0
+      PAY -> DB : customer.update(loyaltyPoints += earnedPoints)
+      activate DB
+      DB --> PAY : Đã cập nhật điểm
+      deactivate DB
+    end
+    PAY -> DB : orderStatusHistory.create(-> PAID)
+    activate DB
+    DB --> PAY : Đã ghi lịch sử
+    deactivate DB
+    PAY -> DB : COMMIT
+    activate DB
+    DB --> PAY : Committed
+    deactivate DB
+
+    PAY --> UI : HTTP 201 Created {success: true, payment, order}
+    opt Nếu thanh toán bằng VietQR MBBank
+      UI -> PAY : POST /api/payments/mbbank-invalidate/:orderCode
+      PAY --> UI : HTTP 200 OK (vô hiệu hóa mã QR)
+    end
+    UI -> UI : Xóa giỏ cục bộ & chuyển sang /orders/:id
+    UI --> Customer : Thông báo thanh toán thành công & hiển thị chi tiết đơn
+
+  else Thanh toán thất bại / Timeout (Gateway FAIL)
+    PAY -> DB : ROLLBACK (hoàn tác phần trừ kho)
+    activate DB
+    DB --> PAY : Rolled back
+    deactivate DB
+    PAY -> DB : (TX độc lập) order.update(PAYMENT_FAILED) +\norderStatusHistory.create(-> PAYMENT_FAILED)
+    activate DB
+    DB --> PAY : Đã ghi trạng thái PAYMENT_FAILED
+    deactivate DB
+
+    PAY --> UI : HTTP 400 Bad Request / 408 Timeout (GatewayError)
+    UI --> Customer : Thông báo thanh toán thất bại & cho phép thử lại
+  end
+end
+
+deactivate PAY
+deactivate UI
 @enduml

@@ -1,43 +1,73 @@
 @startuml
+' ============================================================
+' ACTIVITY DIAGRAM – BrewLite (đặt hàng, thanh toán, pha chế)
+' ============================================================
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam conditionStyle diamond        ' decision = hình thoi (chuẩn UML)
+skinparam conditionEndStyle diamond     ' merge   = hình thoi
+skinparam ArrowColor #334155
+skinparam ActivityBorderColor #64748B
+skinparam ActivityBackgroundColor #F8FAFC
+skinparam ActivityDiamondBorderColor #64748B
+skinparam ActivityDiamondBackgroundColor #FFFFFF
+skinparam swimlaneWidth same
+
 title BrewLite - End-to-End Customer Order, Payment & Fulfillment Activity Diagram
+
+' ---- Khai báo thứ tự lane: Customer đứng giữa, kề Barista và Backend;
+' ---- Backend kề Cổng thanh toán => các luồng chính không phải cắt ngang lane khác
+|Nhân viên quầy (Barista)|
+|Khách hàng (Customer)|
+|Hệ thống Backend|
+|Cổng thanh toán|
 
 |Khách hàng (Customer)|
 start
 :1. Mở Web App BrewLite;
 
 |Hệ thống Backend|
-:2. Truy vấn Menu & Topping (GET /api/products, GET /api/products/toppings)
-và tải chi tiết (GET /api/products/:id) khi bấm vào món;
+:2. Truy vấn Menu & Topping
+(GET /api/products, /toppings)
+và chi tiết (GET /api/products/:id);
 
 |Khách hàng (Customer)|
 :3. Xem thực đơn, tìm kiếm, lọc danh mục,
-xem chi tiết món (có cờ hết hàng theo từng size);
-:4. Chọn món còn hàng (bị khóa nếu isOutOfStock),
+xem chi tiết món (cờ hết hàng theo size);
+:4. Chọn món còn hàng (khóa nếu isOutOfStock),
 chọn Size, Topping & mức đường/đá;
 :5. Thêm vào Giỏ hàng (/cart), xem Voucher
 (GET /api/promotions/available) & bấm Thanh toán;
 
-if (Đã đăng nhập?) then (Đã)
-else (Chưa)
+if (Đã đăng nhập?) then ([Đã đăng nhập])
+else ([Chưa đăng nhập])
   repeat
-    :6a. Đăng nhập (username, mật khẩu) hoặc Đăng ký;
+    |Khách hàng (Customer)|
+    :6a. Đăng nhập (username, mật khẩu)
+    hoặc Đăng ký;
     |Hệ thống Backend|
-    :6b. Xác thực / tạo tài khoản & cấp Access + Refresh JWT;
-  repeat while (Thông tin hợp lệ?) is (Không) not (Hợp lệ)
+    :6b. Xác thực / tạo tài khoản
+    & cấp Access + Refresh JWT;
+  repeat while (Thông tin hợp lệ?) is ([Không hợp lệ]) not ([Hợp lệ])
   |Khách hàng (Customer)|
 endif
 
-:7. Tại /checkout: chọn Ví (check số dư) / Thẻ (VietQR) / 0đ,
+:7. Tại /checkout: chọn Ví / Thẻ (VietQR) / 0đ,
 áp Voucher / điểm thưởng & bấm Xác nhận;
 
 |Hệ thống Backend|
-if (Giỏ hàng & món hợp lệ? (POST /api/orders)) then (Không hợp lệ)
+if (Giỏ hàng & món hợp lệ?
+POST /api/orders) then ([Không hợp lệ])
   |Khách hàng (Customer)|
-  :Hiển thị lỗi: giỏ hàng rỗng / món không còn tồn tại;
+  :Hiển thị lỗi: giỏ hàng rỗng
+  hoặc món không tồn tại;
   stop
-else (Hợp lệ)
-  :8. Validate voucher (tối đa 1 mã + HAPPYHOUR, báo HTTP 400 nếu sai), trừ điểm đã dùng,
-  tạo đơn PENDING (POST /api/orders) + ghi audit log;
+else ([Hợp lệ])
+  |Hệ thống Backend|
+  :8. Validate voucher (HTTP 400 nếu sai),
+  mở $transaction: trừ điểm đã dùng,
+  tạo đơn PENDING + audit log;
 endif
 
 repeat
@@ -46,89 +76,110 @@ repeat
   (hoặc quét VietQR chờ poll mbbank-check);
 
   |Hệ thống Backend|
-  :10. POST /api/payments: nhận yêu cầu & kiểm tra Idempotency-Key;
+  :10. POST /api/payments:
+  kiểm tra JWT & Header Idempotency-Key;
 
-  if (Key đã được dùng?) then (Đã dùng)
-    if (Cùng đơn & phương thức?) then (Đúng)
+  if (Idempotency-Key đã dùng?) then ([Đã dùng])
+    if (Đúng chủ đơn, cùng đơn & method?) then ([Đúng])
       |Khách hàng (Customer)|
-      :Hiển thị lại kết quả đã thanh toán (tránh trừ tiền 2 lần);
+      :Hiển thị lại kết quả đã thanh toán
+      (HTTP 200, không trừ tiền lần 2);
       stop
-    else (Không khớp)
+    else ([Vi phạm])
       |Khách hàng (Customer)|
-      :Hiển thị thông báo lỗi (trùng khóa giao dịch);
+      :Hiển thị lỗi khóa Idempotency
+      (HTTP 403 / 422);
       stop
     endif
-  else (Chưa)
+  else ([Chưa dùng])
   endif
 
-  if (Đúng chủ đơn & PENDING / PAYMENT_FAILED?) then (Không hợp lệ)
+  |Hệ thống Backend|
+  if (Đúng chủ đơn &
+  PENDING / PAYMENT_FAILED?) then ([Không hợp lệ])
     |Khách hàng (Customer)|
-    :Hiển thị thông báo lỗi (đơn không hợp lệ);
+    :Hiển thị thông báo lỗi đơn hàng
+    (HTTP 403 / 404 / 409);
     stop
-  else (Hợp lệ)
+  else ([Hợp lệ])
   endif
 
-  :11. Mở transaction, trừ kho
-  (Optimistic Locking: version, retry tối đa 3 lần);
+  |Hệ thống Backend|
+  :11. Mở $transaction (ACID):
+  trừ kho Optimistic Locking
+  (version, retry tối đa 3 lần);
 
-  if (Đủ nguyên liệu & không xung đột?) then (Không đủ)
-    :Báo xung đột tồn kho & Rollback;
+  if (Đủ nguyên liệu &
+  không xung đột OCC?) then ([Không đủ])
+    |Hệ thống Backend|
+    :Rollback $transaction
+    & báo xung đột tồn kho (HTTP 409);
     |Khách hàng (Customer)|
     :Hiển thị: Hết nguyên liệu / xung đột!;
-  else (Đủ)
+  else ([Đủ])
     |Cổng thanh toán|
     :12. Cổng thanh toán xử lý trừ tiền
-    (giả lập: OK / FAIL / TIMEOUT);
-
-    if (Thanh toán thành công?) then (Thất bại)
-      :Báo thất bại / TIMEOUT;
-      |Hệ thống Backend|
-      :Rollback kho, cập nhật PAYMENT_FAILED & audit log;
+    (OK / FAIL / TIMEOUT);
+    |Hệ thống Backend|
+    if (Kết quả từ cổng thanh toán?) then ([FAIL / TIMEOUT])
+      :Rollback $transaction trừ kho;
+      :TX độc lập: cập nhật PAYMENT_FAILED
+      & audit log (HTTP 400 / 408);
       |Khách hàng (Customer)|
       :Hiển thị: Thanh toán thất bại!;
-    else (Thành công)
-      break
+    else ([OK])
+      |Hệ thống Backend|
+      :13. Commit $transaction (ACID):
+      tạo Payment (SUCCESS), đơn -> PAID,
+      voucher +1, cộng điểm (1đ/10.000đ), audit log;
     endif
   endif
-repeat while (Thử lại hay hủy?) is (Thử lại) not (Hủy)
 
-|Khách hàng (Customer)|
-if (Kết thúc thanh toán?) then (Chọn Hủy)
-  :Hủy đơn chưa thanh toán (POST /api/orders/:id/cancel);
+  |Khách hàng (Customer)|
+repeat while (Chưa PAID & khách chọn Thử lại?) is ([Thử lại]) not ([Đã PAID / Hủy])
+
+if (Đơn đã thanh toán?) then ([Chưa thanh toán – khách chọn Hủy])
+  |Khách hàng (Customer)|
+  :Hủy đơn chưa thanh toán
+  (POST /api/orders/:id/cancel);
   |Hệ thống Backend|
-  :Kiểm tra chủ đơn & trạng thái PENDING / PAYMENT_FAILED
-  -> CANCELLED + hoàn điểm đã dùng & ghi audit log;
+  :Kiểm tra chủ đơn & PENDING / PAYMENT_FAILED
+  -> CANCELLED + hoàn điểm đã dùng & audit log;
   stop
-else (Đã thanh toán)
-  |Hệ thống Backend|
-  :13. Commit ACID: tạo Payment, đơn -> PAID,
-  voucher +1, cộng điểm (1đ/10.000đ), ghi audit log;
+else ([Đã thanh toán])
 endif
 
 |Khách hàng (Customer)|
 :14. Màn hình Đặt thành công & Mã đơn (PAID);
 
-if (Hủy đơn trước pha chế?) then (Hủy)
+if (Hủy đơn trước pha chế?) then ([Hủy])
+  |Khách hàng (Customer)|
   :Hủy đơn (POST /api/orders/:id/cancel);
   |Hệ thống Backend|
-  if (Kiểm tra chủ đơn & State Machine: đơn còn PAID?) then (Đang PAID)
-    :Hoàn kho nguyên liệu, hoàn điểm đã dùng & thu hồi điểm đã tích,
-    hoàn lượt voucher -> CANCELLED + audit log;
+  if (Đơn còn trạng thái PAID?) then ([Đang PAID])
+    |Hệ thống Backend|
+    :Hoàn kho, hoàn điểm đã dùng,
+    thu hồi điểm đã tích, hoàn voucher
+    -> CANCELLED + audit log;
     stop
-  else (Đã PREPARING+)
+  else ([Đã PREPARING+])
     |Khách hàng (Customer)|
-    :Hiển thị thông báo: Đơn đang pha, không thể hủy;
-    :Chờ pha chế xong (polling 2s trên /orders/:id);
+    :Hiển thị: Đơn đang pha, không thể hủy;
   endif
-else (Không - polling 2s /orders/:id)
+else ([Không hủy])
+endif
+
+|Khách hàng (Customer)|
+fork
+  :Theo dõi tiến độ đơn
+  (polling 2s GET /api/orders/:id);
+fork again
   |Nhân viên quầy (Barista)|
   :15. Nhận đơn PAID (Kanban FIFO);
   :16. Bấm Tiếp nhận: PAID -> PREPARING;
   :17. Xem Recipes & Pha chế;
-endif
-
-|Nhân viên quầy (Barista)|
-:18. Pha xong: PREPARING -> READY;
+  :18. Pha xong: PREPARING -> READY;
+end fork
 
 |Khách hàng (Customer)|
 :19. Thông báo: "Đồ uống sẵn sàng!";
@@ -140,7 +191,7 @@ READY -> COMPLETED;
 
 |Khách hàng (Customer)|
 :22. Nhận đồ uống & Thưởng thức;
-:23. (Tùy chọn) Đánh giá món sau khi hoàn tất
-(chỉ đơn COMPLETED qua KiemTraDaMua — POST/PATCH/DELETE /api/reviews);
+:23. (Tùy chọn) Đánh giá món
+(chỉ đơn COMPLETED — /api/reviews);
 stop
 @enduml
