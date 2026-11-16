@@ -14,6 +14,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { MockGatewayService } from './mock-gateway/mock-gateway.service';
 import { assertTransition } from '../orders/order-state-machine';
 import { OrderStatus, PaymentMethod, PaymentStatus } from '@prisma/client';
+import { getToppingIngredientRequirement } from '../products/constants/toppings.constant';
 
 /**
  * =========================================================================================
@@ -251,6 +252,27 @@ export class PaymentService {
           const current = ingredientRequirements.get(ingId) || { qty: 0, name: recipe.ingredient.name };
           current.qty += required;
           ingredientRequirements.set(ingId, current);
+        }
+
+        // Cộng thêm định lượng nguyên liệu của các topping chọn thêm (nếu có)
+        const extraToppings = Array.isArray((item as any).toppings) ? ((item as any).toppings as string[]) : [];
+        if (extraToppings.length > 0 && typeof this.prisma.ingredient?.findMany === 'function') {
+          const toppingReqs = extraToppings
+            .map((t) => getToppingIngredientRequirement(t))
+            .filter((r): r is { ingredientName: string; qty: number } => Boolean(r));
+          if (toppingReqs.length > 0) {
+            const matchedIngredients = await this.prisma.ingredient.findMany({
+              where: { name: { in: toppingReqs.map((r) => r.ingredientName) } },
+            });
+            for (const req of toppingReqs) {
+              const ing = matchedIngredients.find((i) => i.name === req.ingredientName);
+              if (ing) {
+                const current = ingredientRequirements.get(ing.id) || { qty: 0, name: ing.name };
+                current.qty += req.qty * item.quantity;
+                ingredientRequirements.set(ing.id, current);
+              }
+            }
+          }
         }
       }
 

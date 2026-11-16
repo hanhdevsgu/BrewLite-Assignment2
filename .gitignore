@@ -56,3 +56,12 @@ cloudflared*
 example_screenshot.png
 
 Usecase/
+
+# Local HTTPS dev certs, scratch docs, and ad-hoc Postman exports (keep Assignment 2 repo clean)
+/*.drawio
+https-proxy.js
+ssl/
+*.doc
+docs/*.postman_*.json
+docs/BrewLite_Postman_Test_Report.html
+scripts/build-postman-full.js

@@ -18,9 +18,11 @@ const globalForMbPayments = globalThis as typeof globalThis & {
 async function queryBackendCheck(
   baseUrls: string[],
   code: string,
+  expectedAmount: number | null,
   timeoutMs: number,
 ): Promise<{ paid: boolean; payment?: MbPaymentRecord } | null> {
-  const path = `/payments/mbbank-check/${encodeURIComponent(code)}`;
+  const qs = expectedAmount && expectedAmount > 0 ? `?expectedAmount=${expectedAmount}` : '';
+  const path = `/payments/mbbank-check/${encodeURIComponent(code)}${qs}`;
   for (const baseUrl of baseUrls) {
     try {
       const res = await fetch(buildEndpointUrl(baseUrl, path), {
@@ -42,20 +44,23 @@ async function queryBackendCheck(
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ orderCode: string }> },
 ) {
   const { orderCode } = await params;
   const code = String(orderCode || '').toUpperCase().trim();
+  const url = new URL(request.url);
+  const rawExpected = url.searchParams.get('expectedAmount');
+  const expectedAmount = rawExpected && Number.isFinite(Number(rawExpected)) ? Number(rawExpected) : null;
 
   const { configured, localFallbacks } = getBackendApiTargets();
-  const remoteMatch = await queryBackendCheck(configured, code, 4500);
+  const remoteMatch = await queryBackendCheck(configured, code, expectedAmount, 4500);
   if (remoteMatch) {
     return NextResponse.json({ success: true, data: remoteMatch });
   }
 
   if (configured.length === 0) {
-    const localMatch = await queryBackendCheck(localFallbacks, code, 1000);
+    const localMatch = await queryBackendCheck(localFallbacks, code, expectedAmount, 1000);
     if (localMatch) {
       return NextResponse.json({ success: true, data: localMatch });
     }
@@ -78,6 +83,12 @@ export async function GET(
     }
 
     if (payment && Date.now() - payment.time < 300000) {
+      if (expectedAmount && expectedAmount > 0 && Number(payment.amount) < expectedAmount) {
+        return NextResponse.json({
+          success: true,
+          data: { paid: false, reason: 'UNDERPAID', receivedAmount: payment.amount, expectedAmount },
+        });
+      }
       return NextResponse.json({
         success: true,
         data: { paid: true, payment },
