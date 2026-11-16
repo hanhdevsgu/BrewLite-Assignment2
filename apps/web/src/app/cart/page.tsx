@@ -137,6 +137,41 @@ export default function CartPage() {
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
   const [vouchers, setVouchers] = useState<AvailableVoucher[]>([]);
+  const [outOfStockVariantIds, setOutOfStockVariantIds] = useState<Set<string>>(new Set());
+
+  // Kiểm tra tồn kho thời gian thực cho các món trong giỏ hàng
+  useEffect(() => {
+    let cancelled = false;
+    const checkCartStock = async () => {
+      if (items.length === 0) {
+        if (!cancelled) setOutOfStockVariantIds(new Set());
+        return;
+      }
+      try {
+        const res = await fetchApi<{ items?: Array<{ variants?: Array<{ id: string; isOutOfStock?: boolean }> }> }>('/products?limit=100');
+        const list = Array.isArray(res) ? res : (res?.items || []);
+        const oos = new Set<string>();
+        for (const p of list) {
+          for (const v of p.variants || []) {
+            if (v.isOutOfStock) oos.add(v.id);
+          }
+        }
+        if (!cancelled) setOutOfStockVariantIds(oos);
+      } catch {
+        // Bỏ qua lỗi mạng tạm thời
+      }
+    };
+    checkCartStock();
+    const iv = setInterval(checkCartStock, 5000);
+    window.addEventListener('focus', checkCartStock);
+    return () => {
+      cancelled = true;
+      clearInterval(iv);
+      window.removeEventListener('focus', checkCartStock);
+    };
+  }, [items.length]);
+
+  const hasOutOfStockCartItem = items.some((item) => outOfStockVariantIds.has(item.variantId));
 
   useEffect(() => {
     setMounted(true);
@@ -427,6 +462,11 @@ export default function CartPage() {
                   <h3 className="font-medium text-sm text-ink truncate">
                     {item.productName}
                   </h3>
+                  {outOfStockVariantIds.has(item.variantId) && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-danger-soft text-danger border border-danger/30 text-[11px] font-semibold">
+                      ⛔ Món này vừa hết nguyên liệu — Vui lòng xóa khỏi giỏ
+                    </span>
+                  )}
                   <p className="text-xs text-ink-2">
                     Size: <span className="font-semibold text-ink">{item.size}</span>
                     {item.topping && item.topping !== 'Tiêu chuẩn' && (
@@ -849,9 +889,18 @@ export default function CartPage() {
               </div>
             )}
 
+            {/* Out-of-Stock Warning */}
+            {hasOutOfStockCartItem && (
+              <div className="p-3 bg-danger-soft border border-danger/30 rounded-lg text-[11.5px] text-danger font-medium leading-relaxed flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>Một số món trong giỏ vừa hết nguyên liệu (do khách khác vừa đặt hết). Vui lòng xóa món hết hàng trước khi thanh toán.</span>
+              </div>
+            )}
+
             <Button
               variant={user ? "primary" : "secondary"}
               size="md"
+              disabled={hasOutOfStockCartItem}
               onClick={handleProceedToCheckout}
               className={`w-full gap-2 font-semibold text-xs py-3 ${
                 user && finalTotal === 0 ? 'bg-emerald-600 hover:bg-emerald-700 text-white font-bold' : ''

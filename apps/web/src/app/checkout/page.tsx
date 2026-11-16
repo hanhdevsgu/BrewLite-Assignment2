@@ -256,6 +256,41 @@ function CheckoutContent() {
     ? Number(retryOrder.totalAfterDiscount || 0)
     : Math.max(0, subtotal - discountAmount);
   const hasPayableOrder = activeItems.length > 0 || !!retryOrder || paymentStatus === 'SUCCESS';
+  const [outOfStockItemNames, setOutOfStockItemNames] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (paymentStatus === 'SUCCESS' || activeItems.length === 0) {
+      setOutOfStockItemNames([]);
+      return;
+    }
+    let cancelled = false;
+    const checkCheckoutStock = async () => {
+      try {
+        const res = await fetchApi<{ items?: Array<{ variants?: Array<{ id: string; isOutOfStock?: boolean }> }> }>('/products?limit=100');
+        const list = Array.isArray(res) ? res : (res?.items || []);
+        const oosIds = new Set<string>();
+        for (const p of list) {
+          for (const v of p.variants || []) {
+            if (v.isOutOfStock) oosIds.add(v.id);
+          }
+        }
+        const oosNames = activeItems
+          .filter((item) => oosIds.has(item.variantId))
+          .map((item) => `${item.productName} (Size ${item.size})`);
+        if (!cancelled) setOutOfStockItemNames(oosNames);
+      } catch {
+        // Bỏ qua lỗi mạng tạm thời
+      }
+    };
+    checkCheckoutStock();
+    const iv = setInterval(checkCheckoutStock, 4000);
+    window.addEventListener('focus', checkCheckoutStock);
+    return () => {
+      cancelled = true;
+      clearInterval(iv);
+      window.removeEventListener('focus', checkCheckoutStock);
+    };
+  }, [activeItems, paymentStatus]);
   const [orderCodeDisplay, setOrderCodeDisplay] = useState<string>(() => {
     if (typeof window !== 'undefined') {
       const saved =
@@ -980,7 +1015,29 @@ function CheckoutContent() {
       )}
 
       {/* KHI ĐƠN HÀNG CÓ TỔNG TIỀN BẰNG 0Đ (THANH TOÁN 100% BẰNG VOUCHER / ĐIỂM THƯỞNG) */}
-      {(paymentStatus as string) === 'SUCCESS' ? null : finalTotal === 0 ? (
+      {(paymentStatus as string) === 'SUCCESS' ? null : outOfStockItemNames.length > 0 ? (
+        <div className="bg-surface border-2 border-danger rounded-2xl p-6 sm:p-8 shadow-sm text-center space-y-4 animate-fade-in max-w-2xl mx-auto">
+          <div className="w-14 h-14 bg-danger-soft text-danger rounded-full flex items-center justify-center mx-auto">
+            <AlertCircle className="w-8 h-8" />
+          </div>
+          <div className="space-y-1.5 max-w-lg mx-auto">
+            <h3 className="font-display font-bold text-lg text-danger">
+              Món trong đơn vừa hết nguyên liệu!
+            </h3>
+            <p className="text-xs sm:text-sm text-ink-2 leading-relaxed">
+              Rất tiếc, nguyên liệu để pha chế <b>{outOfStockItemNames.join(', ')}</b> vừa được khách khác đặt hết. Hệ thống đã khóa thanh toán &amp; mã QR để tránh thanh toán nhầm.
+            </p>
+          </div>
+          <div className="flex items-center justify-center gap-3 pt-2">
+            <Link href="/cart">
+              <Button variant="primary" size="sm">Quay lại Giỏ hàng</Button>
+            </Link>
+            <Link href="/">
+              <Button variant="secondary" size="sm">Xem Thực đơn</Button>
+            </Link>
+          </div>
+        </div>
+      ) : finalTotal === 0 ? (
         <div className="bg-surface border-2 border-emerald-500 rounded-2xl p-6 sm:p-8 shadow-sm text-center space-y-5 animate-fade-in max-w-2xl mx-auto">
           <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto text-3xl shadow-sm">
             🎁
