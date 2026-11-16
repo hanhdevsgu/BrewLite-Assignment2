@@ -209,7 +209,7 @@ describe('OrdersService - Task 6: API tạo đơn hàng (POST /orders)', () => {
     ).rejects.toThrow(BadRequestException);
   });
 
-  it('7. Chặn cộng dồn quá 1 voucher đơn hàng thường và không lưu virtual-* làm FK promotionId', async () => {
+  it('7. Chặn cộng dồn quá 2 voucher và không lưu virtual-* làm FK promotionId', async () => {
     prismaMock.productVariant.findMany.mockResolvedValue([
       {
         id: 'var-1',
@@ -223,7 +223,7 @@ describe('OrdersService - Task 6: API tạo đơn hàng (POST /orders)', () => {
     await expect(
       service.createOrder('cust-123', {
         items: [{ variantId: 'var-1', quantity: 2 }],
-        promotionCode: 'BREW10,GIAM20K',
+        promotionCode: 'BREW10,GIAM20K,BANMOI',
       }),
     ).rejects.toThrow(BadRequestException);
 

@@ -624,16 +624,21 @@ export default function CartPage() {
                   const appliedCount = promotions.length > 0 ? promotions.length : (promotion ? 1 : 0);
                   const isMaxVouchersReached = !isApplied && appliedCount >= 2;
                   const isMaxDiscountReached = !isApplied && remainingAfterVoucher <= 0;
+                  const estVoucherDiscount =
+                    v.discountType === 'PERCENT'
+                      ? Math.min(Math.round((remainingAfterVoucher * v.discountValue) / 100), v.maxDiscount || Infinity)
+                      : v.discountValue;
+                  const wouldReduceToZero = !isApplied && remainingAfterVoucher - estVoucherDiscount <= 0;
                   const isMinOrderMet = subtotal >= v.minOrderValue && remainingAfterVoucher >= v.minOrderValue;
 
                   // Mã không phù hợp / bị tối mờ / không được chọn:
                   // 1. Đã chọn đủ tối đa 2 voucher cộng dồn
-                  // 2. Tổng tiền còn lại sau giảm đã về 0đ (đạt mức giảm tối đa)
+                  // 2. Tổng tiền còn lại sau giảm đã về 0đ hoặc voucher làm đơn về 0đ (chỉ điểm thưởng mới được trừ về 0đ)
                   // 3. Ngoài giờ vàng (HAPPYHOUR 14h-17h)
                   // 4. Tiền hàng / phần còn lại chưa đạt đơn tối thiểu của voucher
                   const isUnavailable =
                     !isApplied &&
-                    (isMaxVouchersReached || isMaxDiscountReached || !isHappyHourValidTime || !isMinOrderMet);
+                    (isMaxVouchersReached || isMaxDiscountReached || wouldReduceToZero || !isHappyHourValidTime || !isMinOrderMet);
 
                   const appliedPromo = promotions.find((p) => p.code.toUpperCase() === v.code.toUpperCase());
                   const appliedAmount = appliedPromo?.discountAmount || (v.discountType === 'FIXED' ? v.discountValue : 0);
@@ -642,6 +647,8 @@ export default function CartPage() {
                     ? 'Đã chọn ✓'
                     : isMaxDiscountReached
                     ? 'Đã giảm hết'
+                    : wouldReduceToZero
+                    ? 'Không về 0đ'
                     : isMaxVouchersReached
                     ? 'Tối đa 2 mã'
                     : !isHappyHourValidTime

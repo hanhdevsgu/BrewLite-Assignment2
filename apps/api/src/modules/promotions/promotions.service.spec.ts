@@ -50,10 +50,10 @@ describe('PromotionsService (Khuyến Mãi & Giảm Giá - Task 10)', () => {
       status: 'ACTIVE',
     });
 
-    // Đơn 15.000đ nhưng mã giảm 20.000đ -> Giảm tối đa 15.000đ, tổng tiền còn 0đ
-    const result = await service.validatePromotion('FIXED20K', 15000);
-    expect(result.discountAmount).toBe(15000);
-    expect(result.finalTotal).toBe(0);
+    // Đơn 15.000đ nhưng mã giảm 20.000đ -> Chặn vì voucher không được giảm đơn về 0đ
+    await expect(service.validatePromotion('FIXED20K', 15000)).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('từ chối GIAM20K khi đơn hàng nhỏ hơn mức tối thiểu 60.000đ (nhất quán rule sản xuất)', async () => {

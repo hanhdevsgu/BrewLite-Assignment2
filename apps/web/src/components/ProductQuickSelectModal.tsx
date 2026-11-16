@@ -650,7 +650,12 @@ export const ProductQuickSelectModal: React.FC<ProductQuickSelectModalProps> = (
                 {SHOP_VOUCHERS.map((v) => {
                   const isSelected = selectedVoucherCodes.includes(v.code);
                   const remainingAfterDiscount = Math.max(0, totalPrice - voucherDiscount);
-                  const isEligible = totalPrice >= v.minOrder && (isSelected || remainingAfterDiscount >= v.minOrder);
+                  const estDiscount =
+                    v.discountType === 'PERCENT'
+                      ? Math.min(Math.round((remainingAfterDiscount * v.discountValue) / 100), v.maxDiscount || Infinity)
+                      : v.discountValue;
+                  const wouldReduceToZero = !isSelected && remainingAfterDiscount - estDiscount <= 0;
+                  const isEligible = totalPrice >= v.minOrder && (isSelected || (remainingAfterDiscount >= v.minOrder && !wouldReduceToZero));
                   const isMaxDiscount = remainingAfterDiscount <= 0 && !isSelected;
                   const isMaxCount = selectedVoucherCodes.length >= 2 && !isSelected;
                   const disabled = !isEligible || isMaxDiscount || isMaxCount;
