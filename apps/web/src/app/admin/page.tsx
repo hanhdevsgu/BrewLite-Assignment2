@@ -66,6 +66,25 @@ import { useRequireRole } from '@/hooks/useRequireRole';
 
 type AdminTab = 'overview' | 'products' | 'inventory' | 'promotions' | 'reviews' | 'users';
 
+const FIXED_INGREDIENT_UNIT_PRICES: Record<string, number> = {
+  'Cà phê hạt Robusta': 250,
+  'Cà phê hạt Arabica': 380,
+  'Sữa đặc Ngôi Sao': 65,
+  'Sữa tươi thanh trùng DalatMilk': 38,
+  'Trà đen Ceylon': 320,
+  'Trà Ô Long Mộc Châu': 420,
+  'Đào ngâm miếng giòn': 95,
+  'Trân châu đường đen': 85,
+  'Kem cheese Macchiato': 140,
+  'Nước đường bắp tự nhiên': 45,
+  'Trứng gà tươi Ba Vì': 4000,
+};
+
+function getFixedIngredientUnitPrice(name?: string): number {
+  if (!name) return 100;
+  return FIXED_INGREDIENT_UNIT_PRICES[name] ?? 100;
+}
+
 const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === 'true';
 
 const PRESET_PRODUCT_IMAGES = [
@@ -350,7 +369,8 @@ export default function AdminDashboardPage() {
     setImportError(null);
 
     const qty = Number(importQuantity);
-    const unitPrice = Number(importUnitPrice);
+    const selectedIng = ingredients.find((i) => i.id === selectedIngredientId);
+    const unitPrice = getFixedIngredientUnitPrice(selectedIng?.name);
 
     if (!selectedSupplierId) {
       setImportError('Vui lòng chọn nhà cung cấp.');
@@ -812,9 +832,10 @@ export default function AdminDashboardPage() {
   ];
 
   const activeSelectedIng = ingredients.find((i) => i.id === selectedIngredientId);
+  const fixedImportUnitPrice = getFixedIngredientUnitPrice(activeSelectedIng?.name);
   const currentStockNum = Number(activeSelectedIng?.stockQuantity || 0);
   const importQtyNum = Number(importQuantity) || 0;
-  const estimatedImportTotal = importQtyNum * (Number(importUnitPrice) || 0);
+  const estimatedImportTotal = importQtyNum * fixedImportUnitPrice;
   const afterImportStock = currentStockNum + importQtyNum;
 
   const maxDayRevenue = Math.max(
@@ -1721,13 +1742,11 @@ export default function AdminDashboardPage() {
               placeholder="VD: 5000"
             />
             <Input
-              label="Đơn vị giá nhập (VNĐ)"
-              type="number"
-              min="1"
-              required
-              value={importUnitPrice}
-              onChange={(e) => setImportUnitPrice(e.target.value)}
-              placeholder="10000"
+              label="Đơn giá NCC cố định (VNĐ)"
+              type="text"
+              readOnly
+              value={`${fixedImportUnitPrice.toLocaleString('vi-VN')} đ / ${activeSelectedIng?.unit || 'đơn vị'}`}
+              className="bg-surface-2 text-ink-2 cursor-not-allowed font-mono"
             />
           </div>
 
