@@ -2236,80 +2236,98 @@ export default function AdminDashboardPage() {
                     Món này chưa có công thức định lượng chi tiết. Bạn có thể thêm nguyên liệu bên dưới!
                   </div>
                 ) : (
-                  <div className="divide-y divide-line border border-line rounded bg-surface">
-                    {productRecipes.map((r) => (
-                      <div key={r.id} className="p-3 flex items-center justify-between gap-4">
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-mono text-[11px] font-bold bg-espresso text-espresso-text px-2 py-0.5 rounded whitespace-nowrap shrink-0">
-                              Size {r.variant?.size || 'S'}
-                            </span>
-                            <span className="text-[11px] font-medium text-ink-2 bg-surface-2 border border-line px-2 py-0.5 rounded whitespace-nowrap shrink-0">
-                              {(r.variant as { topping?: string } | undefined)?.topping || 'Tiêu chuẩn'}
-                            </span>
-                            <span className="font-medium text-ink text-sm">{r.ingredient?.name}</span>
-                          </div>
-                          <span className="text-[11px] text-ink-3 mt-1 block">
-                            Tồn kho còn: {Number(r.ingredient?.stockQuantity || 0).toLocaleString('vi-VN')} {r.ingredient?.unit}
+                  <div className="space-y-3">
+                    {Object.entries(
+                      productRecipes.reduce<Record<string, { label: string; size: string; topping: string; rows: typeof productRecipes }>>(
+                        (acc, r) => {
+                          const vId = r.variantId || r.variant?.id || 'default';
+                          const size = r.variant?.size || 'S';
+                          const topping = (r.variant as { topping?: string } | undefined)?.topping || 'Tiêu chuẩn';
+                          if (!acc[vId]) {
+                            acc[vId] = { label: `Size ${size} · ${topping}`, size, topping, rows: [] };
+                          }
+                          acc[vId].rows.push(r);
+                          return acc;
+                        },
+                        {}
+                      )
+                    ).map(([variantId, group]) => (
+                      <div key={variantId} className="border border-line rounded-lg bg-surface overflow-hidden">
+                        <div className="px-3 py-2 bg-surface-2/70 border-b border-line flex items-center gap-2">
+                          <span className="font-mono text-[11px] font-bold bg-espresso text-espresso-text px-2 py-0.5 rounded whitespace-nowrap shrink-0">
+                            Size {group.size}
                           </span>
+                          <span className="text-xs font-semibold text-ink">{group.topping}</span>
                         </div>
+                        <div className="divide-y divide-line">
+                          {group.rows.map((r) => (
+                            <div key={r.id} className="px-3 py-2.5 flex items-center justify-between gap-4">
+                              <div className="min-w-0 flex-1">
+                                <span className="font-medium text-ink text-sm block">{r.ingredient?.name}</span>
+                                <span className="text-[11px] text-ink-3 block">
+                                  Tồn kho còn: {Number(r.ingredient?.stockQuantity || 0).toLocaleString('vi-VN')} {r.ingredient?.unit}
+                                </span>
+                              </div>
 
-                        <div className="flex items-center gap-2 shrink-0">
-                          {editingRecipeId === r.id ? (
-                            <div className="flex items-center gap-1.5">
-                              <input
-                                type="number"
-                                min="1"
-                                value={editingRecipeQty}
-                                onChange={(e) => setEditingRecipeQty(e.target.value)}
-                                className="w-16 h-7 px-1.5 text-xs bg-bg border border-accent rounded font-mono font-bold"
-                              />
-                              <span className="text-ink-2">{r.ingredient?.unit}</span>
-                              <Button
-                                variant="primary"
-                                size="sm"
-                                onClick={() => handleUpdateRecipeQuantity(r.id)}
-                                className="h-7 px-2 text-[11px]"
-                              >
-                                Lưu
-                              </Button>
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => setEditingRecipeId(null)}
-                                className="h-7 px-1.5 text-[11px]"
-                              >
-                                Hủy
-                              </Button>
+                              <div className="flex items-center gap-2 shrink-0">
+                                {editingRecipeId === r.id ? (
+                                  <div className="flex items-center gap-1.5">
+                                    <input
+                                      type="number"
+                                      min="1"
+                                      value={editingRecipeQty}
+                                      onChange={(e) => setEditingRecipeQty(e.target.value)}
+                                      className="w-16 h-7 px-1.5 text-xs bg-bg border border-accent rounded font-mono font-bold"
+                                    />
+                                    <span className="text-ink-2 whitespace-nowrap">{r.ingredient?.unit}</span>
+                                    <Button
+                                      variant="primary"
+                                      size="sm"
+                                      onClick={() => handleUpdateRecipeQuantity(r.id)}
+                                      className="h-7 px-2 text-[11px]"
+                                    >
+                                      Lưu
+                                    </Button>
+                                    <Button
+                                      variant="secondary"
+                                      size="sm"
+                                      onClick={() => setEditingRecipeId(null)}
+                                      className="h-7 px-1.5 text-[11px]"
+                                    >
+                                      Hủy
+                                    </Button>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-mono font-bold text-accent text-sm whitespace-nowrap">
+                                      {Number(r.quantityRequired).toLocaleString('vi-VN')} {r.ingredient?.unit}
+                                    </span>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => {
+                                        setEditingRecipeId(r.id);
+                                        setEditingRecipeQty(String(r.quantityRequired));
+                                      }}
+                                      className="h-7 px-1.5 text-ink-3 hover:text-ink"
+                                      title="Sửa định lượng"
+                                    >
+                                      <Edit3 className="w-3.5 h-3.5" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleDeleteRecipe(r.id)}
+                                      className="h-7 px-1.5 text-danger hover:bg-danger/10"
+                                      title="Xóa khỏi công thức"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                          ) : (
-                            <div className="flex items-center gap-2">
-                              <span className="font-mono font-bold text-accent text-sm whitespace-nowrap">
-                                {Number(r.quantityRequired).toLocaleString('vi-VN')} {r.ingredient?.unit}
-                              </span>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setEditingRecipeId(r.id);
-                                  setEditingRecipeQty(String(r.quantityRequired));
-                                }}
-                                className="h-7 px-1.5 text-ink-3 hover:text-ink"
-                                title="Sửa định lượng"
-                              >
-                                <Edit3 className="w-3.5 h-3.5" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleDeleteRecipe(r.id)}
-                                className="h-7 px-1.5 text-danger hover:bg-danger/10"
-                                title="Xóa khỏi công thức"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </Button>
-                            </div>
-                          )}
+                          ))}
                         </div>
                       </div>
                     ))}
