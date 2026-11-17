@@ -49,7 +49,7 @@ jobs:
       # Step 2: Linting & Type Check (Strict Quality Gate)
       - name: 3. Run Lint Checks (API & Web)
         run: |
-          cd apps/api && npm run lint
+          cd apps/api && npx prisma generate && npm run lint
           cd ../web && npm run lint
 
       # Step 3: Database Migration & Seed Verification
